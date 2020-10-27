@@ -132,7 +132,23 @@ async def getEmojiUsage(ctx, num=None):
 
 @client.command(pass_context=True)
 async def getFullEmojiUsage(ctx):
-    output = ""
+
+        cursor = connection.cursor()
+        cursor.execute("SELECT * FROM emoji")
+
+        data = cursor.fetchall()
+
+        output = ""
+        for i in data:
+                output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
+                
+        outputArr = splitLongMsg(output)
+        for o in outputArr:
+                await ctx.send(o)
+
+        cursor.close()
+        
+'''    output = ""
     names = []
     counts = []
     i = 0
@@ -159,6 +175,7 @@ async def getFullEmojiUsage(ctx):
         if not msg.isspace():
             print(msg)
             await ctx.send(msg)
+'''
 
 
 @client.event
