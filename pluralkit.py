@@ -3,7 +3,7 @@ Functions for interfacing with the Plural Kit API.
 API Endpoint functions include:
     get_pk_system_from_userid -> /a/
     get_pk_message -> /msg/
-Part of the Gabby Gums Discord Logger.
+Part of the Gabby Gums Discord Logger. (Amadea System)
 """
 
 import logging
