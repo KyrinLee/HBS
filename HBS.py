@@ -334,9 +334,9 @@ async def addEmoji(ctx,id):
         emojiData = (emoji.name,emoji.id,emoji.animated,0)
         try:
                 cursor.execute(sql_insert_query, emojiData)
-                ctx.send("Emoji added.")
+                await ctx.send("Emoji added.")
                 cursor.execute("SELECT * FROM emoji WHERE id = %s", (str(id),)
-                ctx.send(cursor.fetchall())
+                await ctx.send(cursor.fetchall())
 
         except:
                 "Emoji addition failed."
