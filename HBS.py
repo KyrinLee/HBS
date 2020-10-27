@@ -27,7 +27,7 @@ client = commands.Bot(
 # ----- Discord Events ----- #
 @client.event
 async def on_ready():
-    await client.get_channel(753349219808444438).send("We have logged in")
+    #await client.get_channel(753349219808444438).send("We have logged in")
     sys.stdout.write("We have logged in.")
     await client.change_presence(activity=discord.Game(name='Sburb'))
 
@@ -92,8 +92,8 @@ async def on_message(message: discord.Message):
                     cursor.execute(get_usage,(e,))
                     use = cursor.fetchall()
                     cursor.execute(update_q, (use[0][0]+1,e))
-                    if message.channel.id == 754527915290525807:
-                            await client.get_channel(754527915290525807).send(str(use[0]))
+                    #if message.channel.id == 754527915290525807:
+                    #        await client.get_channel(754527915290525807).send(str(use[0]))
                                 
     connection.commit()                            
     cursor.close()
@@ -270,16 +270,19 @@ def updateEmojiList(message):
                         newEmojis.append(str(emoji.id))
                         i+=1
 
-        postgreSQL_select_Query = "SELECT id FROM emoji"
+        postgreSQL_select_Query = "SELECT * FROM emoji"
 
         cursor.execute(postgreSQL_select_Query)
         tempEmojis = cursor.fetchall()
 
         oldEmojis = []
         for e in tempEmojis:
-                sys.stdout.write(str(e[0]))
-                oldEmojis.append(e[0])
+                sys.stdout.write(str(e[1]))
+                oldEmojis.append(str(e[1]))
 
+        sys.stdout.write(str(oldEmojis))
+        sys.stdout.write(str(newEmojis))
+        
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
