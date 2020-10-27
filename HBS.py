@@ -91,9 +91,9 @@ async def on_message(message: discord.Message):
             if e in oldEmojis:
                     cursor.execute(get_usage,(e,))
                     use = cursor.fetchall()
-                    cursor.execute(update_q, (use[0]+1,e))
-                    #if ctx.channel.id == 754527915290525807:
-                            #await client.get_channel(754527915290525807).send(e+str(use))
+                    cursor.execute(update_q, (use[0],e))
+                    if message.channel.id == 754527915290525807:
+                            await client.get_channel(754527915290525807).send(str(use[0]))
                                 
     connection.commit()                            
     cursor.close()
