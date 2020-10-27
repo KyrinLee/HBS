@@ -327,10 +327,9 @@ async def updateEmojis(ctx):
 
         cursor.execute(postgreSQL_select_Query)
         oldEmojis = cursor.fetchall()
-        for i in range(0,len(oldEmojis(
-        await ctx.send(oldEmojis[0])
-        await ctx.send(newEmojis[0])
-
+        
+        oldEmojis = [i[0] for i in oldEmojis]
+        
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
