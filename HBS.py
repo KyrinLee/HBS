@@ -277,7 +277,7 @@ def updateEmojiList(message):
 
         oldEmojis = []
         for e in tempEmojis:
-                sys.stdout.write(e[1])
+                #sys.stdout.write(e[1])
                 oldEmojis.append(e[1])
         
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
@@ -321,7 +321,7 @@ async def clearEmojiList(ctx):
         cursor = connection.cursor()
 
         if ctx.message.author.id == 707112913722277899:
-                delete_query = "delete from emoji"
+                delete_query = "DELETE FROM emoji"
                 cursor.execute(delete_query)
                 connection.commit()
                 await ctx.send("Emoji list cleared.")
