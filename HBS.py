@@ -292,7 +292,7 @@ def updateEmojiList(message):
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
                 if message.channel.id == 754527915290525807:
-                        await client.get_channel(754527915290525807).send("Emoji added.")
+                        sys.stdout.write("Emoji added.")
                 addCount = addCount + 1
 
         cursor.close()
