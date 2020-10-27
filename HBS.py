@@ -344,4 +344,4 @@ async def clearEmojiList(ctx):
 async def on_error(event_name, *args):
 	logging.exception("Exception from event {}".format(event_name))
 
-client.run(os.getenv("TOKEN"))
+client.run(os.getenv('TOKEN'))
