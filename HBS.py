@@ -89,15 +89,6 @@ async def on_message(message: discord.Message):
                 await client.get_channel(753349219808444438).send(e+str(use))
                                 
                                 
-    '''if (message.author.id != 753345733377261650):
-        if message.webhook_id is None:
-            for e in emojiIDs:
-                if e in db.keys():
-                    #print(db[e])
-                    db[e] = str(int(db[e]) + 1)
-                    #print(db[e])
-        #print(db[e])
-        '''
     cursor.close()
     await client.process_commands(message)
 
@@ -334,6 +325,23 @@ async def clearEmojiList(ctx):
 
     cursor.close()
 
+@client.command(pass_context=True)
+async def addEmoji(ctx,id):
+        cursor = connection.cursor()
+        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
+        emoji = client.get_emoji(id)
+        
+        emojiData = (emoji.name,emoji.id,emoji.animated,0)
+        try:
+                cursor.execute(sql_insert_query, emojiData)
+                ctx.send("Emoji added.")
+                cursor.execute("SELECT * FROM emoji WHERE id = %s", (str(id),)
+                ctx.send(cursor.fetchall())
+
+        except:
+                "Emoji addition failed."
+
+        cursor.close()
 
 @client.command(pass_context=True)
 async def createEmojiTable(ctx):
