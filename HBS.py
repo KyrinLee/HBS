@@ -92,8 +92,8 @@ async def on_message(message: discord.Message):
                     cursor.execute(get_usage,(e,))
                     use = cursor.fetchall()
                     cursor.execute(update_q, (use[0],e))
-                    if ctx.channel.id == 754527915290525807:
-                            await client.get_channel(754527915290525807).send(e+str(use))
+                    #if ctx.channel.id == 754527915290525807:
+                            #await client.get_channel(754527915290525807).send(e+str(use))
                                 
     connection.commit()                            
     cursor.close()
