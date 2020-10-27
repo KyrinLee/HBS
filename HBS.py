@@ -14,8 +14,8 @@ import pluralKit as pk
 import sys
 
 from dotenv import load_dotenv
-project_folder = os.path.expanduser('~/my-project-dir')  # adjust as appropriate
-load_dotenv('.env')
+load_dotenv()
+
 '''
 import mysql.connector  #upm package(mysql-connector)
 
