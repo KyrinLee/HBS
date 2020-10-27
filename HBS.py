@@ -48,8 +48,7 @@ client = commands.Bot(
 # ----- Discord Events ----- #
 @client.event
 async def on_ready():
-	print('We have logged in as {0.user}'.format(client))
-	sys.stdout.flush()
+	sys.stdout('We have logged in as {0.user}'.format(client))
 	await client.change_presence(activity=discord.Game(name='Sburb'))
 
 
