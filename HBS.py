@@ -15,7 +15,7 @@ import os
 from dotenv import load_dotenv
 project_folder = os.path.expanduser('~/my-project-dir')  # adjust as appropriate
 load_dotenv('.env')
-
+'''
 import mysql.connector  #upm package(mysql-connector)
 
 mydb = mysql.connector.connect(
@@ -41,7 +41,7 @@ for key in db.keys():
 mydb.commit()
 
 print(mycursor.rowcount, "record inserted.")
-
+'''
 client = commands.Bot(
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
 
@@ -50,6 +50,7 @@ client = commands.Bot(
 @client.event
 async def on_ready():
 	print('We have logged in as {0.user}'.format(client))
+	sys.stdout.flush()
 	await client.change_presence(activity=discord.Game(name='Sburb'))
 
 
