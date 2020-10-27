@@ -285,7 +285,6 @@ def updateEmojiList(message):
         oldEmojis = cursor.fetchall()
 
         oldEmojis = [i[0] for i in oldEmojis]
-        message.channel.send(oldEmojis[0])
         message.channel.send(newEmojis[0])
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
