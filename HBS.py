@@ -65,7 +65,7 @@ async def on_message(message: discord.Message):
 
     cursor = connection.cursor()
     postgreSQL_select_Query = "SELECT id FROM emoji"
-    update_q = "UPDATE usage SET usage = %s WHERE id = %s"
+    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
     get_usage = "SELECT usage FROM emoji WHERE id=%s"
 
     cursor.execute(postgreSQL_select_Query)
