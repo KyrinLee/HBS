@@ -342,4 +342,16 @@ async def clearEmojiList(ctx):
 async def on_error(event_name, *args):
 	logging.exception("Exception from event {}".format(event_name))
 
-client.run(os.getenv("TOKEN"))
+
+token host usr password dbname
+
+filepath = 'keys.txt'
+with open(filepath) as fp:
+   	token = fp.readline()
+   	host = fp.readline()
+	username = fp.readline()
+	pwd = fp.readline()
+	dbname = fp.readline()
+	fp.close()
+
+client.run(token)
