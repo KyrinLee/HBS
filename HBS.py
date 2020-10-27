@@ -20,9 +20,6 @@ global addCount
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
-connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-
 client = commands.Bot(
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
 
@@ -64,6 +61,8 @@ async def on_message(message: discord.Message):
 
 #EMOJI HANDLING
 
+    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
     cursor = connection.cursor()
     postgreSQL_select_Query = "select id from emoji"
     update_q = "UPDATE usage SET usage = usage + 1 WHERE id = %s"
@@ -95,8 +94,9 @@ async def on_message(message: discord.Message):
                 if ctx.channel.id == 754527915290525807:
                         await client.get_channel(754527915290525807).send(e+str(use))
                                 
-                                
+    connection.commit()                            
     cursor.close()
+    connection.close()
     await client.process_commands(message)
 
 
@@ -139,7 +139,8 @@ async def getEmojiUsage(ctx, num=None):
 
 @client.command(pass_context=True)
 async def getFullEmojiUsage(ctx):
-
+        
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM emoji")
 
@@ -153,8 +154,10 @@ async def getFullEmojiUsage(ctx):
         for o in outputArr:
                 await ctx.send(o)
 
+        connection.commit()
         cursor.close()
-
+        connection.close()
+        
 @client.event
 async def on_raw_reaction_add(payload):
     '''if payload.emoji.name == "❌":
@@ -251,8 +254,10 @@ async def botnick(ctx, *, name):
 
 
 def updateEmojiList(message):
-
+        
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
+        
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
         sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
         
@@ -289,7 +294,10 @@ def updateEmojiList(message):
                 cursor.execute(sql_insert_query, record_to_insert)
                 addCount = addCount + 1
 
+        connection.commit()
         cursor.close()
+        connection.close()
+        
         return (str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
@@ -307,21 +315,25 @@ async def updateEmojis(ctx):
 
 @client.command(pass_context=True)
 async def clearEmojiList(ctx):
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
 
-    cursor = connection.cursor()
-        
-    if ctx.message.author.id == 707112913722277899:
-        delete_query = "delete from emoji"
-        cursor.execute(delete_query)
+        if ctx.message.author.id == 707112913722277899:
+                delete_query = "delete from emoji"
+                cursor.execute(delete_query)
+                connection.commit()
+                await ctx.send("Emoji list cleared.")
+
+        else:
+                await ctx.send("You do not have the permissions for this command.")
+
         connection.commit()
-        await ctx.send("Emoji list cleared.")
-    else:
-        await ctx.send("You do not have the permissions for this command.")
-
-    cursor.close()
+        cursor.close()
+        connection.close()
 
 @client.command(pass_context=True)
 async def addEmoji(ctx,id):
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
         emoji = client.get_emoji(int(id))
@@ -337,10 +349,12 @@ async def addEmoji(ctx,id):
                 "Emoji addition failed."
 
         cursor.close()
+        connection.close()
 
 @client.command(pass_context=True)
 async def createEmojiTable(ctx):
 
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         try:
     
                 cursor = connection.cursor()
@@ -363,7 +377,8 @@ async def createEmojiTable(ctx):
                 #closing database connection.
                         if(connection):
                                 cursor.close()
-                                print("PostgreSQL cursor is closed")
+                                connection.close()
+                                print("PostgreSQL connection is closed")
 
 
 @client.event
