@@ -284,7 +284,7 @@ def updateEmojiList(message):
         cursor.execute(postgreSQL_select_Query)
         oldEmojis = cursor.fetchall()
 
-        oldEmojis = [i[0] for i in oldEmojis]
+        oldEmojis = [e[0] for e in oldEmojis]
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
@@ -300,6 +300,8 @@ def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
+                if message.channel.id == 754527915290525807:
+                        await client.get_channel(754527915290525807).send("Emoji added.")
                 addCount = addCount + 1
 
         cursor.close()
