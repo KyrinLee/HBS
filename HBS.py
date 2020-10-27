@@ -12,6 +12,8 @@ import sys
 
 import os
 import psycopg2
+from boto.s3.connection import S3Connection
+
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -326,4 +328,4 @@ async def on_error(event_name, *args):
 with open('config.json') as json_data_file:
         config = json.load(json_data_file)
 
-client.run(config["TOKEN"])
+client.run(os.environ("token"))
