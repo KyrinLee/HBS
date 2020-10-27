@@ -10,33 +10,14 @@ import pk
 
 import sys
 
-'''
-import mysql.connector  
+import os
+import psycopg2
 
-mydb = mysql.connector.connect(
-     user=os.getenv("USER"), password=os.getenv("PWD"),
-     host=os.getenv("HOST"), port="5432",
-     database=os.getenv("DBNAME"))
+DATABASE_URL = os.environ['DATABASE_URL']
 
-mycursor = mydb.cursor()
+conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
-mycursor.execute("CREATE TABLE emoji (name VARCHAR(30), id VARCHAR(30))")
 
-mycursor.execute("SELECT * FROM emoji")
-
-myresult = mycursor.fetchall()
-
-for x in myresult:
-	print(x)
-
-sys.stdout.flush()
-mycursor.execute("INSERT INTO emoji (emojiID, emojiUsage) VALUES (1,1)")
-
-mydb.commit()
-
-#print(mycursor.rowcount, "record inserted.")
-
-'''
 client = commands.Bot(
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
 
