@@ -269,6 +269,7 @@ def updateEmojiList(message):
         cursor.execute(postgreSQL_select_Query)
         tempEmojis = cursor.fetchall()
 
+        oldEmojis = []
         for e in tempEmojis:
                 oldEmojis.append(e[0])
 
