@@ -21,7 +21,7 @@ conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
 client = commands.Bot(
-    command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
+	command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
 
 
 # ----- Discord Events ----- #
@@ -54,8 +54,8 @@ def splitLongMsg(txt, limit):
 @client.event
 async def on_message(message: discord.Message):
 	if message.author.id != client.user.id and message.author.id == 480855402289037312 and (
-	    message.content == "<:vriska:480855644388458497>"
-	    or message.content == ":vriska:" or message.content == ":eye:"):
+		message.content == "<:vriska:480855644388458497>"
+		or message.content == ":vriska:" or message.content == ":eye:"):
 		await message.delete()
 
 	emojis = re.findall(r'<:\w*:\d*>', message.content)
@@ -90,7 +90,7 @@ async def on_message(message: discord.Message):
 '''@client.command(pass_context=True)
 async def sendEmoji(ctx, id):
   if (ctx.author.id == client.owner_id):
-    await ctx.send(str(client.get_emoji(id)))
+	await ctx.send(str(client.get_emoji(id)))
 '''
 
 
@@ -197,7 +197,7 @@ async def on_raw_reaction_add(payload):
 async def getWebhooks(ctx):
 	if (ctx.author.id == client.owner_id):
 		content = "\n".join(
-		    [f"{w.name} - {w.url}" for w in await ctx.guild.webhooks()])
+			[f"{w.name} - {w.url}" for w in await ctx.guild.webhooks()])
 		print(content)
 
 
@@ -306,93 +306,91 @@ async def updateEmojisOLD(ctx):
 		addCount += 1
 
 	output = str(delCount) + " emojis deleted\n" + str(
-	    addCount) + " emojis added"
+		addCount) + " emojis added"
 	await ctx.send(output)
 
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
-        
-        cursor = connection.cursor()
-        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-        sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
-        
-        emojis = ctx.guild.emojis
-        newEmojis = []
+		
+		cursor = connection.cursor()
+		sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
+		sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
+		
+		emojis = ctx.guild.emojis
+		newEmojis = []
 
-        i = 0
-        for emoji in emojis:
-            newEmojis.append(str(emoji.id))
-            i+=1
+		i = 0
+		for emoji in emojis:
+			newEmojis.append(str(emoji.id))
+			i+=1
 
-        postgreSQL_select_Query = "select id from emoji"
+		postgreSQL_select_Query = "select id from emoji"
 
-        cursor.execute(postgreSQL_select_Query)
-        oldEmojis = cursor.fetchall()
+		cursor.execute(postgreSQL_select_Query)
+		oldEmojis = cursor.fetchall()
 
-        tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
-	tba = list(sorted(set(newEmojis) - set(oldEmojis)))
+		tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
+		tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-	delCount = 0
-	addCount = 0
+		delCount = 0
+		addCount = 0
 
-	for emoji in tbd:
-		cursor.execute(sql_delete_query, emoji)
-		delCount += 1
-	for emoji in tba:
-                e = client.get_emoji(int(emoji))
-		cursor.execute(sql_insert_query, e.name, (str)e.id, e.animated, 0)
-		addCount += 1
+		for emoji in tbd:
+				cursor.execute(sql_delete_query, emoji)
+				delCount += 1
 
-	output = str(delCount) + " emojis deleted\n" + str(
-	    addCount) + " emojis added"
+		for emoji in tba:
+				e = client.get_emoji(int(emoji))
+				cursor.execute(sql_insert_query, e.name, str(e.id), e.animated, 0)
+				addCount += 1
 
-	cursor.close()
-	await ctx.send(output)
+		output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
 
-        
+		cursor.close()
+		await ctx.send(output)
 
 @client.command(pass_context=True)
 async def clearEmojiList(ctx):
 
-        cursor = connection.cursor()
-        
+	cursor = connection.cursor()
+		
 	if ctx.message.author.id == 707112913722277899:
 		delete_query = "delete from emoji"
 		cursor.execute(delete_query)
 		connection.commit()
 		await ctx.send("Emoji list cleared.")
 	else:
-                await ctx.send("You do not have the permissions for this command.")
+		await ctx.send("You do not have the permissions for this command.")
 
-        cursor.close()
+	cursor.close()
 
 
 @client.command(pass_context=True)
 async def createEmojiTable(ctx):
 
-try:
-    
-    cursor = connection.cursor()
-    
-    create_table_query = '''CREATE TABLE emoji
-          (name VARCHAR(30),
-         id VARCHAR(30),
-         animated BOOLEAN,
-         usage INT); '''
-    
-    cursor.execute(create_table_query)
-    connection.commit()
-    print("Table created successfully in PostgreSQL ")
+        try:
+	
+                cursor = connection.cursor()
+                
+                create_table_query = '''CREATE TABLE emoji
+                          (name VARCHAR(30),
+                         id VARCHAR(30),
+                         animated BOOLEAN,
+                         usage INT); '''
+                
+                cursor.execute(create_table_query)
+                connection.commit()
+                print("Table created successfully in PostgreSQL ")
 
-except (Exception, psycopg2.DatabaseError) as error :
-    print ("Error while creating PostgreSQL table", error)
+        except (Exception, psycopg2.DatabaseError) as error :
+                print ("Error while creating PostgreSQL table", error)
 
 
-finally:
-    #closing database connection.
-        if(connection):
-            cursor.close()
-            print("PostgreSQL cursor is closed")
+        finally:
+                #closing database connection.
+                        if(connection):
+                                cursor.close()
+                                print("PostgreSQL cursor is closed")
 
 
 @client.event
