@@ -69,9 +69,9 @@ async def on_message(message: discord.Message):
 	for i in range(0, len(emojis)):
 		emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-	updateEmojiList(message)
+	#updateEmojiList(message)
 
-	if (message.author.id != 753345733377261650):
+	'''if (message.author.id != 753345733377261650):
 		if message.webhook_id is None:
 			for e in emojiIDs:
 				if e in db.keys():
@@ -79,7 +79,7 @@ async def on_message(message: discord.Message):
 					db[e] = str(int(db[e]) + 1)
 					#print(db[e])
 		#print(db[e])
-
+        '''
 	#emojis = [discord.utils.get(client.get_all_emojis(), id=e) for e in emojis]
 
 	# From now, `custom_emojis` is `list` of `discord.Emoji` that `msg` contains.
@@ -157,7 +157,7 @@ async def getFullEmojiUsage(ctx):
 
 @client.event
 async def on_raw_reaction_add(payload):
-	if payload.emoji.name == "❌":
+	'''if payload.emoji.name == "❌":
 		result = -1
 		channel = client.get_channel(payload.channel_id)
 		msg = await channel.fetch_message(payload.message_id)
@@ -192,7 +192,7 @@ async def on_raw_reaction_add(payload):
 	if (str(payload.emoji.id) in db.keys()):
 		db[str(payload.emoji.id)] = str(int(db[str(payload.emoji.id)]) + 1)
 
-
+'''
 @client.command()
 async def getWebhooks(ctx):
 	if (ctx.author.id == client.owner_id):
