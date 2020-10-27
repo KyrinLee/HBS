@@ -81,7 +81,7 @@ async def on_message(message: discord.Message):
 
     updateEmojiList(message)
 
-    if message.author.id is not 753345733377261650 and message.webhook_id is None:
+    if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
             if e in oldEmojis:
                 cursor.execute(update_q, e)
@@ -329,7 +329,7 @@ async def clearEmojiList(ctx):
 async def addEmoji(ctx,id):
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-        emoji = client.get_emoji(id)
+        emoji = client.get_emoji(int(id))
         
         emojiData = (emoji.name,emoji.id,emoji.animated,0)
         try:
