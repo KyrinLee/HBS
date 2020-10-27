@@ -295,7 +295,7 @@ async def updateEmojis(ctx):
         delAdd = updateEmojiList(ctx.message)
         output = ("%s emojis deleted, %s emojis added" % delAdd)
 
-        sys.stdout.write(delAdd)
+        sys.stdout.write(str(delAdd))
 
         await ctx.send(output)
 
