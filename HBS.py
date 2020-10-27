@@ -283,7 +283,7 @@ def updateEmojiList(message):
                 addCount = addCount + 1
 
         cursor.close()
-        return (delCount,addCount)
+        return (str(delCount) + "emojis deleted, " + str(addCount) + " emojis added")
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
     #await message.channel.send(output)
@@ -293,11 +293,10 @@ def updateEmojiList(message):
 async def updateEmojis(ctx):
         
         delAdd = updateEmojiList(ctx.message)
-        output = ("%s emojis deleted, %s emojis added" % delAdd)
-
+        
         sys.stdout.write(str(delAdd))
 
-        await ctx.send(output)
+        await ctx.send(delAdd)
 
 @client.command(pass_context=True)
 async def clearEmojiList(ctx):
