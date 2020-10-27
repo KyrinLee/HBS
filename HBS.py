@@ -282,6 +282,7 @@ def updateEmojiList(message):
 
         sys.stdout.write(str(oldEmojis))
         sys.stdout.write(str(newEmojis))
+        sys.stdout.flush()
         
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
