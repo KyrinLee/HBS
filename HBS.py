@@ -84,7 +84,7 @@ async def on_message(message: discord.Message):
     for i in range(0, len(emojis)):
         emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-    #updateEmojiList(message)
+    updateEmojiList(message)
 
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
