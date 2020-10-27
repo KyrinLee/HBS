@@ -1,6 +1,3 @@
-import keep_alive
-keep_alive.keep_alive()
-
 import discord
 import logging
 import re
@@ -43,6 +40,7 @@ mydb.commit()
 
 print(mycursor.rowcount, "record inserted.")
 '''
+
 client = commands.Bot(
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
 
