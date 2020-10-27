@@ -266,7 +266,7 @@ async def botnick(ctx, *, name):
 
 
 def updateEmojiList(message):
-        
+
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
         sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
@@ -325,6 +325,9 @@ async def updateEmojis(ctx):
 
         cursor.execute(postgreSQL_select_Query)
         oldEmojis = cursor.fetchall()
+
+        await ctx.send(oldEmojis[0])
+        await ctx.send(newEmojis[0])
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
