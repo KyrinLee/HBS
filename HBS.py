@@ -71,6 +71,8 @@ async def on_message(message: discord.Message):
     cursor.execute(postgreSQL_select_Query)
     oldEmojis = cursor.fetchall()
 
+    oldEmojis = [e[1] for e in oldEmojis]
+
     emojis = re.findall(r'<:\w*:\d*>', message.content)
     emojisA = re.findall(r'<a:\w*:\d*>', message.content)
 
@@ -82,7 +84,7 @@ async def on_message(message: discord.Message):
     for i in range(0, len(emojis)):
         emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-    updateEmojiList(message)
+    #updateEmojiList(message)
 
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
@@ -267,7 +269,7 @@ def updateEmojiList(message):
         cursor.execute(postgreSQL_select_Query)
         oldEmojis = cursor.fetchall()
 
-        oldEmojis = [e[0] for e in oldEmojis]
+        oldEmojis = [e[1] for e in oldEmojis]
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
@@ -313,7 +315,7 @@ async def updateEmojis(ctx):
         cursor.execute(postgreSQL_select_Query)
         oldEmojis = cursor.fetchall()
 
-        oldEmojis = [e[0] for e in oldEmojis]
+        oldEmojis = [e[1] for e in oldEmojis]
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
