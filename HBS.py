@@ -88,8 +88,10 @@ async def on_message(message: discord.Message):
         for e in emojiIDs:
             if e in oldEmojis:
                 cursor.execute(update_q, e)
-                use = cursor.execute("get usage from emoji where id=%s",e)
-                await client.get_channel(753349219808444438).send(e+str(use))
+                cursor.execute("get usage from emoji where id=%s",e)
+                use = cursor.fetchall()
+                if ctx.channel.id == 754527915290525807:
+                        await client.get_channel(754527915290525807).send(e+str(use))
                                 
                                 
     cursor.close()
