@@ -15,6 +15,9 @@ import psycopg2
 
 from psycopg2 import Error
 
+global delCount
+global addCount
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -278,12 +281,10 @@ def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                #if message.channel.id == 754527915290525807:
-                #        sys.stdout.write("Emoji added.")
                 addCount = addCount + 1
 
         cursor.close()
-        return (str(delCount) + "emojis deleted, " + str(addCount) + " emojis added")
+        return (str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
     #await message.channel.send(output)
