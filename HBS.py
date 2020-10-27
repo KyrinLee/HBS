@@ -325,14 +325,14 @@ async def updateEmojis(ctx):
 
         for emoji in tbd:
                 cursor.execute(sql_delete_query, (emoji,))
-                await ctx.send(str(emoji))
+                #await ctx.send(str(emoji))
                 delCount += 1
 
         for emoji in tba:
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                await ctx.send(str(emoji))
+                #await ctx.send(str(emoji))
                 addCount = addCount + 1
 
         cursor.close()
