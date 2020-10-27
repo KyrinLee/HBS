@@ -64,7 +64,7 @@ async def on_message(message: discord.Message):
     connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
     cursor = connection.cursor()
-    postgreSQL_select_Query = "select id from emoji"
+    postgreSQL_select_Query = "SELECT id FROM emoji"
     update_q = "UPDATE usage SET usage = %s WHERE id = %s"
 
     cursor.execute(postgreSQL_select_Query)
@@ -88,7 +88,7 @@ async def on_message(message: discord.Message):
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
             if e in oldEmojis:
-                    cursor.execute("get usage from emoji where id=%s",(e,))
+                    cursor.execute("GET usage FROM emoji WHERE id=%s",(e,))
                     use = cursor.fetchall()
                     cursor.execute(update_q, (use[0],e))
                     if ctx.channel.id == 754527915290525807:
@@ -269,7 +269,7 @@ def updateEmojiList(message):
                         newEmojis.append(str(emoji.id))
                         i+=1
 
-        postgreSQL_select_Query = "select id from emoji"
+        postgreSQL_select_Query = "SELECT id FROM emoji"
 
         cursor.execute(postgreSQL_select_Query)
         tempEmojis = cursor.fetchall()
