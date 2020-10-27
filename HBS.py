@@ -13,15 +13,16 @@ import sys
 from dotenv import load_dotenv
 load_dotenv()
 
-'''
-import mysql.connector  #upm package(mysql-connector)
+import mysql.connector  
 
 mydb = mysql.connector.connect(
      user=os.getenv("USER"), password=os.getenv("PWD"),
-     host=os.getenv("HOST"),
+     host=os.getenv("HOST"), port="5432",
      database='vriska_db')
 
 mycursor = mydb.cursor()
+
+mycursor.execute("CREATE TABLE emoji (name VARCHAR(30), id VARCHAR(30))")
 
 mycursor.execute("SELECT * FROM emoji")
 
@@ -30,16 +31,18 @@ myresult = mycursor.fetchall()
 for x in myresult:
 	print(x)
 
-sql = "INSERT INTO emoji (emojiID, emojiUsage) VALUES (%s, %s)"
+sys.stdout.flush()
+
+'''sql = "INSERT INTO emoji (emojiID, emojiUsage) VALUES (%s, %s)"
 
 for key in db.keys():
 	val = (key, db[key])
-	mycursor.execute(sql, val)
+	mycursor.execute(sql, val)'''
 
 mydb.commit()
 
-print(mycursor.rowcount, "record inserted.")
-'''
+#print(mycursor.rowcount, "record inserted.")
+
 
 client = commands.Bot(
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
