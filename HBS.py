@@ -87,8 +87,8 @@ async def on_message(message: discord.Message):
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
             if e in oldEmojis:
-                cursor.execute(update_q, e)
-                cursor.execute("get usage from emoji where id=%s",e)
+                cursor.execute(update_q, (e,))
+                cursor.execute("get usage from emoji where id=%s",(e,))
                 use = cursor.fetchall()
                 if ctx.channel.id == 754527915290525807:
                         await client.get_channel(754527915290525807).send(e+str(use))
