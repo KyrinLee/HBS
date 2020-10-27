@@ -344,11 +344,11 @@ async def on_error(event_name, *args):
 
 filepath = 'keys.txt'
 with open(filepath) as fp:
-   	token = fp.readline()
-   	host = fp.readline()
-	username = fp.readline()
-	pwd = fp.readline()
-	dbname = fp.readline()
-	fp.close()
+        token = fp.readline()
+        host = fp.readline()
+        username = fp.readline()
+        pwd = fp.readline()
+        dbname = fp.readline()
+        fp.close()
 
 client.run(token)
