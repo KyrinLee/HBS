@@ -142,7 +142,7 @@ async def getFullEmojiUsage(ctx):
         for i in data:
                 output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
                 
-        outputArr = splitLongMsg(output)
+        outputArr = splitLongMsg(output,1990)
         for o in outputArr:
                 await ctx.send(o)
 
