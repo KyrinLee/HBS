@@ -293,7 +293,9 @@ def updateEmojiList(message):
 async def updateEmojis(ctx):
         
         delAdd = updateEmojiList(ctx.message)
-        output = ("%s emojis deleted\n, %s emojis added" % delAdd)
+        output = ("%s emojis deleted, %s emojis added" % delAdd)
+
+        sys.stdout.write(delAdd)
 
         await ctx.send(output)
 
@@ -321,7 +323,7 @@ async def addEmoji(ctx,id):
         emojiData = (emoji.name,emoji.id,emoji.animated,0)
         try:
                 cursor.execute(sql_insert_query, emojiData)
-                await ctx.send("Emoji added.")
+                #await ctx.send("Emoji added.")
                 cursor.execute("SELECT * FROM emoji WHERE id = %s", (str(id),))
                 await ctx.send(cursor.fetchall())
 
