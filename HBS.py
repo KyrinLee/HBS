@@ -32,7 +32,7 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name='Sburb'))
 
 
-def splitLongMsg(txt, limit):
+def splitLongMsg(txt, limit=1990):
     txtArr = txt.split('\n')
 
     output = ""
@@ -142,41 +142,11 @@ async def getFullEmojiUsage(ctx):
         for i in data:
                 output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
                 
-        outputArr = splitLongMsg(output,1990)
+        outputArr = splitLongMsg(output)
         for o in outputArr:
                 await ctx.send(o)
 
         cursor.close()
-        
-'''    output = ""
-    names = []
-    counts = []
-    i = 0
-
-    for key in db.keys():
-        names.append(key)
-        counts.append(int(db[key]))
-        i = i + 1
-
-    top = [x for _, x in sorted(zip(counts, names))]
-
-    print(top)
-
-    for k in reversed(top):
-        #print(k)
-        #print(str(client.get_emoji(int(k))) + ": " + str(db[k]) + "\n")
-        output += str(client.get_emoji(int(k))) + ": " + str(db[k]) + "\n"
-        #print(output)
-
-    if len(output) <= 1990:
-        await ctx.send(output)
-
-    for msg in splitLongMsg(output, 1990):
-        if not msg.isspace():
-            print(msg)
-            await ctx.send(msg)
-'''
-
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -308,12 +278,12 @@ def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                if message.channel.id == 754527915290525807:
-                        sys.stdout.write("Emoji added.")
+                #if message.channel.id == 754527915290525807:
+                #        sys.stdout.write("Emoji added.")
                 addCount = addCount + 1
 
         cursor.close()
-        return [delCount,addCount]
+        return (delCount,addCount)
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
     #await message.channel.send(output)
@@ -323,7 +293,7 @@ def updateEmojiList(message):
 async def updateEmojis(ctx):
         
         delAdd = updateEmojiList(ctx.message)
-        output = str(delAdd[0]) + " emojis deleted\n" + str(delAdd[1]) + " emojis added"
+        output = ("%s emojis deleted\n, %s emojis added" % delAdd)
 
         await ctx.send(output)
 
