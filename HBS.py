@@ -299,7 +299,8 @@ def updateEmojiList(message):
         connection.commit()
         cursor.close()
         connection.close()
-        
+
+        sys.stdout.write(str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
         return (str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
