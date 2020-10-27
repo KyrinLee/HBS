@@ -311,46 +311,10 @@ def updateEmojiList(message):
 
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
-        '''
-        cursor = connection.cursor()
-        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-        sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
         
-        emojis = ctx.guild.emojis
-        newEmojis = []
-
-        i = 0
-        for emoji in emojis:
-                newEmojis.append(str(emoji.id))
-                i+=1
-
-        postgreSQL_select_Query = "select id from emoji"
-
-        cursor.execute(postgreSQL_select_Query)
-        oldEmojis = cursor.fetchall()
-        
-        oldEmojis = [i[0] for i in oldEmojis]
-        
-        tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
-        tba = list(sorted(set(newEmojis) - set(oldEmojis)))
-
-        delCount = 0
-        addCount = 0
-
-        for emoji in tbd:
-                        cursor.execute(sql_delete_query, (emoji,))
-                        delCount += 1
-
-        for emoji in tba:
-                        e = client.get_emoji(int(emoji))
-                        record_to_insert = (e.name, str(e.id), e.animated, 0)
-                        cursor.execute(sql_insert_query, record_to_insert)
-                        addCount += 1
-'''
         delAdd = updateEmojiList(ctx.message)
         output = str(delAdd[0]) + " emojis deleted\n" + str(delAdd[1]) + " emojis added"
 
-        cursor.close()
         await ctx.send(output)
 
 @client.command(pass_context=True)
