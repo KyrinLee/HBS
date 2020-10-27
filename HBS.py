@@ -6,7 +6,7 @@ import json
 from discord.ext import commands
 import os
 
-from src.pluralkit import *
+import pk
 
 import sys
 '''
