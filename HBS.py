@@ -66,6 +66,7 @@ async def on_message(message: discord.Message):
     cursor = connection.cursor()
     postgreSQL_select_Query = "SELECT id FROM emoji"
     update_q = "UPDATE usage SET usage = %s WHERE id = %s"
+    get_usage = "SELECT usage FROM emoji WHERE id=%s"
 
     cursor.execute(postgreSQL_select_Query)
     oldEmojis = cursor.fetchall()
@@ -88,7 +89,7 @@ async def on_message(message: discord.Message):
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
             if e in oldEmojis:
-                    cursor.execute("GET usage FROM emoji WHERE id=%s",(e,))
+                    cursor.execute(get_usage,(e,))
                     use = cursor.fetchall()
                     cursor.execute(update_q, (use[0],e))
                     if ctx.channel.id == 754527915290525807:
