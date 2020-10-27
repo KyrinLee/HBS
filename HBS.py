@@ -293,7 +293,7 @@ def updateEmojiList(message):
         addCount = 0
 
         for emoji in tbd:
-                                        cursor.execute(sql_delete_query, emoji)
+                                        cursor.execute(sql_delete_query, (emoji,))
                                         delCount += 1
 
         for emoji in tba:
@@ -303,6 +303,7 @@ def updateEmojiList(message):
                                         addCount += 1
 
         cursor.close()
+        return [delCount,addCount]
 
     #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
     #await message.channel.send(output)
@@ -310,7 +311,7 @@ def updateEmojiList(message):
 
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
-        
+        '''
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
         sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
@@ -345,8 +346,9 @@ async def updateEmojis(ctx):
                         record_to_insert = (e.name, str(e.id), e.animated, 0)
                         cursor.execute(sql_insert_query, record_to_insert)
                         addCount += 1
-
-        output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
+'''
+        delAdd = updateEmojiList(ctx.message)
+        output = str(delAdd[0]) + " emojis deleted\n" + str(delAdd[1]) + " emojis added"
 
         cursor.close()
         await ctx.send(output)
