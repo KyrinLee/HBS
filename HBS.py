@@ -11,7 +11,8 @@ import os
 from replit import db
 import pluralKit as pk
 
-import os
+import sys
+
 from dotenv import load_dotenv
 project_folder = os.path.expanduser('~/my-project-dir')  # adjust as appropriate
 load_dotenv('.env')
