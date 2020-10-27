@@ -1,5 +1,3 @@
-worker:python HBS.py
-
 import discord
 import logging
 import re
