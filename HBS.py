@@ -9,8 +9,6 @@ import os
 import pk
 
 import sys
-from dotenv import load_dotenv
-load_dotenv('.env')
 
 '''
 import mysql.connector  
