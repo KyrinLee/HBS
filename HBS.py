@@ -294,12 +294,53 @@ def updateEmojiList(message):
 
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
-        
-        delAdd = updateEmojiList(ctx.message)
-        
-        sys.stdout.write(str(delAdd))
 
-        await ctx.send(delAdd)
+
+        cursor = connection.cursor()
+        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
+        sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
+        
+        emojis = ctx.guild.emojis
+        newEmojis = []
+
+        i = 0
+        for emoji in emojis:
+                        newEmojis.append(str(emoji.id))
+                        i+=1
+
+        postgreSQL_select_Query = "select id from emoji"
+
+        cursor.execute(postgreSQL_select_Query)
+        oldEmojis = cursor.fetchall()
+
+        oldEmojis = [e[0] for e in oldEmojis]
+
+        tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
+        tba = list(sorted(set(newEmojis) - set(oldEmojis)))
+
+        delCount = 0
+        addCount = 0
+
+        for emoji in tbd:
+                cursor.execute(sql_delete_query, (emoji,))
+                await ctx.send(str(emoji))
+                delCount += 1
+
+        for emoji in tba:
+                e = client.get_emoji(int(emoji))
+                record_to_insert = (e.name, str(e.id), e.animated, 0)
+                cursor.execute(sql_insert_query, record_to_insert)
+                await ctx.send(str(emoji))
+                addCount = addCount + 1
+
+        cursor.close()
+        return (str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
+        
+        #delAdd = updateEmojiList(ctx.message)
+        
+        #sys.stdout.write(str(delAdd))
+
+        #await ctx.send(delAdd)
 
 @client.command(pass_context=True)
 async def clearEmojiList(ctx):
