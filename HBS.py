@@ -18,7 +18,7 @@ import mysql.connector
 mydb = mysql.connector.connect(
      user=os.getenv("USER"), password=os.getenv("PWD"),
      host=os.getenv("HOST"), port="5432",
-     database='vriska_db')
+     database=os.getenv("DBNAME"))
 
 mycursor = mydb.cursor()
 
@@ -32,12 +32,7 @@ for x in myresult:
 	print(x)
 
 sys.stdout.flush()
-
-'''sql = "INSERT INTO emoji (emojiID, emojiUsage) VALUES (%s, %s)"
-
-for key in db.keys():
-	val = (key, db[key])
-	mycursor.execute(sql, val)'''
+mycursor.execute("INSERT INTO emoji (emojiID, emojiUsage) VALUES (1,1)")
 
 mydb.commit()
 
