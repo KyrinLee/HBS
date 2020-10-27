@@ -278,7 +278,7 @@ def updateEmojiList(message):
         oldEmojis = []
         for e in tempEmojis:
                 if message.channel.id == 754527915290525807:
-                            await client.get_channel(754527915290525807).send(str(e))
+                            sys.stdout.write(str(e))
                 oldEmojis.append(e[0])
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
