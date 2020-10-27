@@ -337,7 +337,7 @@ async def updateEmojis(ctx):
         addCount = 0
 
         for emoji in tbd:
-                        cursor.execute(sql_delete_query, emoji)
+                        cursor.execute(sql_delete_query, (emoji,))
                         delCount += 1
 
         for emoji in tba:
