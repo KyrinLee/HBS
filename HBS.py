@@ -277,12 +277,8 @@ def updateEmojiList(message):
 
         oldEmojis = []
         for e in tempEmojis:
-                #sys.stdout.write(str(e[1]))
-                oldEmojis.append(str(e[1]))
-
-        sys.stdout.write("old: " + str(oldEmojis))
-        sys.stdout.write("new: " + str(newEmojis))
-        sys.stdout.flush()
+                sys.stdout.write(e[1])
+                oldEmojis.append(e[1])
         
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
