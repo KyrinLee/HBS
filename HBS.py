@@ -5,7 +5,7 @@ import json
 
 from discord.ext import commands
 import os
-from replit import db
+
 import pluralKit as pk
 
 import sys
