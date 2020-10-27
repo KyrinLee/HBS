@@ -285,6 +285,8 @@ def updateEmojiList(message):
         oldEmojis = cursor.fetchall()
 
         oldEmojis = [i[0] for i in oldEmojis]
+        message.channel.send(oldEmojis[0])
+        message.channel.send(newEmojis[0])
 
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
@@ -293,14 +295,14 @@ def updateEmojiList(message):
         addCount = 0
 
         for emoji in tbd:
-                                        cursor.execute(sql_delete_query, (emoji,))
-                                        delCount += 1
+                cursor.execute(sql_delete_query, (emoji,))
+                delCount += 1
 
         for emoji in tba:
-                                        e = client.get_emoji(int(emoji))
-                                        record_to_insert = (e.name, str(e.id), e.animated, 0)
-                                        cursor.execute(sql_insert_query, record_to_insert)
-                                        addCount += 1
+                e = client.get_emoji(int(emoji))
+                record_to_insert = (e.name, str(e.id), e.animated, 0)
+                cursor.execute(sql_insert_query, record_to_insert)
+                addCount += 1
 
         cursor.close()
         return [delCount,addCount]
