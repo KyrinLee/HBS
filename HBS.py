@@ -17,7 +17,7 @@ from psycopg2 import Error
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
-conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
 
 client = commands.Bot(
