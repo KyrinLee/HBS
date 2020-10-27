@@ -71,7 +71,7 @@ async def on_message(message: discord.Message):
     cursor.execute(postgreSQL_select_Query)
     oldEmojis = cursor.fetchall()
 
-    oldEmojis = [e[1] for e in oldEmojis]
+    oldEmojis = [e[0] for e in oldEmojis]
 
     emojis = re.findall(r'<:\w*:\d*>', message.content)
     emojisA = re.findall(r'<a:\w*:\d*>', message.content)
