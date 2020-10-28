@@ -35,11 +35,11 @@ class Yeets(commands.Cog):
             msgName = ""
         
         if msgName.lower() == "join" or msgName.lower() == "j":
-            os.environ.set('joinMsg',message)
+            os.environ['joinMsg'] = message
             joinmsg = os.environ['joinMsg']
             await ctx.send("Join Message changed to " + joinmsg)
         elif msgName.lower() == "leave" or msgName.lower() == "l":
-            os.environ.set('leaveMsg',message)
+            os.environ['leaveMsg'] = message
             joinmsg = os.environ['leaveMsg']
             await ctx.send("Leave Message changed to " + leavemsg)
         else:
