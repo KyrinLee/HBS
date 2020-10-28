@@ -116,7 +116,7 @@ async def getEmojiUsage(ctx, num=None):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
-        cursor.execute("SELECT * FROM emoji ORDER BY usage")
+        cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
         emojis = cursor.fetchall()
         output = "Top " + str(num) + " emojis: "
@@ -125,7 +125,7 @@ async def getEmojiUsage(ctx, num=None):
                 output += str(client.get_emoji(int(emojis[i][1])))
         output += "\nBottom " + str(num) + " emojis: "
 
-        for i in range(len(emojis),len(emojis)-num):
+        for i in range(len(emojis)-1,len(emojis)-1-num):
                 output += str(client.get_emoji(int(emojis[i][1])))
 
         await ctx.send(output)
