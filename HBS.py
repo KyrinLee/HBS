@@ -176,7 +176,7 @@ def is_in_guild(guild_id):
 
 def is_admin():
     async def predicate(ctx):
-        sys.stdout(str(ctx.author.id) + str(adminIDs))
+        sys.stdout.write(str(ctx.author.id) + str(adminIDs))
         return str(ctx.author.id) in adminIDs
     return commands.check(predicate)
 
