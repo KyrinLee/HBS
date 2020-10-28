@@ -96,7 +96,7 @@ class dayCount(commands.Cog):
             cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
 
             timeDiff = currTime - timeStamp
-            await ctx.send("Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " seconds since this counter was last reset.")
+            await ctx.send("Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset.")
 
         connection.commit()
         cursor.close()
