@@ -109,7 +109,7 @@ class Yeets(commands.Cog):
         try:
             cId = int(channelID)
             for channel in ctx.guild.channels:
-                if channel.id == (int)channelID:
+                if channel.id == int(channelID):
                     channelname = channel.name;
 
                     try:
