@@ -112,6 +112,8 @@ async def sendEmoji(ctx, id):
 async def getEmojiUsage(ctx, num=None, animated=None):
         if num == None:
                 num = 15
+        else:
+                num = int(num)
 
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
