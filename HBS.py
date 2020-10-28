@@ -362,14 +362,14 @@ async def spoil(ctx, *, text):
     await ctx.message.delete()
 
 @client.command(pass_context=True)
+@commands.is_owner()
 async def botnick(ctx, *, name):
-    if ctx.message.author.id == 707112913722277899:
-        await ctx.guild.me.edit(nick=name)
+    await ctx.guild.me.edit(nick=name)
 
 @client.command(pass_context=True)
+@commands.is_owner()
 async def changeGame(ctx, *, game):
-    if ctx.message.author.id == 707112913722277899:
-        await client.change_presence(activity=discord.Game(name=game))
+    await client.change_presence(activity=discord.Game(name=game))
 
 @client.event
 async def on_error(event_name, *args):
