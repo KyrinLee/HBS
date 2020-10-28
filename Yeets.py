@@ -107,6 +107,8 @@ class Yeets(commands.Cog):
 
         channelname = ""
 
+        if channelid==None:
+            raise checks.InvalidArgument("Please include a numeric channel ID.")
         try:
             cId = int(channelID)
             for channel in ctx.guild.channels:
