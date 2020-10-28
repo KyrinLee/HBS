@@ -174,12 +174,6 @@ def is_in_guild(guild_id):
         return ctx.guild and ctx.guild.id == guild_id
     return commands.check(predicate)
 
-def is_admin():
-    async def predicate(ctx):
-        sys.stdout.write(str(ctx.author.id) + str(adminIDs))
-        return str(ctx.author.id) in adminIDs
-    return commands.check(predicate)
-
 @client.command(pass_context=True,aliases=['geu'])
 async def getEmojiUsage(ctx, num=None, animated=None):
         if num == None:
