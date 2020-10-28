@@ -176,7 +176,8 @@ def is_in_guild(guild_id):
 
 def is_admin():
     async def predicate(ctx):
-        return ctx.author.id and str(ctx.author.id) in adminIDs
+        sys.stdout(str(ctx.author.id) + str(adminIDs))
+        return str(ctx.author.id) in adminIDs
     return commands.check(predicate)
 
 @client.command(pass_context=True,aliases=['geu'])
@@ -431,6 +432,6 @@ if __name__ == "__main__":
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
-            
+
 client.run(os.environ["token"])
 
