@@ -294,7 +294,7 @@ def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                sys.stdout("Inserted\n")
+                #sys.stdout.write("Inserted\n")
                 addCount = addCount + 1
 
         connection.commit()
