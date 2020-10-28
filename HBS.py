@@ -40,8 +40,6 @@ def is_in_guild(guild_id):
     return commands.check(predicate)
 
 
-
-
 # ----- Discord Events ----- #
 @client.event
 async def on_ready():

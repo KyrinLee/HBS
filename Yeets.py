@@ -7,6 +7,8 @@ import psycopg2
 
 from psycopg2 import Error
 
+from HBS import is_in_guild
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 select_q = "SELECT value FROM vars WHERE name = %s"
@@ -28,8 +30,6 @@ class Yeets(commands.Cog):
 
             cursor.execute(select_q,("yeetsChannel",))
             yeetsChannel = str(cursor.fetchall()[0][0])
-            
-            await self.client.get_channel(int(yeetsChannel)).send(joinmsg)
             
             msg = joinmsg.replace("<name>",str(member.name))
             msg = joinmsg.replace("<NAME>",str(member.name).upper())
@@ -53,8 +53,6 @@ class Yeets(commands.Cog):
             cursor.execute(select_q,("yeetsChannel",))
             yeetsChannel = str(cursor.fetchall()[0][0])
             
-            await self.client.get_channel(int(yeetsChannel)).send(leavemsg)
-            
             msg = leavemsg.replace("<name>",str(member.name))
             msg = leavemsg.replace("<NAME>",str(member.name).upper())
             
@@ -66,6 +64,7 @@ class Yeets(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
+    @commands.is_in_guild(609112858214793217)
     async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -76,26 +75,68 @@ class Yeets(commands.Cog):
             msgName = ""
         
         if msgName.lower() == "join" or msgName.lower() == "j":
-            #try:
+            try:
                 cursor.execute(update_q, (message,"joinMsg"))
                 await ctx.send("Join Message changed to " + message)
                 
-            #except:
-                #await ctx.send("An error occurred.")
+            except:
+                await ctx.send("An error occurred.")
             
         elif msgName.lower() == "leave" or msgName.lower() == "l":
-            #try:
+            try:
                 cursor.execute(update_q, (message,"leaveMsg"))
                 await ctx.send("Leave Message changed to " + message)
                 
-            #except:
-                #await ctx.send("An error occurred.")
+            except:
+                await ctx.send("An error occurred.")
         else:
             await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
         conn.commit()
         cursor.close()
         conn.close()
+
+    @commands.command(pass_context=True)
+    @commands.is_owner()
+    async def changeYeets(self,ctx:commands.Context,channelID):
+
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+        cursor = conn.cursor()
+
+        channelname = ""
+
+        try:
+            cId = int(channelID)
+            for channel in ctx.guild.channels:
+                if channel.id == (int)channelID:
+                    channelname = channel.name;
+
+                    try:
+                        cursor.execute(update_q,(str(channelID),"yeetsChannel")
+                        ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id} + ")."
+                                 
+                    except:
+                        ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
+                        
+            if channelname = "":
+                raise InvalidArgument("That channel is not in this server.")
+                
+        except:
+            raise InvalidArgument("Please include a numeric channel ID.")
+
+    @changeYeets.error
+    async def info_error(ctx,error):
+        if isinstance(error, commands.CheckFailure):
+            if error.message!=None:
+                await ctx.send(error)
+            else:
+                await ctx.send("You do not have permission to run this command.")
+
+        elif isinstance(error, commands.InvalidArguments):
+            await ctx.send(error)
+            
+        
             
 def setup(client):
     client.add_cog(Yeets(client))
