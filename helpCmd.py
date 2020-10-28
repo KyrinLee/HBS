@@ -107,14 +107,6 @@ class EmbedHelp(dpy_cmds.DefaultHelpCommand):
 
         embed = discord.Embed(title='HBS Help', color=help_embed_color)
 
-        embed.add_field(name="Who can use Gabby Gums",
-                        value="Anyone!\n"
-                              "Regardless of system type or plurality, all people are valid. "
-                              "As such, all people are allowed to use this bot.\n")
-
-        embed.set_footer(text="Created by Luna, Hibiki, and Fluttershy aka Amadea System (Hibiki#8792) "
-                              "| Github: https://github.com/amadea-system/GabbyGums/")
-
         no_category = '\u200b{0.no_category}:'.format(self)
 
         def get_category(command, *, no_category=no_category):
@@ -146,7 +138,7 @@ class EmbedHelp(dpy_cmds.DefaultHelpCommand):
         embed_descrip = self.get_command_embeded_description(command)
         command_name = command.qualified_name
 
-        embed = discord.Embed(title=f'{command_name}  -  Gabby Gums Help', color=help_embed_color)
+        embed = discord.Embed(title=f'{command_name}  -  HBS Help', color=help_embed_color)
         embed.description = "\n".join(embed_descrip)
 
         embed = self.add_examples(command, embed)
