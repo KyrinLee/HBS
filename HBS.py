@@ -380,7 +380,7 @@ async def spoil(ctx, *, text, brief="Resends image(s) under spoiler tags.", desc
 
 
 @client.command(pass_context=True)
-async def help(ctx, command=None)
+async def help(ctx, command=None):
     embed = discord.Embed(title="HBS Help", description="Help menu for HBS.", color=0x005682)
 
     embed.add_field(name="reset", value="**hbs;reset <countername>**\nResets given counter.", inline=False)
