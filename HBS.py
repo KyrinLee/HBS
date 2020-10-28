@@ -426,6 +426,5 @@ if __name__ == "__main__":
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
 
-client.close()
 client.run(os.environ["token"])
 
