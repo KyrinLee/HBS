@@ -121,10 +121,10 @@ class Yeets(commands.Cog):
                         ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
                         
             if channelname == "":
-                raise commands.InvalidArgument("That channel is not in this server.")
+                raise commands.InvalidArgument(message="That channel is not in this server.")
                 
         except:
-            raise commands.InvalidArgument("Please include a numeric channel ID.")
+            raise commands.InvalidArgument(message="Please include a numeric channel ID.")
 
     @changeYeets.error
     async def changeYeets_error(self,ctx,error):

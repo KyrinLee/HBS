@@ -1,6 +1,11 @@
 import discord
 from discord.ext import commands
 
+class InvalidArgument(commands.CommandError):
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
 
 # ----- CHECK DEFINITIONS ----- #
 

@@ -51,7 +51,7 @@ class CommandErrorHandler(commands.Cog):
             else:
                 output += str(error)
                 
-            ctx.send(output)
+            await ctx.send(output)
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
