@@ -109,24 +109,24 @@ class Yeets(commands.Cog):
 
         if channelID==None:
             raise checks.InvalidArgument("Please include a numeric channel ID.")
-        try:
-            cId = int(channelID)
-            for channel in ctx.guild.channels:
-                if channel.id == cID:
-                    channelname = channel.name;
+        
+        cId = int(channelID)
+        for channel in ctx.guild.channels:
+            if channel.id == cID:
+                channelname = channel.name;
 
-                    try:
-                        cursor.execute(update_q,(str(cID),"yeetsChannel"))
-                        ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id) + ").")
-                                 
-                    except:
-                        ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
-                        
-            if channelname == "":
-                raise checks.InvalidArgument(message="That channel is not in this server.")
-                
-        except:
-            raise checks.InvalidArgument(message="Please include a numeric channel ID.")
+                try:
+                    cursor.execute(update_q,(str(cID),"yeetsChannel"))
+                    ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id) + ").")
+                             
+                except:
+                    ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
+                    
+        if channelname == "":
+            raise checks.InvalidArgument(message="That channel is not in this server.")
+            
+
+        raise checks.InvalidArgument(message="Please include a numeric channel ID.")
 
     @changeYeets.error
     async def changeYeets_error(self,ctx,error):
