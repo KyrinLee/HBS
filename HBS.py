@@ -31,7 +31,7 @@ client = commands.Bot(
 async def on_ready():
     #await client.get_channel(753349219808444438).send("We have logged in")
     sys.stdout.write("We have logged in.")
-    await client.change_presence(activity=discord.Game(name='Sburb'))
+    await client.change_presence(activity=discord.Game(name='Vriska'))
 
 
 def splitLongMsg(txt, limit=1990):
@@ -383,7 +383,7 @@ async def spoil(ctx, *, text=None, description="Resends image(s) under spoiler t
 async def help(ctx, command=None):
     embed = discord.Embed(title="HBS Help", description="HussieBot Oppression & More", color=0x005682)
 
-    embed.set_image(url="https://media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png")
+    embed.set_thumbnail(url="https://media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png")
     embed.add_field(name="Reset Counter", value="**hbs;reset <countername>**\nResets given counter.", inline=False)
     embed.add_field(name="Get Emoji Usage", value="**hbs;getEmojiUsage [num] [-s | -a] **\nReturns top and bottom [num] emojis (default 15). Static or animated emojis can be specified using -s or -a.", inline=False)
     embed.add_field(name="Get Full Emoji Usage", value="**hbs;getFullEmojiUsage**\nReturns all emojis in server with usage stats, sorted by most to least used.", inline=False)
