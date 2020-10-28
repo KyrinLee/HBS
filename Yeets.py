@@ -46,8 +46,8 @@ class Yeets(commands.Cog):
             await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
     @changeMsg.error
-    async def changeMsg_error(ctx,error):
-        if isinstace(error,commands.checkFailure):
+    async def changeMsg_error(self,ctx,error):
+        if isinstance(error,commands.checkFailure):
             await ctx.send("You do not have permission to run this command.")
             
 def setup(client):
