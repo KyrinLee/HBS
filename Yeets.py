@@ -105,24 +105,24 @@ class Yeets(commands.Cog):
 
         cursor = conn.cursor()
 
-        channelname = ""
+        channelname = "test"
 
         if channelID == None:
             raise checks.InvalidArgument("Please include a numeric channel ID.")
         
-        cId = int(channelID)
+        cid = int(channelID)
         for channel in ctx.guild.channels:
-            if channel.id == cID:
+            if channel.id == cid:
                 channelname = channel.name
 
                 try:
-                    cursor.execute(update_q,(str(cID),"yeetsChannel"))
+                    cursor.execute(update_q,(str(cid),"yeetsChannel"))
                     ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id) + ").")
                              
                 except:
                     ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
                     
-        if channelname == "":
+        if channelname == "test":
             raise checks.InvalidArgument(message="That channel is not in this server.")
             
 
