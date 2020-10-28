@@ -67,20 +67,20 @@ class Yeets(commands.Cog):
             msgName = ""
         
         if msgName.lower() == "join" or msgName.lower() == "j":
-            try:
+            #try:
                 cursor.execute(update_q, ("joinMsg",message))
                 await ctx.send("Join Message changed to " + joinmsg)
                 
-            except:
-                await ctx.send("An error occurred.")
+            #except:
+                #await ctx.send("An error occurred.")
             
         elif msgName.lower() == "leave" or msgName.lower() == "l":
-            try:
+            #try:
                 cursor.execute(update_q, ("leaveMsg",message))
                 await ctx.send("Leave Message changed to " + leavemsg)
                 
-            except:
-                await ctx.send("An error occurred.")
+            #except:
+                #await ctx.send("An error occurred.")
         else:
             await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
