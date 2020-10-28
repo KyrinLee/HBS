@@ -117,9 +117,9 @@ async def getEmojiUsage(ctx, num=None, animated=None):
         cursor = connection.cursor()
 
         if animated == "-s":
-                cursor.execute("SELECT * FROM emoji WHERE animated = 0 ORDER BY usage DESC")
+                cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
         elif animated == "-a":
-                cursor.execute("SELECT * FROM emoji WHERE animated = 1 ORDER BY usage DESC")
+                cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
         else:
                 cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
