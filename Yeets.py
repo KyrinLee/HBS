@@ -23,7 +23,8 @@ class Yeets(commands.Cog):
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = conn.cursor()
 
-            joinmsg = cursor.execute(select_q,("joinMsg",))[0][0]
+            cursor.execute(select_q,("joinMsg",))
+            joinmsg = cursor.fetchall()[0][0]
             
             await self.client.get_channel(int(yeetsChannel)).send(joinmsg)
             
@@ -43,7 +44,8 @@ class Yeets(commands.Cog):
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = conn.cursor()
 
-            leavemsg = cursor.execute(select_q,("leaveMsg",))[0][0]
+            cursor.execute(select_q,("leaveMsg",))
+            leavemsg = cursor.fetchall()[0][0]
             await self.client.get_channel(int(yeetsChannel)).send(leavemsg)
             
             msg = leavemsg.replace("<name>",str(member.name))
