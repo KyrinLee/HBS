@@ -132,9 +132,8 @@ async def on_raw_reaction_add(payload):
                 msgDel = client.get_emoji(767960168444723210)
                 await msg.add_reaction(msgDel)
 
-        await channel.send(str(msg.author.id) + str(msg.mentions[0]))
-        if msg.author.id == 753345733377261650 and  msg.mentions[0] == payload.user_id:
-            await msg.delete()
+        if msg.author.id == 753345733377261650 and  msg.mentions[0].id == payload.user_id:
+            await msg.edit(content="Message deleted", suppress=True)
         #await channel.send("message deleted")
 
     if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
