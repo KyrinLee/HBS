@@ -16,14 +16,20 @@ class Yeets(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(member):
+        await client.get_channel(754527915290525807).send(str(member.guild.id))
+        await client.get_channel(int(yeetsChannel)).send("Yay I recognized *something* leaving")
         if member.guild.id == 609112858214793217:
+            await client.get_channel(int(yeetsChannel)).send("So the guild thingy is fine.")
             msg = joinmsg.replace("<name>",str(member.name))
             msg = joinmsg.replace("<NAME>",str(member.name).upper())
             await client.get_channel(int(yeetsChannel)).send(msg)
 
     @commands.Cog.listener()
     async def on_member_remove(member):
+        await client.get_channel(754527915290525807).send(str(member.guild.id))
+        await client.get_channel(int(yeetsChannel)).send("Yay I recognized *something* leaving")
         if member.guild.id == 609112858214793217:
+            await client.get_channel(int(yeetsChannel)).send("So the guild thingy is fine.")
             msg = leavemsg.replace("<name>",str(member.name))
             msg = leavemsg.replace("<NAME>",str(member.name).upper())
             await client.get_channel(int(yeetsChannel)).send(msg)
