@@ -107,11 +107,13 @@ class Yeets(commands.Cog):
 
         channelname = "test"
 
-        await ctx.send(channelname)
-
         if channelID == None:
             raise checks.InvalidArgument("Please include a numeric channel ID.")
-        
+        try:
+            int(channelID)
+        except:
+            raise checks.InvalidArguments("Please include a numeric channel ID.")
+            
         cid = int(channelID)
         for channel in ctx.guild.channels:
             if channel.id == cid:
@@ -126,9 +128,7 @@ class Yeets(commands.Cog):
                     
         if channelname == "test":
             raise checks.InvalidArgument(message="That channel is not in this server.")
-            
-
-        raise checks.InvalidArgument(message="Please include a numeric channel ID.")
+          
 
 
         conn.commit()
