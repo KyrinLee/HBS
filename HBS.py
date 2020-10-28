@@ -302,20 +302,16 @@ def updateEmojiList(message):
         connection.close()
 
         sys.stdout.write(str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
-        return (str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
+        sys.stdout.flush()
 
-    #output = str(delCount) + " emojis deleted\n" + str(addCount) + " emojis added"
-    #await message.channel.send(output)
-
-
+        output = str(delCount) + " emojis deleted, " + str(addCount) + " emojis added"
+        return output
+        
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
 
-        delAdd = updateEmojiList(ctx.message)
+        await ctx.send(updateEmojiList(ctx.message))
         
-        sys.stdout.write(str(delAdd))
-
-        await ctx.send(delAdd)
 
 @client.command(pass_context=True)
 async def clearEmojiList(ctx):
