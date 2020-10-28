@@ -44,14 +44,14 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f'{ctx.command} has been disabled.')
 
         elif isinstance(error, commands.CheckFailure):
-            output = ctx.send('Check Failure: ')
+            output = "Check Failure: "
 
             if isinstance(error, commands.NotOwner):
                 output += "You do not have permission to run this command."
             else:
                 output += str(error)
                 
-            ctx.send(error)
+            ctx.send(output)
 
         elif isinstance(error, commands.NoPrivateMessage):
             try:
