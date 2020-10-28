@@ -64,7 +64,7 @@ class Yeets(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
-    @commands.is_in_guild(609112858214793217)
+    @is_in_guild(609112858214793217)
     async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -98,7 +98,7 @@ class Yeets(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
-    @commands.is_in_guild(609112858214793217)
+    @is_in_guild(609112858214793217)
     async def changeYeets(self,ctx:commands.Context,channelID):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
