@@ -15,7 +15,7 @@ import psycopg2
 
 from psycopg2 import Error
 
-startup_extensions = ["dayCount","Yeets"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
