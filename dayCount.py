@@ -30,6 +30,12 @@ class dayCount(commands.Cog):
             cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
             await ctx.send("counter " + counter + " created.")
         except:
+            cursor.close()
+            connection.close()
+
+            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+            cursor = connection.cursor()
             cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
             data = cursor.fetchall()
 
