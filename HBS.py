@@ -148,7 +148,7 @@ async def getFullEmojiUsage(ctx):
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
-        cursor.execute("SELECT * FROM emoji")
+        cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
         data = cursor.fetchall()
 
@@ -202,25 +202,7 @@ async def on_raw_reaction_add(payload):
         db[str(payload.emoji.id)] = str(int(db[str(payload.emoji.id)]) + 1)
 
 '''
-@client.command()
-async def getWebhooks(ctx):
-    if (ctx.author.id == client.owner_id):
-        content = "\n".join(
-            [f"{w.name} - {w.url}" for w in await ctx.guild.webhooks()])
-        print(content)
 
-
-'''@client.command(pass_context=True)
-async def emojiUsage(ctx):
-        connection =psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-
-        cursor.execute("SELECT * FROM emoji ORDER BY id::int")
-
-        emojis = cursor.fetchall()
-
-        for (
-'''
 @client.command(pass_context=True)
 async def botnick(ctx, *, name):
     if ctx.message.author.id == 707112913722277899:
