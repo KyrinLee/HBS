@@ -351,13 +351,13 @@ async def dump(ctx):
                 connection.close()
 
 @client.command(pass_context=True)
-async def spoil(ctx):
+async def spoil(ctx, *, text):
     files = []
     for a in ctx.message.attachments:
         file = await a.to_file(use_cached=True, spoiler=True)
         files.append(file)
 
-    ping = "Sent by <@" + str(ctx.author.id) + ">";
+    ping = "Sent by <@" + str(ctx.author.id) + ">\n**" + text + "**";
     await ctx.send(content=ping, files=files)
     await ctx.message.delete()
 
