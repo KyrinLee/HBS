@@ -160,6 +160,11 @@ async def sendEmoji(ctx, id):
     await ctx.send(str(client.get_emoji(id)))
 '''
 
+def is_in_guild(guild_id):
+    async def predicate(ctx):
+        return ctx.guild and ctx.guild.id == guild_id
+    return commands.check(predicate)
+
 
 @client.command(pass_context=True)
 async def getEmojiUsage(ctx, num=None, animated=None):
@@ -263,14 +268,16 @@ def updateEmojiList(message):
         connection.close()
         
 @client.command(pass_context=True)
-async def updateEmojis(ctx):
+@is_in_guild(609112858214793217)
+async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
         updateEmojiList(ctx.message)
         await ctx.send("Emoji List Updated.")
         
 
 @client.command(pass_context=True)
-async def clearEmojiList(ctx):
+@commands.is_owner()
+async def clearEmojiList(ctx,hidden=True,description="Clears emoji usage data."):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
@@ -288,7 +295,8 @@ async def clearEmojiList(ctx):
         connection.close()
 
 @client.command(pass_context=True)
-async def addEmoji(ctx,id):
+@commands.is_owner()
+async def addEmoji(ctx,id,hidden=True):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
@@ -308,7 +316,8 @@ async def addEmoji(ctx,id):
         connection.close()
 
 @client.command(pass_context=True)
-async def createEmojiTable(ctx):
+@commands.is_owner()
+async def createEmojiTable(ctx,hidden=True,description="Creates emoji table."):
 
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         try:
@@ -337,7 +346,8 @@ async def createEmojiTable(ctx):
                                 print("PostgreSQL connection is closed")
 
 @client.command(pass_context=True)
-async def dump(ctx):
+@commands.is_owner()
+async def dump(ctx, hidden=True, description="Dumps emoji table data."):
         if ctx.author.id == 707112913722277899:
                 connection = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = connection.cursor()
@@ -346,12 +356,13 @@ async def dump(ctx):
                 data = cursor.fetchall()
 
                 await ctx.send(data)
+                sys.stdout.write(data)
                         
                 cursor.close()
                 connection.close()
 
 @client.command(pass_context=True)
-async def spoil(ctx, *, text):
+async def spoil(ctx, *, text, brief="Resends image(s) under spoiler tags.", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
     files = []
     for a in ctx.message.attachments:
         file = await a.to_file(use_cached=True, spoiler=True)
@@ -363,12 +374,12 @@ async def spoil(ctx, *, text):
 
 @client.command(pass_context=True)
 @commands.is_owner()
-async def botnick(ctx, *, name):
+async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
     await ctx.guild.me.edit(nick=name)
 
 @client.command(pass_context=True)
 @commands.is_owner()
-async def changeGame(ctx, *, game):
+async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
     await client.change_presence(activity=discord.Game(name=game))
 
 @client.event
