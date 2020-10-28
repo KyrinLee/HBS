@@ -113,13 +113,13 @@ class Yeets(commands.Cog):
                     channelname = channel.name;
 
                     try:
-                        cursor.execute(update_q,(str(channelID),"yeetsChannel")
-                        ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id} + ")."
+                        cursor.execute(update_q,(str(channelID),"yeetsChannel"))
+                        ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id) + ").")
                                  
                     except:
                         ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
                         
-            if channelname = "":
+            if channelname == "":
                 raise InvalidArgument("That channel is not in this server.")
                 
         except:
