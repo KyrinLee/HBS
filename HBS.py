@@ -357,7 +357,8 @@ async def spoil(ctx):
         file = await a.to_file(use_cached=True, spoiler=True)
         files.append(file)
 
-    await ctx.send(files=files)
+    ping = "Sent by <@" + str(ctx.author.id) + ">";
+    await ctx.send(content=ping, files=files)
     await ctx.message.delete()
 
 @client.command(pass_context=True)
