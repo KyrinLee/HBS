@@ -383,7 +383,7 @@ async def spoil(ctx, *, text=None, description="Resends image(s) under spoiler t
 async def help(ctx, command=None):
     embed = discord.Embed(title="HBS Help", description="HussieBot Oppression & More", color=0x005682)
 
-    embed.add_field(name="Reset Counter" value="**hbs;reset <countername>**\nResets given counter.", inline=False)
+    embed.add_field(name="Reset Counter", value="**hbs;reset <countername>**\nResets given counter.", inline=False)
     embed.add_field(name="Get Emoji Usage", value="**hbs;getEmojiUsage [num] [-s | -a] **\nReturns top and bottom [num] emojis (default 15). Static or animated emojis can be specified using -s or -a.", inline=False)
     embed.add_field(name="Get Full Emoji Usage", value="**hbs;getFullEmojiUsage**\nReturns all emojis in server with usage stats, sorted by most to least used.", inline=False)
     embed.add_field(name="Spoil Images", value="**hbs;spoil [text] <image(s)>\n\hbs;spoil [text] <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.",inline=False)
