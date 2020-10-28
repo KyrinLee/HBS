@@ -107,7 +107,7 @@ class Yeets(commands.Cog):
 
         channelname = ""
 
-        if channelID==None:
+        if channelID == None:
             raise checks.InvalidArgument("Please include a numeric channel ID.")
         
         cId = int(channelID)
