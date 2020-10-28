@@ -19,11 +19,15 @@ startup_extensions = ["dayCount","Yeets","CommandErrorHandler"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
+intents = Intents.default()
+intents.members = True
+
 client = commands.Bot(
     command_prefix=("hbs;","\hbs;"),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
-    help_command=None)
+    help_command=None,
+    intents=intents)
 
 # ----- CHECK DEFINITIONS ----- #
 
