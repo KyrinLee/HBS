@@ -127,7 +127,7 @@ class Yeets(commands.Cog):
             raise InvalidArgument("Please include a numeric channel ID.")
 
     @changeYeets.error
-    async def changeYeets_error(ctx,error):
+    async def changeYeets_error(self,ctx,error):
         if isinstance(error, commands.CheckFailure):
             if error.message!=None:
                 await ctx.send(error)
