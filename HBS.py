@@ -132,6 +132,7 @@ async def on_raw_reaction_add(payload):
                 msgDel = client.get_emoji(767960168444723210)
                 await msg.add_reaction(msgDel)
 
+        await channel.send(str(msg.author.id) + str(msg.mentions[0]))
         if msg.author.id == 753345733377261650 and  msg.mentions[0] == payload.user_id:
             await msg.delete()
         #await channel.send("message deleted")
@@ -378,7 +379,9 @@ async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tag
         file = await a.to_file(use_cached=True, spoiler=True)
         files.append(file)
 
-    ping = "Sent by <@" + str(ctx.author.id) + ">\n**" + text + "**";
+    ping = "Sent by <@" + str(ctx.author.id) + ">\n";
+    if text != "":
+        ping = ping + "**" + text + "**"
     await ctx.send(content=ping, files=files)
     await ctx.message.delete()
 
