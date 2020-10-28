@@ -113,7 +113,7 @@ class Yeets(commands.Cog):
         cId = int(channelID)
         for channel in ctx.guild.channels:
             if channel.id == cID:
-                channelname = channel.name;
+                channelname = channel.name
 
                 try:
                     cursor.execute(update_q,(str(cID),"yeetsChannel"))
