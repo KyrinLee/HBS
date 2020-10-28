@@ -19,7 +19,7 @@ startup_extensions = ["dayCount","Yeets","CommandErrorHandler"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
-intents = Intents.default()
+intents = discord.Intents.default()
 intents.members = True
 
 client = commands.Bot(
