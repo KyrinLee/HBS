@@ -27,19 +27,19 @@ class dayCount(commands.Cog):
         cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)")
 
         try:
-            cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(name,currTime,0))
-            await ctx.send("counter " + name + " created.")
+            cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
+            await ctx.send("counter " + counter + " created.")
         except:
-            cursor.execute("SELECT * FROM counters WHERE name=%s",(name,))
+            cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
             data = cursor.fetchall()
 
             mentions = data[0][2]
             timeStamp = data[0][1]
             
-            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,name))
+            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
 
             timeDiff = datetime.combine(date.min, currTime) - datetime.combine(date.min, timeStamp)
-            await ctx.send("counter " + name + " updated - it has been " + str(timeDiff) + " seconds since this counter was last reset.")
+            await ctx.send("counter " + counter + " updated - it has been " + str(timeDiff) + " seconds since this counter was last reset.")
 
         connection.commit()
         cursor.close()
