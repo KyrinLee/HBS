@@ -371,7 +371,8 @@ async def dump(ctx, hidden=True, description="Dumps emoji table data."):
                 connection.close()
 
 @client.command(pass_context=True)
-async def spoil(ctx, *, text=None, description="Resends image(s) under spoiler tags. Can send up to 10 images."):
+async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
+    
     files = []
     for a in ctx.message.attachments:
         file = await a.to_file(use_cached=True, spoiler=True)
