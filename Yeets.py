@@ -133,7 +133,7 @@ class Yeets(commands.Cog):
             else:
                 await ctx.send("You do not have permission to run this command.")
 
-        elif isinstance(error, commands.InvalidArguments):
+        elif isinstance(error, commands.InvalidArgument):
             await ctx.send(error)
             
         
