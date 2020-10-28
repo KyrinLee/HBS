@@ -380,6 +380,22 @@ async def createEmojiTable(ctx):
                                 connection.close()
                                 print("PostgreSQL connection is closed")
 
+@client.command(pass_context=True)
+async def dump(ctx):
+        if ctx.author.id == 707112913722277899:
+                connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = connection.cursor()
+
+                cursor.execute("SELECT * FROM emoji")
+                data = cursor.fetchall()
+
+                msgArr = splitLongMsg(data)
+                for a in msgArr:
+                        ctx.send(a)
+                        
+                cursor.close()
+                connection.close()
+
 
 @client.event
 async def on_error(event_name, *args):
