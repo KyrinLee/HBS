@@ -389,9 +389,7 @@ async def dump(ctx):
                 cursor.execute("SELECT * FROM emoji")
                 data = cursor.fetchall()
 
-                msgArr = splitLongMsg(data)
-                for a in msgArr:
-                        ctx.send(a)
+                ctx.send(data)
                         
                 cursor.close()
                 connection.close()
