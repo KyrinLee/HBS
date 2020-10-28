@@ -4,8 +4,8 @@ import time
 from datetime import datetime, date
 
 class dayCount():
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, client):
+        self.client = client
 
     @commands.command(pass_context=True)
     async def reset(ctx, counter):
@@ -32,5 +32,5 @@ class dayCount():
             timeDiff = datetime.combine(date.min, currTime) - datetime.combine(date.min, timeStamp)
             await ctx.send("counter " + name + " updated - it has been " + str(timeDiff) + " seconds since this counter was last reset.")
 
-def setup(bot):
-    bot.add_cog(dayCount(bot))
+def setup(client):
+    client.add_cog(dayCount(client))
