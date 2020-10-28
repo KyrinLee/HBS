@@ -18,11 +18,10 @@ from psycopg2 import Error
 startup_extensions = ["dayCount","Yeets"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
-adminIDs = ['707112913722277899','259774152867577856']
 
 client = commands.Bot(
     command_prefix=("hbs;","\hbs;"),
-    owner_id=707112913722277899,
+    owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
     help_command=None)
 
