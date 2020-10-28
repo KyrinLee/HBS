@@ -128,6 +128,8 @@ async def getEmojiUsage(ctx, num=None):
         for i in range(len(emojis),len(emojis)-num):
                 output += str(client.get_emoji(int(emojis[i][1])))
 
+        await ctx.send(output)
+
 
 @client.command(pass_context=True)
 async def getFullEmojiUsage(ctx):
