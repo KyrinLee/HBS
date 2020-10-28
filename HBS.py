@@ -357,8 +357,7 @@ async def spoil(ctx):
         file = await a.to_file(use_cached=True, spoiler=True)
         files.append(file)
 
-    for f in files:
-        await ctx.send(f)
+    await ctx.send(files=files)
 
 @client.command(pass_context=True)
 async def botnick(ctx, *, name):
