@@ -14,14 +14,14 @@ class Yeets(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @client.event
+    @commands.Cog.listener()
     async def on_member_join(member):
         if member.guild.id == 609112858214793217:
             msg = joinmsg.replace("<name>",str(member.name))
             msg = joinmsg.replace("<NAME>",str(member.name).upper())
             await client.get_channel(yeetsChannel).send(msg)
 
-    @client.event 
+    @commands.Cog.listener()
     async def on_member_remove(member):
         if member.guild.id == 609112858214793217:
             msg = leavemsg.replace("<name>",str(member.name))
