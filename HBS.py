@@ -116,7 +116,7 @@ async def getEmojiUsage(ctx, num=None):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
-        cursor.execute("SELECT * FROM emoji ORDER BY id::int")
+        cursor.execute("SELECT * FROM emoji ORDER BY usage")
 
         emojis = cursor.fetchall()
         output = "Top " + str(num) + " emojis: "
@@ -236,7 +236,6 @@ def updateEmojiList(message):
 
         oldEmojis = []
         for e in tempEmojis:
-                #sys.stdout.write(e[1])
                 oldEmojis.append(e[1])
         
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
@@ -253,7 +252,6 @@ def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                #sys.stdout.write("Inserted\n")
                 addCount = addCount + 1
 
         connection.commit()
