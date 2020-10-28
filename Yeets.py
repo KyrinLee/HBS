@@ -4,9 +4,9 @@ import sys
 
 import os
 
-global joinmsg = os.environ['joinMsg']
-global leavemsg = os.environ['leaveMsg']
-global yeetsChannel = os.environ['yeetsChannel']
+joinmsg = os.environ['joinMsg']
+leavemsg = os.environ['leaveMsg']
+yeetsChannel = os.environ['yeetsChannel']
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
