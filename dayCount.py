@@ -3,6 +3,13 @@ from discord.ext import commands
 import time
 from datetime import datetime, date
 
+import sys
+
+import os
+import psycopg2
+
+from psycopg2 import Error
+
 class dayCount(commands.Cog):
     def __init__(self, client):
         self.client = client

@@ -15,9 +15,6 @@ import psycopg2
 
 from psycopg2 import Error
 
-global delCount
-global addCount
-
 startup_extensions = ["dayCount"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
