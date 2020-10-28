@@ -15,7 +15,7 @@ import psycopg2
 
 from psycopg2 import Error
 
-startup_extensions = ["dayCount","helpCmd"]
+startup_extensions = ["dayCount"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -172,6 +172,9 @@ def is_in_guild(guild_id):
 @client.command(pass_context=True)
 async def getEmojiUsage(ctx, num=None, animated=None):
         if num == None:
+                num = 15
+        elif num == "-s" or num == "-a":
+                animated = num
                 num = 15
         else:
                 num = int(num)
@@ -374,6 +377,18 @@ async def spoil(ctx, *, text, brief="Resends image(s) under spoiler tags.", desc
     ping = "Sent by <@" + str(ctx.author.id) + ">\n**" + text + "**";
     await ctx.send(content=ping, files=files)
     await ctx.message.delete()
+
+
+@client.command(pass_context=True)
+async def help(ctx, command=None)
+    embed = discord.Embed(title="HBS Help", description="Help menu for HBS.", color=0x005682)
+
+    embed.add_field(name="reset", value="**hbs;reset <countername>**\nResets given counter.", inline=False)
+    embed.add_field(name="geu", value="**hbs;getEmojiUsage <num> <animated>**\nReturns top and bottom <num> emojis. Static or animated can be specified using -s or -a.", inline=False)
+    embed.add_field(name="gfeu", value="**hbs;getFullEmojiUsage**\nReturns all emojis in server with usage stats, sorted by most to least used.", inline=False)
+    embed.add_field(name="spoil", value="**hbs;spoil <text> <image(s)>, or \hbs;spoil <text> <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.",inline=False)
+
+    await message.channel.send(embed=embed)
 
 @client.command(pass_context=True)
 @commands.is_owner()
