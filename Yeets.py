@@ -46,6 +46,7 @@ class Yeets(commands.Cog):
             await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
         else:
-                await ctx.send("You do not have permission to run this command.")
+            await ctx.send("You do not have permission to run this command.")
+
 def setup(client):
     client.add_cog(Yeets(client))
