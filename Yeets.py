@@ -29,7 +29,7 @@ class Yeets(commands.Cog):
             msg = leavemsg.replace("<NAME>",str(member.name).upper())
             await client.get_channel(yeetsChannel).send(msg)
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @is_admin()
     async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
         if msgName == None:
