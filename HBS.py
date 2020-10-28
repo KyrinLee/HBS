@@ -110,28 +110,30 @@ async def on_raw_reaction_add(payload):
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         sys = await pk.get_pk_system_from_userid(payload.user_id)
-        sys = sys["id"]
+        if sys != None:
+            
+            sys = sys["id"]
 
-        isMenu = False
+            isMenu = False
 
-        reacts = msg.reactions
-        for react in reacts:
-            if react.emoji == "✅":
-                users = await react.users().flatten()
-                for user in users:
-                    if user.id == 466378653216014359:
-                        isMenu = True
+            reacts = msg.reactions
+            for react in reacts:
+                if react.emoji == "✅":
+                    users = await react.users().flatten()
+                    for user in users:
+                        if user.id == 466378653216014359:
+                            isMenu = True
 
-        if msg.author.id == 466378653216014359 and (not isMenu):
-            for embed in msg.embeds:
-                emb = json.dumps(embed.to_dict())
-                if (emb.find(sys) != -1):
-                    result = 1
-            if result == 1:
-                await msg.edit(suppress=True)
-                await msg.clear_reactions()
-                msgDel = client.get_emoji(767960168444723210)
-                await msg.add_reaction(msgDel)
+            if msg.author.id == 466378653216014359 and (not isMenu):
+                for embed in msg.embeds:
+                    emb = json.dumps(embed.to_dict())
+                    if (emb.find(sys) != -1):
+                        result = 1
+                if result == 1:
+                    await msg.edit(suppress=True)
+                    await msg.clear_reactions()
+                    msgDel = client.get_emoji(767960168444723210)
+                    await msg.add_reaction(msgDel)
 
         if msg.author.id == 753345733377261650 and  len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
             await msg.delete()
