@@ -208,7 +208,7 @@ async def on_raw_reaction_add(payload):
     cursor.execute(postgreSQL_select_Query)
     emojis = cursor.fetchall()
 
-    emojis = [e[0] for e in oldEmojis]
+    emojis = [e[0] for e in emojis]
 
     if str(payload.emoji.id) in emojis:
         cursor.execute(get_usage,(str(payload.emoji.id),))
