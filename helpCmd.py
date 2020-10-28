@@ -102,19 +102,29 @@ class EmbedHelp(dpy_cmds.DefaultHelpCommand):
         if ctx.guild is not None:
             permissions: discord.Permissions = ctx.guild.me.permissions_in(dest)
             if not permissions.embed_links:
+<<<<<<< HEAD
                 await dest.send(f"Error! Gabby Gums must have the `Embed Links` permission in this channel to continue. Please give Gabby Gums the `Embed Links` permission and try again."
                                 f"\nIf you need assistance, please join our support server @ {support_link} and we will be happy to help you.")
                 return
 
         embed = discord.Embed(title='Gabby Gums Help', color=help_embed_color)
+=======
+                await dest.send(f"Error! HBS must have the `Embed Links` permission in this channel to continue. Please give HBS the `Embed Links` permission and try again.")
+                return
+
+        embed = discord.Embed(title='HBS Help', color=help_embed_color)
+>>>>>>> helpCmd
 
         embed.add_field(name="Who can use Gabby Gums",
                         value="Anyone!\n"
                               "Regardless of system type or plurality, all people are valid. "
                               "As such, all people are allowed to use this bot.\n")
+<<<<<<< HEAD
         embed.add_field(name="Support Server",
                         value="For support, suggestions, just want to chat with someone, "
                               f"or anything else, feel free to join our support server @ {support_link}")
+=======
+>>>>>>> helpCmd
 
         embed.set_footer(text="Created by Luna, Hibiki, and Fluttershy aka Amadea System (Hibiki#8792) "
                               "| Github: https://github.com/amadea-system/GabbyGums/")
