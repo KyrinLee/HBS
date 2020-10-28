@@ -15,13 +15,24 @@ import psycopg2
 
 from psycopg2 import Error
 
+<<<<<<< Updated upstream
 global delCount
 global addCount
+=======
+startup_extensions = ["dayCount","helpCmd"]
+>>>>>>> Stashed changes
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
 client = commands.Bot(
+<<<<<<< Updated upstream
     command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
+=======
+    command_prefix=("hbs;","\hbs;"),
+    owner_id=707112913722277899,
+    case_insensitive=True,
+    help_command=None)
+>>>>>>> Stashed changes
 
 
 # ----- Discord Events ----- #
