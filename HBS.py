@@ -169,7 +169,7 @@ def is_in_guild(guild_id):
     return commands.check(predicate)
 
 
-@client.command(pass_context=True)
+@client.command(pass_context=True,aliases=['geu'])
 async def getEmojiUsage(ctx, num=None, animated=None):
         if num == None:
                 num = 15
@@ -207,7 +207,7 @@ async def getEmojiUsage(ctx, num=None, animated=None):
         await ctx.send(output)
 
 
-@client.command(pass_context=True)
+@client.command(pass_context=True,aliases=['gfeu'])
 async def getFullEmojiUsage(ctx):
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -391,12 +391,12 @@ async def help(ctx, command=None):
     embed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
     await ctx.send(embed=embed)
 
-@client.command(pass_context=True)
+@client.command(pass_context=True,aliases=['nick'])
 @commands.is_owner()
 async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
     await ctx.guild.me.edit(nick=name)
 
-@client.command(pass_context=True)
+@client.command(pass_context=True,aliases=['cg'])
 @commands.is_owner()
 async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
     await client.change_presence(activity=discord.Game(name=game))
