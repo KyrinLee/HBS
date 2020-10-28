@@ -1,14 +1,8 @@
 import discord
 from discord.ext import commands
-import time
-from datetime import datetime, date
-
 import sys
 
 import os
-import psycopg2
-
-from psycopg2 import Error
 
 global joinmsg = os.environ['joinMsg']
 global leavemsg = os.environ['leaveMsg']
