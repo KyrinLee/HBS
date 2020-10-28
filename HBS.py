@@ -25,6 +25,17 @@ client = commands.Bot(
     case_insensitive=True,
     help_command=None)
 
+# ----- CHECK DEFINITIONS ----- #
+
+def is_in_guild(guild_id):
+    async def predicate(ctx):
+        if ctx.guild.id != guild_id:
+            raise CheckFailure("You cannot run this command in this server.")
+        else return true
+    return commands.check(predicate)
+
+
+
 
 # ----- Discord Events ----- #
 @client.event
@@ -168,10 +179,6 @@ async def sendEmoji(ctx, id):
     await ctx.send(str(client.get_emoji(id)))
 '''
 
-def is_in_guild(guild_id):
-    async def predicate(ctx):
-        return ctx.guild and ctx.guild.id == guild_id
-    return commands.check(predicate)
 
 @client.command(pass_context=True,aliases=['geu'])
 async def getEmojiUsage(ctx, num=None, animated=None):
