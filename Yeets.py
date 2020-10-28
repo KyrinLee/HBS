@@ -98,6 +98,7 @@ class Yeets(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
+    @commands.is_in_guild(609112858214793217)
     async def changeYeets(self,ctx:commands.Context,channelID):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -126,7 +127,7 @@ class Yeets(commands.Cog):
             raise InvalidArgument("Please include a numeric channel ID.")
 
     @changeYeets.error
-    async def info_error(ctx,error):
+    async def changeYeets_error(ctx,error):
         if isinstance(error, commands.CheckFailure):
             if error.message!=None:
                 await ctx.send(error)
