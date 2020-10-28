@@ -15,24 +15,12 @@ import psycopg2
 
 from psycopg2 import Error
 
-<<<<<<< Updated upstream
-global delCount
-global addCount
-=======
-startup_extensions = ["dayCount","helpCmd"]
->>>>>>> Stashed changes
+startup_extensions = ["dayCount"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
 client = commands.Bot(
-<<<<<<< Updated upstream
-    command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
-=======
-    command_prefix=("hbs;","\hbs;"),
-    owner_id=707112913722277899,
-    case_insensitive=True,
-    help_command=None)
->>>>>>> Stashed changes
+    command_prefix=("hbs;","\hbs;"), owner_id=707112913722277899, case_insensitive=True)
 
 
 # ----- Discord Events ----- #
@@ -172,6 +160,11 @@ async def sendEmoji(ctx, id):
     await ctx.send(str(client.get_emoji(id)))
 '''
 
+def is_in_guild(guild_id):
+    async def predicate(ctx):
+        return ctx.guild and ctx.guild.id == guild_id
+    return commands.check(predicate)
+
 
 @client.command(pass_context=True)
 async def getEmojiUsage(ctx, num=None, animated=None):
@@ -275,14 +268,16 @@ def updateEmojiList(message):
         connection.close()
         
 @client.command(pass_context=True)
-async def updateEmojis(ctx):
+@is_in_guild(609112858214793217)
+async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
         updateEmojiList(ctx.message)
         await ctx.send("Emoji List Updated.")
         
 
 @client.command(pass_context=True)
-async def clearEmojiList(ctx):
+@commands.is_owner()
+async def clearEmojiList(ctx,hidden=True,description="Clears emoji usage data."):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
@@ -300,7 +295,8 @@ async def clearEmojiList(ctx):
         connection.close()
 
 @client.command(pass_context=True)
-async def addEmoji(ctx,id):
+@commands.is_owner()
+async def addEmoji(ctx,id,hidden=True):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
@@ -320,7 +316,8 @@ async def addEmoji(ctx,id):
         connection.close()
 
 @client.command(pass_context=True)
-async def createEmojiTable(ctx):
+@commands.is_owner()
+async def createEmojiTable(ctx,hidden=True,description="Creates emoji table."):
 
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         try:
@@ -349,7 +346,8 @@ async def createEmojiTable(ctx):
                                 print("PostgreSQL connection is closed")
 
 @client.command(pass_context=True)
-async def dump(ctx):
+@commands.is_owner()
+async def dump(ctx, hidden=True, description="Dumps emoji table data."):
         if ctx.author.id == 707112913722277899:
                 connection = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = connection.cursor()
@@ -358,23 +356,44 @@ async def dump(ctx):
                 data = cursor.fetchall()
 
                 await ctx.send(data)
+                sys.stdout.write(data)
                         
                 cursor.close()
                 connection.close()
 
 @client.command(pass_context=True)
-async def botnick(ctx, *, name):
-    if ctx.message.author.id == 707112913722277899:
-        await ctx.guild.me.edit(nick=name)
+async def spoil(ctx, *, text, brief="Resends image(s) under spoiler tags.", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
+    files = []
+    for a in ctx.message.attachments:
+        file = await a.to_file(use_cached=True, spoiler=True)
+        files.append(file)
+
+    ping = "Sent by <@" + str(ctx.author.id) + ">\n**" + text + "**";
+    await ctx.send(content=ping, files=files)
+    await ctx.message.delete()
 
 @client.command(pass_context=True)
-async def changeGame(ctx, *, game):
-    if ctx.message.author.id == 707112913722277899:
-        await client.change_presence(activity=discord.Game(name=game))
+@commands.is_owner()
+async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
+    await ctx.guild.me.edit(nick=name)
+
+@client.command(pass_context=True)
+@commands.is_owner()
+async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
+    await client.change_presence(activity=discord.Game(name=game))
 
 @client.event
 async def on_error(event_name, *args):
     logging.exception("Exception from event {}".format(event_name))
 
+
+if __name__ == "__main__":
+    for extension in startup_extensions:
+        try:
+            client.load_extension(extension)
+        except Exception as e:
+            exc = '{}: {}'.format(type(e).__name__, e)
+            print('Failed to load extension {}\n{}'.format(extension, exc))
+            
 client.run(os.environ["token"])
 
