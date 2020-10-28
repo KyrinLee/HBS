@@ -3,6 +3,9 @@ from discord.ext import commands
 import sys
 
 import os
+import psycopg2
+
+from psycopg2 import Error
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
