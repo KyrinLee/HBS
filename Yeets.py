@@ -29,21 +29,21 @@ class Yeets(commands.Cog):
             await client.get_channel(yeetsChannel).send(msg)
 
     @commands.command(pass_context=True)
+    @commands.is_owner()
     async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
-        if ctx.author.id in adminIDs:
-            if msgName == None:
-                msgName = ""
-            
-            if msgName.lower() == "join" or msgName.lower() == "j":
-                os.environ.set('joinMsg',message)
-                joinmsg = os.environ['joinMsg']
-                await ctx.send("Join Message changed to " + joinmsg)
-            elif msgName.lower() == "leave" or msgName.lower() == "l":
-                os.environ.set('leaveMsg',message)
-                joinmsg = os.environ['leaveMsg']
-                await ctx.send("Leave Message changed to " + leavemsg)
-            else:
-                await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
+        if msgName == None:
+            msgName = ""
+        
+        if msgName.lower() == "join" or msgName.lower() == "j":
+            os.environ.set('joinMsg',message)
+            joinmsg = os.environ['joinMsg']
+            await ctx.send("Join Message changed to " + joinmsg)
+        elif msgName.lower() == "leave" or msgName.lower() == "l":
+            os.environ.set('leaveMsg',message)
+            joinmsg = os.environ['leaveMsg']
+            await ctx.send("Leave Message changed to " + leavemsg)
+        else:
+            await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
         else:
                 await ctx.send("You do not have permission to run this command.")
