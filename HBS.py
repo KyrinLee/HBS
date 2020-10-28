@@ -20,7 +20,7 @@ startup_extensions = ["dayCount"]
 DATABASE_URL = os.environ['DATABASE_URL']
 
 client = commands.Bot(
-    command_prefix="hbs;", owner_id=707112913722277899, case_insensitive=True)
+    command_prefix=("hbs;","\hbs;"), owner_id=707112913722277899, case_insensitive=True)
 
 
 # ----- Discord Events ----- #
@@ -358,6 +358,7 @@ async def spoil(ctx):
         files.append(file)
 
     await ctx.send(files=files)
+    await ctx.message.delete()
 
 @client.command(pass_context=True)
 async def botnick(ctx, *, name):
