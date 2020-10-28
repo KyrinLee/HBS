@@ -30,8 +30,8 @@ class Yeets(commands.Cog):
             await client.get_channel(yeetsChannel).send(msg)
 
     @commands.command()
-    @is_admin(ctx.author.id)
-    async def changeMsg(self,ctx,msgName=None,*,message):
+    @is_admin()
+    async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
         if msgName == None:
             msgName = ""
         
