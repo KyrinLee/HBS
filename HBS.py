@@ -110,32 +110,23 @@ async def sendEmoji(ctx, id):
 
 @client.command(pass_context=True)
 async def getEmojiUsage(ctx, num=None):
-    if num == None:
-        num = 10
-    num = int(num)
-    names = []
-    counts = []
-    output = ""
+        if num == None:
+                num = 15
 
-    i = 0
-    for key in db.keys():
-        names.append(key)
-        counts.append(int(db[key]))
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
 
-    top = [x for _, x in sorted(zip(counts, names))]
+        cursor.execute("SELECT * FROM emoji ORDER BY id::int")
 
-    output += "Top " + str(num) + " Emojis: "
+        emojis = cursor.fetchall()
+        output = "Top " + str(num) + " emojis: "
 
-    top.reverse()
-    for i in range(0, num):
-        output += str(client.get_emoji(int(top[i])))
-    output += "\n\nBottom " + str(num) + " Emojis: "
+        for i in range(0,num):
+                output += str(client.get_emoji(int(i[1])))
+        output += "\nBottom " + str(num) + " emojis: "
 
-    top.reverse()
-    for i in range(0, num):
-        output += str(client.get_emoji(int(top[i])))
-
-    await ctx.send(output)
+        for i in range(len(emojis),len(emojis)-num):
+                output += str(client.get_emoji(int(i[1])))
 
 
 @client.command(pass_context=True)
@@ -205,49 +196,17 @@ async def getWebhooks(ctx):
         print(content)
 
 
-@client.command(pass_context=True)
+'''@client.command(pass_context=True)
 async def emojiUsage(ctx):
-    emojis = ctx.guild.emojis
+        connection =psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
 
-    emojiA = []
-    emojiID = []
-    emojiNames = []
+        cursor.execute("SELECT * FROM emoji ORDER BY id::int")
 
-    i = 0
-    for emoji in emojis:
-        emojiA.append(emoji.animated)
-        emojiNames.append(emoji.name)
-        emojiID.append(str(emoji.id))
+        emojis = cursor.fetchall()
 
-        #db[emojiID] = "0";
-        i += 1
-    print(emojiNames)
-
-    i = 0
-    output = ""
-    length = 0
-
-    for i in range(0, len(emojiID)):
-        if emojiA[i]:
-            output += "<a:"
-            length += 3
-        else:
-            output += "<:"
-            length += 2
-        output += emojiNames[i]
-        length += len(emojiNames[i])
-        output += ":"
-        output += emojiID[i]
-        length += len(emojiID[i]) + 1
-        output += ">\n"
-        length += 3
-
-        if (length > 1900):
-            #await ctx.send(output)
-            output = ""
-            length = 0
-
-
+        for (
+'''
 @client.command(pass_context=True)
 async def botnick(ctx, *, name):
     if ctx.message.author.id == 707112913722277899:
@@ -300,17 +259,12 @@ def updateEmojiList(message):
         connection.commit()
         cursor.close()
         connection.close()
-
-        sys.stdout.write(str(delCount) + " emojis deleted, " + str(addCount) + " emojis added")
-        sys.stdout.flush()
-
-        output = str(delCount) + " emojis deleted, " + str(addCount) + " emojis added"
-        return output
         
 @client.command(pass_context=True)
 async def updateEmojis(ctx):
 
-        await ctx.send(updateEmojiList(ctx.message))
+        updateEmojiList(ctx.message)
+        await ctx.send("Emoji List Updated.")
         
 
 @client.command(pass_context=True)
