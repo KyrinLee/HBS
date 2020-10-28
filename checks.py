@@ -2,14 +2,16 @@ import discord
 from discord.ext import commands
 
 class InvalidArgument(commands.CommandError):
-    def __init__(self, user, *args, **kwargs):
+    def __init__(self, user, *args, message=None):
         self.user = user
         super().__init__(*args, **kwargs)
+        self.message = message
 
 class CheckFailure(commands.CommandError):
-    def __init__(self,user,*args,**kwargs):
+    def __init__(self, user, *args, message=None):
         self.user = user
         super().__init__(*args,**kwargs)
+        self.message = message
 
 
 # ----- CHECK DEFINITIONS ----- #

@@ -129,10 +129,10 @@ class Yeets(commands.Cog):
     @changeYeets.error
     async def changeYeets_error(self,ctx,error):
         if isinstance(error, checks.CheckFailure):
-            if error != None:
-                await ctx.send(error)
+            if error.message != None:
+                await ctx.send(error.message)
             else:
-                await ctx.send("You do not have permission to run this command.")
+                await ctx.send("You do not have permission to run this command here.")
 
         elif isinstance(error, checks.InvalidArgument):
             await ctx.send(error)
