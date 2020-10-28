@@ -12,10 +12,6 @@ from psycopg2 import Error
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
-<<<<<<< HEAD
-
-=======
->>>>>>> helpCmd
 from string import Formatter
 from datetime import timedelta
 
