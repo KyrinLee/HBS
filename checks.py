@@ -4,10 +4,12 @@ from discord.ext import commands
 class InvalidArgument(commands.CommandError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.__dict__.update(kwargs)
 
 class CheckFailure(commands.CommandError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
+        self.__dict__.update(kwargs)
 
 
 # ----- CHECK DEFINITIONS ----- #
