@@ -109,14 +109,19 @@ async def sendEmoji(ctx, id):
 
 
 @client.command(pass_context=True)
-async def getEmojiUsage(ctx, num=None):
+async def getEmojiUsage(ctx, num=None, animated=None):
         if num == None:
                 num = 15
 
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
-        cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
+        if animated == "-s":
+                cursor.execute("SELECT * FROM emoji WHERE animated = 0 ORDER BY usage DESC")
+        elif animated == "-a":
+                cursor.execute("SELECT * FROM emoji WHERE animated = 1 ORDER BY usage DESC")
+        else:
+                cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
         emojis = cursor.fetchall()
         output = "Top " + str(num) + " emojis: "
@@ -128,6 +133,11 @@ async def getEmojiUsage(ctx, num=None):
         for i in range(len(emojis)-1,len(emojis)-1-num,-1):
                 output += str(client.get_emoji(int(emojis[i][1])))
 
+                
+        if animated == "-s":
+                output+="\n(animated emojis excluded.)"
+        if animated == "-a":
+                output+="\n(static emojis excluded.)"
         await ctx.send(output)
 
 
