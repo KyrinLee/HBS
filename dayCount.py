@@ -10,6 +10,8 @@ import psycopg2
 
 from psycopg2 import Error
 
+DATABASE_URL = os.environ['DATABASE_URL']
+
 class dayCount(commands.Cog):
     def __init__(self, client):
         self.client = client
