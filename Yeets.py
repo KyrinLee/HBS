@@ -24,11 +24,10 @@ class Yeets(commands.Cog):
             cursor = conn.cursor()
 
             cursor.execute(select_q,("joinMsg",))
-            joinmsg = str(cursor.fetchall()[0])
+            joinmsg = str(cursor.fetchall()[0][0])
 
             cursor.execute(select_q,("yeetsChannel",))
             yeetsChannel = str(cursor.fetchall()[0][0])
-            await self.client.get_channel(754527915290525807).send(joinmsg+ " " +yeetsChannel)
             
             await self.client.get_channel(int(yeetsChannel)).send(joinmsg)
             
@@ -49,10 +48,10 @@ class Yeets(commands.Cog):
             cursor = conn.cursor()
 
             cursor.execute(select_q,("leaveMsg",))
-            leavemsg = str(cursor.fetchall())
+            leavemsg = str(cursor.fetchall()[0][0])
 
             cursor.execute(select_q,("yeetsChannel",))
-            yeetsChannel = str(cursor.fetchall())
+            yeetsChannel = str(cursor.fetchall()[0][0])
             
             await self.client.get_channel(int(yeetsChannel)).send(leavemsg)
             
