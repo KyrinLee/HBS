@@ -22,7 +22,7 @@ class dayCount(commands.Cog):
 
         cursor = connection.cursor()
 
-        currTime = time.time()
+        currTime = date.fromtimestamp(time.time())
 
         cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)")
 
