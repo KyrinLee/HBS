@@ -18,6 +18,7 @@ from psycopg2 import Error
 startup_extensions = ["dayCount"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
+adminIDs = [707112913722277899,259774152867577856]
 
 client = commands.Bot(
     command_prefix=("hbs;","\hbs;"),
@@ -171,6 +172,10 @@ def is_in_guild(guild_id):
         return ctx.guild and ctx.guild.id == guild_id
     return commands.check(predicate)
 
+def is_admin():
+    async def predicate(ctx):
+        return ctx.author.id and ctx.author.id in adminIDs
+    return commands.check(predicate)
 
 @client.command(pass_context=True,aliases=['geu'])
 async def getEmojiUsage(ctx, num=None, animated=None):
