@@ -39,5 +39,9 @@ class dayCount(commands.Cog):
             timeDiff = datetime.combine(date.min, currTime) - datetime.combine(date.min, timeStamp)
             await ctx.send("counter " + name + " updated - it has been " + str(timeDiff) + " seconds since this counter was last reset.")
 
+        connection.commit()
+        cursor.close()
+        connection.close()
+
 def setup(client):
     client.add_cog(dayCount(client))
