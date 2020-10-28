@@ -3,6 +3,7 @@ from discord.ext import commands
 import sys
 
 import os
+from hbs import is_admin
 
 joinmsg = os.environ['joinMsg']
 leavemsg = os.environ['leaveMsg']
