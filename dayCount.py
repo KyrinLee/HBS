@@ -24,7 +24,7 @@ class dayCount(commands.Cog):
 
         currTime = time.time()
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT")
+        cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)")
 
         try:
             cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(name,currTime,0))
