@@ -10,7 +10,7 @@ from psycopg2 import Error
 DATABASE_URL = os.environ['DATABASE_URL']
 
 select_q = "SELECT value FROM vars WHERE name = %s"
-update_q = "UPDATE vars SET value = %s WHERE name = '%s'"
+update_q = "UPDATE vars SET value = %s WHERE name = %s"
 
 class Yeets(commands.Cog):
     def __init__(self, client):
