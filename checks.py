@@ -9,5 +9,5 @@ def is_in_guild(guild_id):
         if ctx.guild.id != guild_id:
             raise CheckFailure("You cannot run this command in this server.")
         else:
-            return true
+            return True
     return commands.check(predicate)
