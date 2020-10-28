@@ -166,7 +166,7 @@ async def getFullEmojiUsage(ctx):
         
 @client.event
 async def on_raw_reaction_add(payload):
-    '''if payload.emoji.name == "❌":
+    if payload.emoji.name == "❌":
         result = -1
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
@@ -198,10 +198,26 @@ async def on_raw_reaction_add(payload):
     if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
         await msg.delete()
 
-    if (str(payload.emoji.id) in db.keys()):
-        db[str(payload.emoji.id)] = str(int(db[str(payload.emoji.id)]) + 1)
+    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
-'''
+    cursor = connection.cursor()
+    postgreSQL_select_Query = "SELECT id FROM emoji"
+    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
+    get_usage = "SELECT usage FROM emoji WHERE id=%s"
+
+    cursor.execute(postgreSQL_select_Query)
+    emojis = cursor.fetchall()
+
+    emojis = [e[0] for e in oldEmojis]
+
+    if str(payload.emoji.id) in emojis:
+        cursor.execute(get_usage,(str(payload.emoji.id),))
+        use = cursor.fetchall()
+        cursor.execute(update_q, (use[0][0]+1,str(payload.emoji.id)))
+                                
+    connection.commit()                            
+    cursor.close()
+    connection.close()
 
 @client.command(pass_context=True)
 async def botnick(ctx, *, name):
