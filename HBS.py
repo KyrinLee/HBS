@@ -15,6 +15,8 @@ import psycopg2
 
 from psycopg2 import Error
 
+import checks
+
 startup_extensions = ["dayCount","Yeets","CommandErrorHandler"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
@@ -28,16 +30,6 @@ client = commands.Bot(
     case_insensitive=True,
     help_command=None,
     intents=intents)
-
-# ----- CHECK DEFINITIONS ----- #
-
-def is_in_guild(guild_id):
-    async def predicate(ctx):
-        if ctx.guild.id != guild_id:
-            raise CheckFailure("You cannot run this command in this server.")
-        else:
-            return true
-    return commands.check(predicate)
 
 
 # ----- Discord Events ----- #
@@ -288,7 +280,7 @@ def updateEmojiList(message):
         connection.close()
         
 @client.command(pass_context=True)
-@is_in_guild(609112858214793217)
+@checks.is_in_guild(609112858214793217)
 async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
         updateEmojiList(ctx.message)
