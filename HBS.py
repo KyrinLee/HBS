@@ -100,6 +100,60 @@ async def on_message(message: discord.Message):
     connection.close()
     await client.process_commands(message)
 
+@client.event
+async def on_raw_reaction_add(payload):
+    if payload.emoji.name == "❌":
+        result = -1
+        channel = client.get_channel(payload.channel_id)
+        msg = await channel.fetch_message(payload.message_id)
+        sys = await pk.get_pk_system_from_userid(payload.user_id)
+        sys = sys["id"]
+
+        isMenu = False
+
+        reacts = msg.reactions
+        for react in reacts:
+            if react.emoji == "✅":
+                users = await react.users().flatten()
+                for user in users:
+                    if user.id == 466378653216014359:
+                        isMenu = True
+
+        if msg.author.id == 466378653216014359 and (not isMenu):
+            for embed in msg.embeds:
+                emb = json.dumps(embed.to_dict())
+                if (emb.find(sys) != -1):
+                    result = 1
+            if result == 1:
+                await msg.edit(suppress=True)
+                await msg.clear_reactions()
+                msgDel = client.get_emoji(767960168444723210)
+                await msg.add_reaction(msgDel)
+        #await channel.send("message deleted")
+
+    if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
+        await msg.delete()
+
+    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+    cursor = connection.cursor()
+    postgreSQL_select_Query = "SELECT id FROM emoji"
+    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
+    get_usage = "SELECT usage FROM emoji WHERE id=%s"
+
+    cursor.execute(postgreSQL_select_Query)
+    emojis = cursor.fetchall()
+
+    emojis = [e[0] for e in emojis]
+
+    if str(payload.emoji.id) in emojis:
+        cursor.execute(get_usage,(str(payload.emoji.id),))
+        use = cursor.fetchall()
+        cursor.execute(update_q, (use[0][0]+1,str(payload.emoji.id)))
+                                
+    connection.commit()                            
+    cursor.close()
+    connection.close()
 
 '''@client.command(pass_context=True)
 async def sendEmoji(ctx, id):
@@ -164,67 +218,6 @@ async def getFullEmojiUsage(ctx):
         cursor.close()
         connection.close()
         
-@client.event
-async def on_raw_reaction_add(payload):
-    if payload.emoji.name == "❌":
-        result = -1
-        channel = client.get_channel(payload.channel_id)
-        msg = await channel.fetch_message(payload.message_id)
-        sys = await pk.get_pk_system_from_userid(payload.user_id)
-        sys = sys["id"]
-
-        isMenu = False
-
-        reacts = msg.reactions
-        for react in reacts:
-            if react.emoji == "✅":
-                users = await react.users().flatten()
-                for user in users:
-                    if user.id == 466378653216014359:
-                        isMenu = True
-
-        if msg.author.id == 466378653216014359 and (not isMenu):
-            for embed in msg.embeds:
-                emb = json.dumps(embed.to_dict())
-                if (emb.find(sys) != -1):
-                    result = 1
-            if result == 1:
-                await msg.edit(suppress=True)
-                await msg.clear_reactions()
-                msgDel = client.get_emoji(767960168444723210)
-                await msg.add_reaction(msgDel)
-        #await channel.send("message deleted")
-
-    if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
-        await msg.delete()
-
-    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-    cursor = connection.cursor()
-    postgreSQL_select_Query = "SELECT id FROM emoji"
-    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-    get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
-    cursor.execute(postgreSQL_select_Query)
-    emojis = cursor.fetchall()
-
-    emojis = [e[0] for e in emojis]
-
-    if str(payload.emoji.id) in emojis:
-        cursor.execute(get_usage,(str(payload.emoji.id),))
-        use = cursor.fetchall()
-        cursor.execute(update_q, (use[0][0]+1,str(payload.emoji.id)))
-                                
-    connection.commit()                            
-    cursor.close()
-    connection.close()
-
-@client.command(pass_context=True)
-async def botnick(ctx, *, name):
-    if ctx.message.author.id == 707112913722277899:
-        await ctx.guild.me.edit(nick=name)
-
-
 def updateEmojiList(message):
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -358,6 +351,15 @@ async def dump(ctx):
                 cursor.close()
                 connection.close()
 
+@client.command(pass_context=True)
+async def botnick(ctx, *, name):
+    if ctx.message.author.id == 707112913722277899:
+        await ctx.guild.me.edit(nick=name)
+
+@client.command(pass_context=True)
+async def changeGame(ctx, *, game):
+    if ctx.message.author.id == 707112913722277899:
+        await client.change_presence(activity=discord.Game(name=game))
 
 @client.event
 async def on_error(event_name, *args):
