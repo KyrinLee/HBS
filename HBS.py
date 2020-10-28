@@ -15,7 +15,7 @@ import psycopg2
 
 from psycopg2 import Error
 
-startup_extensions = ["dayCount"]
+startup_extensions = ["dayCount","Yeets"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 adminIDs = [707112913722277899,259774152867577856]
