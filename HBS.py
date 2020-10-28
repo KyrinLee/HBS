@@ -389,7 +389,7 @@ async def dump(ctx):
                 cursor.execute("SELECT * FROM emoji")
                 data = cursor.fetchall()
 
-                ctx.send(data)
+                await ctx.send(data)
                         
                 cursor.close()
                 connection.close()
