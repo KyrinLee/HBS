@@ -15,12 +15,15 @@ import psycopg2
 
 from psycopg2 import Error
 
-startup_extensions = ["dayCount"]
+startup_extensions = ["dayCount","helpCmd"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
 client = commands.Bot(
-    command_prefix=("hbs;","\hbs;"), owner_id=707112913722277899, case_insensitive=True)
+    command_prefix=("hbs;","\hbs;"),
+    owner_id=707112913722277899,
+    case_insensitive=True,
+    help_command=None)
 
 
 # ----- Discord Events ----- #
