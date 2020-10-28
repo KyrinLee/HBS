@@ -401,6 +401,11 @@ async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname i
 async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
     await client.change_presence(activity=discord.Game(name=game))
 
+@client.command(pass_context=True)
+async def vriska(ctx):
+    await ctx.send("<:vriska:480855644388458497>")
+    await ctx.message.delete()
+    
 @client.event
 async def on_error(event_name, *args):
     logging.exception("Exception from event {}".format(event_name))
