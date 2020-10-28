@@ -16,7 +16,7 @@ class dayCount(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True)
+    @commands.command()
     async def reset(ctx, counter:str):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
