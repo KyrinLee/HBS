@@ -99,7 +99,7 @@ class Yeets(commands.Cog):
     @commands.command(pass_context=True)
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
-    async def changeYeets(self, ctx:commands.Context, channelID):
+    async def changeYeets(self, ctx:commands.Context, channelID==None):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
