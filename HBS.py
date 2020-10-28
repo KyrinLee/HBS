@@ -125,7 +125,7 @@ async def getEmojiUsage(ctx, num=None):
                 output += str(client.get_emoji(int(emojis[i][1])))
         output += "\nBottom " + str(num) + " emojis: "
 
-        for i in range(len(emojis)-1,len(emojis)-1-num):
+        for i in range(len(emojis)-1,len(emojis)-1-num,-1):
                 output += str(client.get_emoji(int(emojis[i][1])))
 
         await ctx.send(output)
