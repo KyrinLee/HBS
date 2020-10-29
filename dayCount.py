@@ -101,7 +101,14 @@ class dayCount(commands.Cog):
             cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
 
             timeDiff = currTime - timeStamp
-            await ctx.send("Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " times.")
+
+            output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+            if mentions == 1:
+                output += "."
+            else:
+                output += "s."
+                
+            await ctx.send(output)
 
         connection.commit()
         cursor.close()
