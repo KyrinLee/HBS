@@ -24,7 +24,7 @@ class Starboards(commands.Cog):
     @commands.command(pass_context=True)
     @commands.is_owner()
     async def createChannel(self,ctx: commands.Context,channelName=None):
-        if channelName=None:
+        if channelName==None:
             raise checks.InvalidArgument("Please include a channel name.")
 
         guild = ctx.message.guild
