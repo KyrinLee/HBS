@@ -95,13 +95,13 @@ class dayCount(commands.Cog):
             cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
             data = cursor.fetchall()
 
-            mentions = data[0][2]
+            mentions = data[0][2] + 1
             timeStamp = data[0][1]
             
             cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
 
             timeDiff = currTime - timeStamp
-            await ctx.send("Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset.")
+            await ctx.send("Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + mentions + " times.")
 
         connection.commit()
         cursor.close()
