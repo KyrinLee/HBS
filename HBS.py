@@ -17,7 +17,7 @@ from psycopg2 import Error
 
 import checks
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -360,18 +360,17 @@ async def createEmojiTable(ctx,hidden=True,description="Creates emoji table."):
 @client.command(pass_context=True)
 @commands.is_owner()
 async def dump(ctx, hidden=True, description="Dumps emoji table data."):
-        if ctx.author.id == 707112913722277899:
-                connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-                cursor = connection.cursor()
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
 
-                cursor.execute("SELECT * FROM emoji")
-                data = cursor.fetchall()
+        cursor.execute("SELECT * FROM emoji")
+        data = cursor.fetchall()
 
-                await ctx.send(data)
-                sys.stdout.write(data)
-                        
-                cursor.close()
-                connection.close()
+        await ctx.send(data)
+        sys.stdout.write(data)
+                
+        cursor.close()
+        connection.close()
 
 @client.command(pass_context=True)
 async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
