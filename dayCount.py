@@ -10,6 +10,8 @@ import psycopg2
 
 from psycopg2 import Error
 
+import checks
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 from string import Formatter
@@ -67,7 +69,11 @@ class dayCount(commands.Cog):
         self.client = client
 
     @commands.command()
-    async def reset(self,ctx: commands.Context, counter:str):
+    async def reset(self,ctx: commands.Context, counter=None):
+
+        if counter==None:
+            raise checks.InvalidArgument(message="Please include counter name.")
+        
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
         cursor = connection.cursor()
