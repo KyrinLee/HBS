@@ -38,7 +38,7 @@ class Starboards(commands.Cog):
                 if j == 5:
                     i = i+1
                     j = 0
-                if data[i][3*j] == ""
+                if data[i][3*j] == "":
                     sbnum = i
                         break
                 j = j+1
