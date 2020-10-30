@@ -7,7 +7,6 @@ import sys
 
 import os
 import psycopg2
-
 from psycopg2 import Error
 from discord import NotFound
 
