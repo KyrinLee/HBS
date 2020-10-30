@@ -57,9 +57,9 @@ class Starboards(commands.Cog):
 
                 text = f'{star} **{count}** <#{msg.channel.id}>'
                 try:
-                        embed.set_image(str(msg.attachments[0].url))
-                    except:
-                        pass
+                    embed.set_image(str(msg.attachments[0].url))
+                except:
+                    pass
                 await smsg.edit(content=text,embed=embed)
                 edited = True
 
