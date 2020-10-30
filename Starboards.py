@@ -56,10 +56,14 @@ class Starboards(commands.Cog):
                 cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
                 text = f'{star} **{count}** <#{msg.channel.id}>'
-                try:
-                    embed.set_image(str(msg.attachments[0].url))
-                except:
-                    pass
+                #try:
+                embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
+                embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
+                embed.add_field(name="Source", value=jumplink, inline=True)
+                embed.set_image(str(msg.attachments[0].url))
+                embed.set_footer(text=str(msg.id))
+                #except:
+                #    pass
                 await smsg.edit(content=text,embed=embed)
                 edited = True
 
