@@ -60,6 +60,7 @@ class Starboards(commands.Cog):
                 embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
                 embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
                 embed.add_field(name="Source", value=jumplink, inline=True)
+                sys.stdout.write(str(msg.attachments[0].url))
                 embed.set_image(url=str(msg.attachments[0].url))
                 embed.set_footer(text=str(msg.id))
                 #except:
@@ -180,8 +181,8 @@ class Starboards(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
-    async def clearChannel(self, ctx:commands.Context):
-        async for message in ctx.channel.history(limit=10,oldest_first=True):
+    async def clearChannel(self, ctx:commands.Context, channelID):
+        async for message in self.client.get_channel(int(channelID)).history(limit=2,oldest_first=False):
             try:
                 await message.delete()
             except:
