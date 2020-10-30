@@ -60,7 +60,7 @@ class Starboards(commands.Cog):
                 embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
                 embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
                 embed.add_field(name="Source", value=jumplink, inline=True)
-                embed.set_image(str(msg.attachments[0].url))
+                embed.set_image(url=str(msg.attachments[0].url))
                 embed.set_footer(text=str(msg.id))
                 #except:
                 #    pass
@@ -88,7 +88,7 @@ class Starboards(commands.Cog):
                     embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
                     embed.add_field(name="Source", value=jumplink, inline=True)
                     try:
-                        embed.set_image(str(msg.attachments[0].url))
+                        embed.set_image(url=str(msg.attachments[0].url))
                     except:
                         pass
                     embed.set_footer(text=str(msg.id))
