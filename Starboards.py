@@ -12,7 +12,7 @@ from discord import NotFound
 
 import checks
 
-global processing=False
+processing=False
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
