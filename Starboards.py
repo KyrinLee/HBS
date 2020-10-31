@@ -22,7 +22,7 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        while processing=True:
+        while processing==True:
             sys.stdout.write("loop")
             await asyncio.sleep(5)
 
