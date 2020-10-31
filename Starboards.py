@@ -20,7 +20,7 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        await wait_until_ready()
+        await self.client.wait_until_ready()
 
         sys.stdout.write(str(self.client.is_ready))
         processing=True
@@ -100,7 +100,6 @@ class Starboards(commands.Cog):
             conn.commit()
             cursor.close()
             conn.close()
-            processing=False
             
     @commands.command(pass_context=True)
     @commands.is_owner()
