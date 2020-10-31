@@ -12,8 +12,6 @@ from discord import NotFound
 
 import checks
 
-processing=False
-
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class Starboards(commands.Cog):
@@ -22,9 +20,7 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        while processing==True:
-            sys.stdout.write("loop")
-            await asyncio.sleep(5)
+        await wait_until_ready()
 
         sys.stdout.write(str(self.client.is_ready))
         processing=True
