@@ -12,6 +12,8 @@ from discord import NotFound
 
 import checks
 
+global processing=False
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class Starboards(commands.Cog):
@@ -20,6 +22,12 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        while processing=True:
+            sys.stdout.write("loop")
+            await asyncio.sleep(5)
+
+        sys.stdout.write(str(self.client.is_ready))
+        processing=True
         if payload.emoji.name == "⭐":
             msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
 
@@ -96,6 +104,7 @@ class Starboards(commands.Cog):
             conn.commit()
             cursor.close()
             conn.close()
+            processing=False
             
     @commands.command(pass_context=True)
     @commands.is_owner()
