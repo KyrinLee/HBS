@@ -173,7 +173,8 @@ class Starboards(commands.Cog):
 
                     await smsg.edit(content=text)
                     await smsg.edit(embed=embed)
-                except: 
+                except:
+                    
                     id = 0
                     async for message in self.client.get_channel(starboardID).history(limit=4000):
                         if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
