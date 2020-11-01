@@ -16,6 +16,8 @@ import checks
 
 reactSem = asyncio.Semaphore(1)
 
+colors = [0xa10000,0xa15000,0xa1a100, 0x658200, 0x416600, 0x008141, 0x008282, 0x005682, 0x000056, 0x2b0057, 0x6a006a, 0x77003c,0xff0000]
+
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -51,6 +53,12 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
+                colornum = count-starlimit
+                if colornum > 12:
+                    colornum = 12
+
+                color = colors[colornum]
+
                 star = "⭐"
                 if count >= 5:
                             star = "🌟"
@@ -83,7 +91,7 @@ class Starboards(commands.Cog):
                     else:
                         jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
 
-                        embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
+                        embed = discord.Embed(description=msg.content, color=color, timestamp=msg.created_at,type="rich")
                         embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
                         embed.add_field(name="Source", value=jumplink, inline=True)
                         try:
