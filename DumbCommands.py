@@ -49,7 +49,7 @@ class DumbCommands(commands.Cog):
             val = "$" + str(abs(round(rd.gauss(100,8000),2)))
 
         else:
-            val = rd.choice(Phrases)
+            val = rd.choice(phrases)
         
         
         await ctx.send(f'{user}\'s bounty: {val}')
