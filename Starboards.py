@@ -151,7 +151,7 @@ class Starboards(commands.Cog):
                         cursor.execute(query)
                         deleted = True
                     except:
-                        pass checks.InvalidArgument("message not in DB")
+                        raise checks.InvalidArgument("message not in DB")
                                         
                     if deleted == False:
                         id = 0
