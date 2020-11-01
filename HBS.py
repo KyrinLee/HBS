@@ -2,6 +2,7 @@ import discord
 import logging
 import re
 import json
+import asyncio
 
 from discord.ext import commands
 import os
@@ -426,6 +427,7 @@ if __name__ == "__main__":
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
             print('Failed to load extension {}\n{}'.format(extension, exc))
+
 
 client.run(os.environ["token"])
 

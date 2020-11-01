@@ -10,7 +10,12 @@ import psycopg2
 from psycopg2 import Error
 from discord import NotFound
 
+import asyncio
+
 import checks
+
+reactSem = asyncio.Semaphore(1)
+
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -20,86 +25,84 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        await self.client.wait_until_ready()
 
-        sys.stdout.write(str(self.client.is_ready))
-        processing=True
-        if payload.emoji.name == "⭐":
-            msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+        async with reactSem:
+            if payload.emoji.name == "⭐":
+                msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
 
-            reacts = msg.reactions
-            count = 0
-            for r in reacts:
-                if r.emoji == "⭐":
-                    count = r.count
-            
-            nsfw = False
-            if msg.channel.is_nsfw():
-                nsfw = True
-
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-
-            cursor.execute("SELECT * FROM starboards WHERE nsfw=" + str(nsfw))
-            board = cursor.fetchall()[0]
-            starboardID = board[1]
-            starlimit = board[4]
-            starboardDBname = board[3]
-
-            cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
-            row = cursor.fetchall()
-
-            star = "⭐"
-            if count >= 5:
-                        star = "🌟"
-            edited = False
-
-            try:
-                smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
-                update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
-                cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
-
-                text = f'{star} **{count}** <#{msg.channel.id}>'
+                reacts = msg.reactions
+                count = 0
+                for r in reacts:
+                    if r.emoji == "⭐":
+                        count = r.count
                 
-                await smsg.edit(content=text)
-                edited = True
+                nsfw = False
+                if msg.channel.is_nsfw():
+                    nsfw = True
 
-            except:
-                pass
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = conn.cursor()
 
-            if edited == False and count >= starlimit:
-                id = 0
-                async for message in self.client.get_channel(starboardID).history(limit=4000):
-                    if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
-                        id = message.id
-                        
-                if id != 0:
-                    text = f'{star} **{count}** <#{msg.channel.id}>'
-                    m = await self.client.get_channel(starboardID).fetch_message(id)
-                    await m.edit(content=text)
+                cursor.execute("SELECT * FROM starboards WHERE nsfw=" + str(nsfw))
+                board = cursor.fetchall()[0]
+                starboardID = board[1]
+                starlimit = board[4]
+                starboardDBname = board[3]
 
-                else:
-                    jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
+                cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
+                row = cursor.fetchall()
 
-                    embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
-                    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
-                    embed.add_field(name="Source", value=jumplink, inline=True)
-                    try:
-                        embed.set_image(url=str(msg.attachments[0].url))
-                    except:
-                        pass
-                    embed.set_footer(text=str(msg.id))
+                star = "⭐"
+                if count >= 5:
+                            star = "🌟"
+                edited = False
+
+                try:
+                    smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+                    update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
+                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
                     text = f'{star} **{count}** <#{msg.channel.id}>'
-                    smsg = await self.client.get_channel(starboardID).send(content=text, embed=embed)
+                    
+                    await smsg.edit(content=text)
+                    edited = True
 
-                    query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
-                    cursor.execute(query, (datetime.fromtimestamp(time.time()),))
-                
+                except:
+                    pass
 
-            conn.commit()
-            cursor.close()
-            conn.close()
+                if edited == False and count >= starlimit:
+                    id = 0
+                    async for message in self.client.get_channel(starboardID).history(limit=4000):
+                        if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                            id = message.id
+                            
+                    if id != 0:
+                        text = f'{star} **{count}** <#{msg.channel.id}>'
+                        m = await self.client.get_channel(starboardID).fetch_message(id)
+                        await m.edit(content=text)
+
+                    else:
+                        jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
+
+                        embed = discord.Embed(description=msg.content, color=0x005682, timestamp=msg.created_at,type="rich")
+                        embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
+                        embed.add_field(name="Source", value=jumplink, inline=True)
+                        try:
+                            embed.set_image(url=str(msg.attachments[0].url))
+                        except:
+                            pass
+                        embed.set_footer(text=str(msg.id))
+
+                        text = f'{star} **{count}** <#{msg.channel.id}>'
+                        smsg = await self.client.get_channel(starboardID).send(content=text, embed=embed)
+
+                        query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
+                        cursor.execute(query, (datetime.fromtimestamp(time.time()),))
+                    
+
+                conn.commit()
+                cursor.close()
+                conn.close()
             
     @commands.command(pass_context=True)
     @commands.is_owner()
@@ -193,6 +196,12 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def deleteChannel(self, ctx:commands.Context, channelId):
         await self.client.get_channel(int(channelId)).delete()
+
+    @commands.command(pass_context=True)
+    @commands.is_owner()
+    async def deleteMessage(self, ctx:commands.Context, channelId, msgId):
+        m = await self.client.get_channel(int(channelId)).fetch_message(int(msgId))
+        await m.delete()
 
     @commands.command(pass_context=True)
     @commands.is_owner()
