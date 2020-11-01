@@ -161,8 +161,6 @@ class Starboards(commands.Cog):
                 if count >= 5:
                     star = "🌟"
 
-                edited =False
-
                 try:
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
