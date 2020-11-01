@@ -154,7 +154,42 @@ class Starboards(commands.Cog):
 
                 color = colors[colornum]
 
-                if count >= starlimit:
+                star = "⭐"
+                if count >= 5:
+                    star = "🌟"
+
+                edited =False
+
+                try:
+                    smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+                    update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
+                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+
+                    text = f'{star} **{count}** <#{msg.channel.id}>'
+                    
+                    embed_dict = smsg.embeds[0].to_dict()
+                    embed_dict['color'] = color
+                    embed = discord.Embed.from_dict(embed_dict)
+
+                    await smsg.edit(content=text)
+                    await smsg.edit(embed=embed)
+                except: 
+                    id = 0
+                    async for message in self.client.get_channel(starboardID).history(limit=4000):
+                        if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                            id = message.id
+                            
+                    if id != 0:
+                        text = f'{star} **{count}** <#{msg.channel.id}>'
+                        m = await self.client.get_channel(starboardID).fetch_message(id)
+                        await m.edit(content=text)
+
+                        embed_dict = m.embeds[0].to_dict()
+                        embed_dict['color'] = color
+                        embed = discord.Embed.from_dict(embed_dict)
+                        await m.edit(embed=embed)
+
+                '''if count >= starlimit:
                     star = "⭐"
                     if count >= 5:
                         star = "🌟"
@@ -193,6 +228,7 @@ class Starboards(commands.Cog):
                                 await m.delete()
                             except:
                                 raise checks.InvalidArgument("fuck.")
+                                '''
                 conn.commit()
                 cursor.close()
                 conn.close()    
