@@ -25,7 +25,6 @@ class Starboards(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-
         async with reactSem:
             if payload.emoji.name == "⭐":
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
@@ -103,6 +102,63 @@ class Starboards(commands.Cog):
                 conn.commit()
                 cursor.close()
                 conn.close()
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        async with reactSem:
+            if payload.emoji.name == "⭐":
+                msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                reacts = msg.reactions
+                count = 0
+                for r in reacts:
+                    if r.emoji == "⭐":
+                        count = r.count
+                
+                nsfw = False
+                if msg.channel.is_nsfw():
+                    nsfw = True
+
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = conn.cursor()
+
+                cursor.execute("SELECT * FROM starboards WHERE nsfw=" + str(nsfw))
+                board = cursor.fetchall()[0]
+                starboardID = board[1]
+                starlimit = board[4]
+                starboardDBname = board[3]
+
+                cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
+                row = cursor.fetchall()
+
+                if count >= starlimit:
+                    smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+                    update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
+                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+
+                    text = f'{star} **{count}** <#{msg.channel.id}>'
+                    
+                    await smsg.edit(content=text)
+
+                else:
+                    id = 0
+                    async for message in self.client.get_channel(starboardID).history(limit=4000):
+                        if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                            id = message.id
+                            
+                        try:
+                            m = await self.client.get_channel(starboardID).fetch_message(id)
+                            await m.delete()
+                        except:
+                            raise checks.InvalidArgument("fuck.")
+
+                        
+                        try:
+                            query = f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}'
+                            cursor.execute(query)
+                        except:
+                            pass
+
+                
             
     @commands.command(pass_context=True)
     @commands.is_owner()
