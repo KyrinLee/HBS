@@ -58,6 +58,9 @@ class Starboards(commands.Cog):
                     colornum = 12
 
                 color = colors[colornum]
+                embed_dict = message.embeds[0].to_dict()
+                embed_dict['color'] = color
+                embed = discord.Embed.from_dict(embed_dict)
 
                 star = "⭐"
                 if count >= 5:
@@ -71,7 +74,7 @@ class Starboards(commands.Cog):
 
                     text = f'{star} **{count}** <#{msg.channel.id}>'
                     
-                    await smsg.edit(content=text)
+                    await smsg.edit(content=text,embed=embed)
                     edited = True
 
                 except:
@@ -87,6 +90,7 @@ class Starboards(commands.Cog):
                         text = f'{star} **{count}** <#{msg.channel.id}>'
                         m = await self.client.get_channel(starboardID).fetch_message(id)
                         await m.edit(content=text)
+                        await m.edit(embed=embed)
 
                     else:
                         jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
