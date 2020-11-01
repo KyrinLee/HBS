@@ -131,6 +131,9 @@ class Starboards(commands.Cog):
                 row = cursor.fetchall()
 
                 if count >= starlimit:
+                    star = "⭐"
+                    if count >= 5:
+                        star = "🌟"
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
                     cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
