@@ -58,9 +58,7 @@ class Starboards(commands.Cog):
                     colornum = 12
 
                 color = colors[colornum]
-                embed_dict = message.embeds[0].to_dict()
-                embed_dict['color'] = color
-                embed = discord.Embed.from_dict(embed_dict)
+                
 
                 star = "⭐"
                 if count >= 5:
@@ -73,6 +71,10 @@ class Starboards(commands.Cog):
                     cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
                     text = f'{star} **{count}** <#{msg.channel.id}>'
+
+                    embed_dict = smsg.embeds[0].to_dict()
+                    embed_dict['color'] = color
+                    embed = discord.Embed.from_dict(embed_dict)
                     
                     await smsg.edit(content=text,embed=embed)
                     edited = True
@@ -90,6 +92,10 @@ class Starboards(commands.Cog):
                         text = f'{star} **{count}** <#{msg.channel.id}>'
                         m = await self.client.get_channel(starboardID).fetch_message(id)
                         await m.edit(content=text)
+
+                        embed_dict = m.embeds[0].to_dict()
+                        embed_dict['color'] = color
+                        embed = discord.Embed.from_dict(embed_dict)
                         await m.edit(embed=embed)
 
                     else:
@@ -142,6 +148,12 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
+                colornum = count-starlimit
+                if colornum > 12:
+                    colornum = 12
+
+                color = colors[colornum]
+
                 if count >= starlimit:
                     star = "⭐"
                     if count >= 5:
@@ -152,7 +164,12 @@ class Starboards(commands.Cog):
 
                     text = f'{star} **{count}** <#{msg.channel.id}>'
                     
+                    embed_dict = smsg.embeds[0].to_dict()
+                    embed_dict['color'] = color
+                    embed = discord.Embed.from_dict(embed_dict)
+
                     await smsg.edit(content=text)
+                    await smsg.edit(embed=embed)
 
                 else:
 
