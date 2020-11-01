@@ -140,25 +140,30 @@ class Starboards(commands.Cog):
                     await smsg.edit(content=text)
 
                 else:
-                    id = 0
-                    async for message in self.client.get_channel(starboardID).history(limit=4000):
-                        if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
-                            id = message.id
-                            
-                        try:
-                            m = await self.client.get_channel(starboardID).fetch_message(id)
-                            await m.delete()
-                        except:
-                            raise checks.InvalidArgument("fuck.")
 
-                        
-                        try:
-                            query = f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}'
-                            cursor.execute(query)
-                        except:
-                            pass
-
-                
+                    try:
+                        smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+                        await smsg.delete()
+                        query = f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}'
+                        cursor.execute(query)
+                        deleted = True
+                    except:
+                        pass checks.InvalidArgument("message not in DB")
+                                        
+                    if deleted == False:
+                        id = 0
+                        async for message in self.client.get_channel(starboardID).history(limit=4000):
+                            if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                                id = message.id
+                                
+                            try:
+                                m = await self.client.get_channel(starboardID).fetch_message(id)
+                                await m.delete()
+                            except:
+                                raise checks.InvalidArgument("fuck.")
+                conn.commit()
+                cursor.close()
+                conn.close()    
             
     @commands.command(pass_context=True)
     @commands.is_owner()
