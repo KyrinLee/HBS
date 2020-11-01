@@ -148,7 +148,10 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
+                colornum = 0
                 colornum = count-starlimit
+                if colornum < starlimit:
+                    colornum = 0
                 if colornum > 12:
                     colornum = 12
 
