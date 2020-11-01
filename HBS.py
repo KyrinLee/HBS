@@ -18,7 +18,7 @@ from psycopg2 import Error
 
 import checks
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -26,7 +26,7 @@ intents = discord.Intents.default()
 intents.members = True
 
 client = commands.Bot(
-    command_prefix=("hbs;","\hbs;"),
+    command_prefix=("hbs;","\hbs;","hbs "),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
     help_command=None,
