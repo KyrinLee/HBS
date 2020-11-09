@@ -48,7 +48,7 @@ async def on_ready():
 
     sys.stdout.write('Servers connected to: ')
     for g in client.guilds:
-        sys.stdout.write("\n" + g.name + ", Owner ID: ", str(g.owner_id));
+        sys.stdout.write("\n" + g.name + ", Owner ID: " + str(g.owner_id));
     await client.change_presence(activity=discord.Game(name='Vriska'))
 
 
