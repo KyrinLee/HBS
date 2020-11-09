@@ -315,7 +315,7 @@ async def clearEmojiList(ctx,hidden=True,description="Clears emoji usage data.")
 @commands.is_owner()
 async def addTestEmoji(ctx):
         with open("stickbug.gif", 'rb') as fd:
-            await message.guild.create_custom_emoji(name='stickbug', image=fd.read())
+            await ctx.guild.create_custom_emoji(name='stickbug', image=fd.read())
 
 @client.command(pass_context=True)
 @commands.is_owner()
