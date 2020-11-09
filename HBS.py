@@ -263,6 +263,9 @@ def updateEmojiList(message):
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
+        client.get_channel(754527915290525807).send("TBD: " + str(len(tbd)))
+        client.get_channel(754527915290525807).send("TBA: " + str(len(tbd)))
+
         delCount = 0
         addCount = 0
 
