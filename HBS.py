@@ -279,7 +279,7 @@ async def updateEmojiList(message):
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-        #channel = client.get_channel(754527915290525807)
+        channel = client.get_channel(754527915290525807)
         #await channel.send("TBD: " + str(len(tbd)))
         #await channel.send("TBA: " + str(len(tba)))
 
@@ -295,6 +295,7 @@ async def updateEmojiList(message):
                 e = client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
+                await channel.send(f'Emoji {emoji} added.')
                 addCount = addCount + 1
 
         connection.commit()
