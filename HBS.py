@@ -103,12 +103,12 @@ async def on_message(message: discord.Message):
         lastEmojiUpdate = cursor.fetchall()[0][1];
         
         channel = client.get_channel(754527915290525807)
-        sys.stdout.write(str(lastEmojiUpdate))
+        #sys.stdout.write(str(lastEmojiUpdate))
         
         currTime = datetime.fromtimestamp(time.time())
         
         date = str(currTime)[0:10];
-        sys.stdout.write(date);
+        #sys.stdout.write(date);
 
         if str(lastEmojiUpdate) != date:
             cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
