@@ -73,57 +73,56 @@ async def on_message(message: discord.Message):
                         await message.delete()
 
 #EMOJI HANDLING
-
-    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-    cursor = connection.cursor()
-    postgreSQL_select_Query = "SELECT id FROM emoji"
-    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-    get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
-    cursor.execute(postgreSQL_select_Query)
-    oldEmojis = cursor.fetchall()
-
-    oldEmojis = [e[0] for e in oldEmojis]
-
-    emojis = re.findall(r'<:\w*:\d*>', message.content)
-    emojisA = re.findall(r'<a:\w*:\d*>', message.content)
-
-    for i in range(0, len(emojisA)):
-        emojis.append(emojisA[i])
-    #print(emojis)
-    emojiIDs = []
-
-    for i in range(0, len(emojis)):
-        emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
-
-    cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
-    lastEmojiUpdate = cursor.fetchall()[0][1];
-    
-    channel = client.get_channel(754527915290525807)
-    sys.stdout.write(str(lastEmojiUpdate))
-    
-    currTime = datetime.fromtimestamp(time.time())
-    
-    date = str(currTime)[0:10];
-    sys.stdout.write(date);
-
-    if str(lastEmojiUpdate) != date:
-        cursor.execute("INSERT INTO vars (name, value) VALUES ('lastemojiupdate',%s)", (date,))
-        await updateEmojiList(message)
-
+                        
     if message.author.id != 753345733377261650 and message.webhook_id is None:
+
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+
+        cursor = connection.cursor()
+        postgreSQL_select_Query = "SELECT id FROM emoji"
+        update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
+        get_usage = "SELECT usage FROM emoji WHERE id=%s"
+
+        cursor.execute(postgreSQL_select_Query)
+        oldEmojis = cursor.fetchall()
+
+        oldEmojis = [e[0] for e in oldEmojis]
+
+        emojis = re.findall(r'<:\w*:\d*>', message.content)
+        emojisA = re.findall(r'<a:\w*:\d*>', message.content)
+
+        for i in range(0, len(emojisA)):
+            emojis.append(emojisA[i])
+        #print(emojis)
+        emojiIDs = []
+
+        for i in range(0, len(emojis)):
+            emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
+
+        cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
+        lastEmojiUpdate = cursor.fetchall()[0][1];
+        
+        channel = client.get_channel(754527915290525807)
+        sys.stdout.write(str(lastEmojiUpdate))
+        
+        currTime = datetime.fromtimestamp(time.time())
+        
+        date = str(currTime)[0:10];
+        sys.stdout.write(date);
+
+        if str(lastEmojiUpdate) != date:
+            cursor.execute("INSERT INTO vars (name, value) VALUES ('lastemojiupdate',%s)", (date,))
+            await updateEmojiList(message)
+
         for e in emojiIDs:
             if e in oldEmojis:
                     cursor.execute(get_usage,(e,))
                     use = cursor.fetchall()
                     cursor.execute(update_q, (use[0][0]+1,e))
-                    #if message.channel.id == 754527915290525807:
-                    #        await client.get_channel(754527915290525807).send(str(use[0]))
-                                
-    connection.commit()                            
-    cursor.close()
-    connection.close()
+                                    
+        connection.commit()                            
+        cursor.close()
+        connection.close()
     await client.process_commands(message)
 
 @client.event
@@ -280,9 +279,9 @@ async def updateEmojiList(message):
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-        channel = client.get_channel(754527915290525807)
-        await channel.send("TBD: " + str(len(tbd)))
-        await channel.send("TBA: " + str(len(tba)))
+        #channel = client.get_channel(754527915290525807)
+        #await channel.send("TBD: " + str(len(tbd)))
+        #await channel.send("TBA: " + str(len(tba)))
 
         delCount = 0
         addCount = 0
