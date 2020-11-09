@@ -67,6 +67,7 @@ class Starboards(commands.Cog):
 
                 try:
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
                     cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
@@ -115,6 +116,7 @@ class Starboards(commands.Cog):
 
                         query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
                         cursor.execute(query, (datetime.fromtimestamp(time.time()),))
+
                     
 
                 conn.commit()
