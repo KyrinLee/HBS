@@ -43,8 +43,8 @@ async def on_ready():
     #await client.get_channel(753349219808444438).send("We have logged in")
     sys.stdout.write('We have logged in as')
     sys.stdout.write(client.user.name)
-    sys.stdout.write(client.user.id)
-    sys.stdout.write(discord.__version__)
+    sys.stdout.write(str(client.user.id))
+    sys.stdout.write(str(discord.__version__))
     sys.stdout.write('------')
 
     sys.stdout.write('Servers connected to:')
@@ -82,7 +82,7 @@ async def on_message(message: discord.Message):
 
 #EMOJI HANDLING
                         
-    if message.author.id != 753345733377261650 and message.webhook_id is None:
+    if message.guild.id == 609112858214793217 and message.author.id != 753345733377261650 and message.webhook_id is None:
 
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
