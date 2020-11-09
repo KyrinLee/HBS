@@ -109,11 +109,8 @@ async def on_message(message: discord.Message):
     sys.stdout.write(date);
 
     if str(lastEmojiUpdate) != date:
-        #await channel.send("Updated emoji list.")
-
-    cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{date})')
-
-    await updateEmojiList(message)
+        cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{date})')
+        await updateEmojiList(message)
 
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
