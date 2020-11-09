@@ -235,7 +235,7 @@ async def getFullEmojiUsage(ctx):
         cursor.close()
         connection.close()
         
-def updateEmojiList(message):
+async def updateEmojiList(message):
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
@@ -265,7 +265,7 @@ def updateEmojiList(message):
 
         channel = client.get_channel(754527915290525807)
         await channel.send("TBD: " + str(len(tbd)))
-        await channel.send("TBA: " + str(len(tbd)))
+        await channel.send("TBA: " + str(len(tba)))
 
         delCount = 0
         addCount = 0
@@ -288,7 +288,7 @@ def updateEmojiList(message):
 @checks.is_in_guild(609112858214793217)
 async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
-        updateEmojiList(ctx.message)
+        await updateEmojiList(ctx.message)
         await ctx.send("Emoji List Updated.")
         
 
