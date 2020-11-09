@@ -98,7 +98,7 @@ async def on_message(message: discord.Message):
         emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
     cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
-    lastEmojiUpdate = cursor.fetchall()[0][0];
+    lastEmojiUpdate = cursor.fetchall()[0][1];
     
     channel = client.get_channel(754527915290525807)
     await channel.send(str(lastEmojiUpdate))
