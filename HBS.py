@@ -100,7 +100,7 @@ async def on_message(message: discord.Message):
     cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
     lastEmojiUpdate = cursor.fetchall()[0][1];
     
-    channel = client.get_channel(753349218932097176)
+    channel = client.get_channel(754527915290525807)
     sys.stdout.write(str(lastEmojiUpdate))
     
     currTime = datetime.fromtimestamp(time.time())
