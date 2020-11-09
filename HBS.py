@@ -41,7 +41,15 @@ client = commands.Bot(
 @client.event
 async def on_ready():
     #await client.get_channel(753349219808444438).send("We have logged in")
-    sys.stdout.write("We have logged in.")
+    sys.stdout.write('We have logged in as')
+    sys.stdout.write(bot.user.name)
+    sys.stdout.write(bot.user.id)
+    sys.stdout.write(discord.__version__)
+    sys.stdout.write('------')
+
+    sys.stdout.write('Servers connected to:')
+    for server in bot.servers:
+        sys.stdout.write(server.name)
     await client.change_presence(activity=discord.Game(name='Vriska'))
 
 
