@@ -100,18 +100,18 @@ async def on_message(message: discord.Message):
     cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
     lastEmojiUpdate = cursor.fetchall()[0][1];
     
-    channel = client.get_channel(754527915290525807)
-    #await channel.send(str(lastEmojiUpdate))
+    channel = client.get_channel(753349218932097176)
+    await channel.send(str(lastEmojiUpdate))
     
     currTime = datetime.fromtimestamp(time.time())
     
     date = str(currTime)[0:10];
-    await channel.send(str(emojiIDs[0]) + date);
+    await channel.send(date);
 
     if str(lastEmojiUpdate) != date:
         await channel.send("Updated emoji list.")
 
-    #cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{str(currTime)}')
+    cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{date}')
 
     await updateEmojiList(message)
 
