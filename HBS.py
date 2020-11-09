@@ -292,6 +292,7 @@ async def updateEmojiList(message):
 
         for emoji in tbd:
                 cursor.execute(sql_delete_query, (emoji,))
+                await channel.send(f'Emoji {emoji} deleted.')
                 delCount += 1
 
         for emoji in tba:
