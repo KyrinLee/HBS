@@ -97,8 +97,8 @@ async def on_message(message: discord.Message):
     for i in range(0, len(emojis)):
         emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-    cursor.execute("SELECT * FROM vars WHERE name = 'lastEmojiUpdate'")
-    lastEmojiUpdate = cursor.fetchall()[0][0];
+    #cursor.execute("SELECT * FROM vars WHERE name = 'lastEmojiUpdate'")
+    #lastEmojiUpdate = cursor.fetchall()[0][0];
     
     channel = client.get_channel(754527915290525807)
     await channel.send(str(lastEmojiUpdate))
@@ -106,7 +106,7 @@ async def on_message(message: discord.Message):
     currTime = datetime.fromtimestamp(time.time())
     await channel.send(str(currTime));
 
-    cursor.execute("INSERT INTO vars 
+    cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{currTime}')
 
     await updateEmojiList(message)
 
