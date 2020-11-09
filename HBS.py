@@ -101,7 +101,7 @@ async def on_message(message: discord.Message):
     #lastEmojiUpdate = cursor.fetchall()[0][0];
     
     channel = client.get_channel(754527915290525807)
-    await channel.send(str(lastEmojiUpdate))
+    #await channel.send(str(lastEmojiUpdate))
     
     currTime = datetime.fromtimestamp(time.time())
     await channel.send(str(currTime));
