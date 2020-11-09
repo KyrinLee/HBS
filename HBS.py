@@ -5,6 +5,10 @@ import json
 import asyncio
 
 from discord.ext import commands
+
+import time
+from datetime import datetime, date
+
 import os
 
 import pk
@@ -93,7 +97,18 @@ async def on_message(message: discord.Message):
     for i in range(0, len(emojis)):
         emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-    updateEmojiList(message)
+    cursor.execute("SELECT * FROM vars WHERE name = 'lastEmojiUpdate'")
+    lastEmojiUpdate = cursor.fetchall()[0][0];
+    
+    channel = client.get_channel(754527915290525807)
+    await channel.send(str(lastEmojiUpdate))
+    
+    currTime = datetime.fromtimestamp(time.time())
+    await channel.send(str(currTime));
+
+    cursor.execute("INSERT INTO vars 
+
+    await updateEmojiList(message)
 
     if message.author.id != 753345733377261650 and message.webhook_id is None:
         for e in emojiIDs:
