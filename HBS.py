@@ -104,7 +104,7 @@ async def on_message(message: discord.Message):
     #await channel.send(str(lastEmojiUpdate))
     
     currTime = datetime.fromtimestamp(time.time())
-    date = str(currTime).substr(0,10);
+    date = str(currTime)[0:10];
     await channel.send(str(emojiIDs[0]) + date);
 
     #cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{str(currTime)}')
