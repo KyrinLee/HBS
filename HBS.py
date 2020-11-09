@@ -45,11 +45,11 @@ async def on_ready():
     sys.stdout.write(client.user.name)
     sys.stdout.write(str(client.user.id))
     sys.stdout.write(str(discord.__version__))
-    sys.stdout.write('------')
+    sys.stdout.write('------\n')
 
     sys.stdout.write('Servers connected to:')
-    for guild in client.guilds:
-        sys.stdout.write(guild.name)
+    for g in client.guilds:
+        sys.stdout.write(g.name)
     await client.change_presence(activity=discord.Game(name='Vriska'))
 
 
