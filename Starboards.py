@@ -63,8 +63,10 @@ class Starboards(commands.Cog):
                 star = "⭐"
                 if count >= 5:
                             star = "🌟"
-                edited = False
 
+                edited = False #SET EDITED TO FALSE BY DEFAULT
+
+            #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
                 try:
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
 
@@ -78,17 +80,23 @@ class Starboards(commands.Cog):
                     embed = discord.Embed.from_dict(embed_dict)
                     
                     await smsg.edit(content=text,embed=embed)
+
                     edited = True
 
                 except:
                     pass
 
+            #IF STARRED MESSAGE NOT FOUND IN TABLE BUT THE COUNT IS OVER THE STAR LIMIT
+                
                 if edited == False and count >= starlimit:
+                    #SEARCH STARBOARD CHANNEL EMBEDS FOR ID.
                     id = 0
+                    
                     async for message in self.client.get_channel(starboardID).history(limit=4000):
                         if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
                             id = message.id
                             
+            #IF MESSAGE FOUND IN CHANNEL, UPDATE AND ADD TO TABLE. 
                     if id != 0:
                         text = f'{star} **{count}** <#{msg.channel.id}>'
                         m = await self.client.get_channel(starboardID).fetch_message(id)
@@ -99,6 +107,7 @@ class Starboards(commands.Cog):
                         embed = discord.Embed.from_dict(embed_dict)
                         await m.edit(embed=embed)
 
+            #ELSE CREATE NEW STARRED MESSAGE
                     else:
                         jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
 
@@ -166,16 +175,23 @@ class Starboards(commands.Cog):
                 try:
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
-                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
-                    text = f'{star} **{count}** <#{msg.channel.id}>'
-                    
-                    embed_dict = smsg.embeds[0].to_dict()
-                    embed_dict['color'] = color
-                    embed = discord.Embed.from_dict(embed_dict)
+                    if count == 0: #DELETE STARRED MESSAGE IF STAR COUNT HITS ZERO. REMOVE FROM DATABASE.
+                        cursor.execute(f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}')
+                        await smsg.delete()
 
-                    await smsg.edit(content=text)
-                    await smsg.edit(embed=embed)
+                    else: #IF STAR COUNT IS NOT ZERO
+                        cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+
+                        text = f'{star} **{count}** <#{msg.channel.id}>'
+                        
+                        embed_dict = smsg.embeds[0].to_dict()
+                        embed_dict['color'] = color
+                        embed = discord.Embed.from_dict(embed_dict)
+
+                        await smsg.edit(content=text)
+                        await smsg.edit(embed=embed)
+                        
                 except:
                     
                     id = 0
