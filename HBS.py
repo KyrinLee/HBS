@@ -78,11 +78,11 @@ async def on_message(message: discord.Message):
 
 #HANDLE HUSSIEBOT VRISKA REACTS
     if message.author.id == 480855402289037312: #if hussiebot
-                if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:": 
+                if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:"): 
                         await message.delete()
                 if (message.content == ":eye:"):
                         await message.delete()
-                if (message.content == "Good Morning is a valid troll name.") or (message.content == "Fair Enough is a valid kid name."):
+                if (message.content == "Good Morning is a valid kid name.") or (message.content == "Fair Enough is a valid kid name."):
                         await message.delete()
 
 #EMOJI HANDLING
