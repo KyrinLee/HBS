@@ -82,7 +82,7 @@ async def on_message(message: discord.Message):
     if message.author.id == 480855402289037312: #if hussiebot
                 if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
                         await message.delete()
-                if (message.content in bannedPhrases:
+                if message.content in bannedPhrases:
                         await message.delete()
 
 #EMOJI HANDLING
