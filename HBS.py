@@ -111,7 +111,7 @@ async def on_message(message: discord.Message):
     if str(lastEmojiUpdate) != date:
         #await channel.send("Updated emoji list.")
 
-    cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{date}')
+    cursor.execute(f'INSERT INTO vars (name, value) VALUES ("lastemojiupdate",{date})')
 
     await updateEmojiList(message)
 
