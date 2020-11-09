@@ -101,12 +101,12 @@ async def on_message(message: discord.Message):
     lastEmojiUpdate = cursor.fetchall()[0][1];
     
     channel = client.get_channel(753349218932097176)
-    await channel.send(str(lastEmojiUpdate))
+    sys.stdout.print(str(lastEmojiUpdate))
     
     currTime = datetime.fromtimestamp(time.time())
     
     date = str(currTime)[0:10];
-    await channel.send(date);
+    sys.stdout.print(date);
 
     if str(lastEmojiUpdate) != date:
         await channel.send("Updated emoji list.")
