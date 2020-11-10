@@ -166,7 +166,7 @@ class EmojiTracking(commands.Cog):
             outputArr = functions.splitLongMsg(output)
 
             for o in outputArr:
-                await ctx.send(o)
+                await ctx.send("```"+ o + "```")
 
             connection.commit()
             cursor.close()
