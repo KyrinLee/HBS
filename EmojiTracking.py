@@ -146,14 +146,15 @@ class EmojiTracking(commands.Cog):
             data = cursor.fetchall()
 
             digits = [row[3] for row in data]
-            await ctx.send(str(digits))
 
             output = ""
             count = 0
             maxDigits = len(str(max(digits)))
+
+            await ctx.send(str(maxDigits))
             
             for i in data:
-                output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]).rjust(maxDigits)
+                output += str(self.client.get_emoji(int(i[1]))) + ": " + (str(i[3]).rjust(maxDigits))
 
                 if count == 4:
                     output += "\n"
@@ -164,11 +165,8 @@ class EmojiTracking(commands.Cog):
                     
             outputArr = functions.splitLongMsg(output)
 
-            count = 1
             for o in outputArr:
-                await ctx.send(str(count))
                 await ctx.send(o)
-                count = count + 1
 
             connection.commit()
             cursor.close()
