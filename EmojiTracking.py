@@ -155,8 +155,12 @@ class EmojiTracking(commands.Cog):
             for i in data:
                 output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]).rjust(maxDigits)
 
-                if count == 2 (output += "\n"; count = 0;)
-                else (output += "    "; count = count + 1;)
+                if count == 2:
+                    output += "\n"
+                    count = 0
+                else:
+                    output += "  "
+                    count = count + 1
                     
             outputArr = functions.splitLongMsg(output)
             for o in outputArr:
