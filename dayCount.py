@@ -122,7 +122,7 @@ class dayCount(commands.Cog):
         connection.close()
 
         
-    @commands.command()
+    @commands.command(aliases=['addCounter'])
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
