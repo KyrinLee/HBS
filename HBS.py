@@ -253,8 +253,14 @@ async def getFullEmojiUsage(ctx):
         data = cursor.fetchall()
 
         output = ""
+        count = 0
         for i in data:
+            if count == 2:
                 output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
+                count = 0
+            else:
+                output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\t"
+                count = count + 1
                 
         outputArr = splitLongMsg(output)
         for o in outputArr:

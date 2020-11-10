@@ -53,18 +53,12 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
-                colornum = count-starlimit
-                if colornum > 12:
-                    colornum = 12
+                color = colors[max(0, min(count-starlimit,12))]
 
-                color = colors[colornum]
-                
-
-                star = "⭐"
-                if count >= 5:
-                            star = "🌟"
-
-                edited = False #SET EDITED TO FALSE BY DEFAULT
+		stars = ["⭐","🌟","✨"]
+		star = stars[max(count, 10) / 5]
+		
+		edited = False #SET EDITED TO FALSE BY DEFAULT
 
             #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
                 try:
@@ -143,9 +137,7 @@ class Starboards(commands.Cog):
                     if r.emoji == "⭐":
                         count = r.count
                 
-                nsfw = False
-                if msg.channel.is_nsfw():
-                    nsfw = True
+                nsfw = msg.channel.is_nsfw()
 
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = conn.cursor()
@@ -159,20 +151,13 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
-                colornum = 0
-                colornum = count-starlimit
-                if colornum < starlimit:
-                    colornum = 0
-                if colornum > 12:
-                    colornum = 12
+                
+                color = colors[max(0, min(count-starlimit,12))]
+                
+		stars = ["⭐","🌟","✨"]
+		star = stars[max(count, 10) / 5]
 
-                color = colors[colornum]
-
-                star = "⭐"
-                if count >= 5:
-                    star = "🌟"
-
-                try:
+                try: #TRY TO FIND MESSAGE IN STARBOARD DATABASE
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
 
@@ -192,7 +177,7 @@ class Starboards(commands.Cog):
                         await smsg.edit(content=text)
                         await smsg.edit(embed=embed)
                         
-                except:
+                except: #ELSE SEARCH THROUGH STARBOARD EMBEDS FOR MESSAGE ID
                     
                     id = 0
                     async for message in self.client.get_channel(starboardID).history(limit=4000):
@@ -209,46 +194,7 @@ class Starboards(commands.Cog):
                         embed = discord.Embed.from_dict(embed_dict)
                         await m.edit(embed=embed)
 
-                '''if count >= starlimit:
-                    star = "⭐"
-                    if count >= 5:
-                        star = "🌟"
-                    smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
-                    update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
-                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
-
-                    text = f'{star} **{count}** <#{msg.channel.id}>'
-                    
-                    embed_dict = smsg.embeds[0].to_dict()
-                    embed_dict['color'] = color
-                    embed = discord.Embed.from_dict(embed_dict)
-
-                    await smsg.edit(content=text)
-                    await smsg.edit(embed=embed)
-
-                else:
-
-                    try:
-                        smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
-                        await smsg.delete()
-                        query = f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}'
-                        cursor.execute(query)
-                        deleted = True
-                    except:
-                        raise checks.InvalidArgument("message not in DB")
-                                        
-                    if deleted == False:
-                        id = 0
-                        async for message in self.client.get_channel(starboardID).history(limit=4000):
-                            if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
-                                id = message.id
-                                
-                            try:
-                                m = await self.client.get_channel(starboardID).fetch_message(id)
-                                await m.delete()
-                            except:
-                                raise checks.InvalidArgument("fuck.")
-                                '''
+                
                 conn.commit()
                 cursor.close()
                 conn.close()    
