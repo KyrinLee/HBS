@@ -72,7 +72,6 @@ class EmojiTracking(commands.Cog):
             connection.commit()                            
             cursor.close()
             connection.close()
-        await self.client.process_commands(message)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
