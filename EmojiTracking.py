@@ -14,6 +14,8 @@ from datetime import datetime, date
 import asyncio
 import checks
 
+from HBS import splitLongMsg
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class EmojiTracking(commands.Cog):
