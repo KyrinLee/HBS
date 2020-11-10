@@ -107,17 +107,17 @@ class AdminCommands(commands.Cog):
         await self.client.get_channel(int(channelId)).set_permissions(ctx.guild.default_role, read_messages=True)
         await self.client.get_channel(int(channelId)).set_permissions(ctx.guild.default_role, send_messages=False)
 
-    @client.command(pass_context=True,aliases=['nick'])
+    @commands.command(pass_context=True,aliases=['nick'])
     @commands.is_owner()
     async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
         await ctx.guild.me.edit(nick=name)
 
-    @client.command(pass_context=True,aliases=['cg'])
+    @commands.command(pass_context=True,aliases=['cg'])
     @commands.is_owner()
     async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
         await client.change_presence(activity=discord.Game(name=game))
 
-    @client.command(pass_context=True)
+    @commands.command(pass_context=True)
     @commands.is_owner()
     async def dump(ctx, hidden=True, description="Dumps emoji table data."):
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -132,13 +132,13 @@ class AdminCommands(commands.Cog):
             cursor.close()
             connection.close()
 
-    @client.command(pass_context=True)
+    @commands.command(pass_context=True)
     @commands.is_owner()
     async def addTestEmoji(ctx):
             with open("stickbug.gif", 'rb') as fd:
                 await ctx.guild.create_custom_emoji(name='stickbug', image=fd.read())
 
-    @client.command(pass_context=True)
+    @commands.command(pass_context=True)
     @commands.is_owner()
     async def deleteEmoji(ctx, id):
             emoji = await ctx.guild.fetch_emoji(int(id))
