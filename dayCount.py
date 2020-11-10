@@ -121,5 +121,14 @@ class dayCount(commands.Cog):
         cursor.close()
         connection.close()
 
+        
+    @commands.command()
+    async def newCounter(self,ctx: commands.Context, counter=None):
+
+        if counter == None:
+            raise checks.InvalidArgument("Please include counter name.")
+        else:
+            await ctx.send("Vriska hasn't coded the checky thing yet. Ping her bc she forgot.")
+
 def setup(client):
     client.add_cog(dayCount(client))
