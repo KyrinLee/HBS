@@ -146,16 +146,17 @@ class EmojiTracking(commands.Cog):
 
             data = cursor.fetchall()
 
-            digits = [row[0] for row in data]
+            digits = [row[3] for row in data]
             await ctx.send(str(digits))
 
             output = ""
             count = 0
+            maxDigits = len(str(max(digits)))
             
             for i in data:
                 output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]).rjust(maxDigits)
 
-                if count == 2:
+                if count == 4:
                     output += "\n"
                     count = 0
                 else:
