@@ -96,19 +96,19 @@ class dayCount(commands.Cog):
         words = [w for w in keywords if (counter.find(w)!= -1)]
 
         if len(words) >= 1:
-            word = words[0]
+            word = words[0].lower()
             
-            cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
+            cursor.execute("SELECT * FROM counters WHERE name=%s",(word,))
             data = cursor.fetchall()
 
             mentions = data[0][2] + 1
             timeStamp = data[0][1]
             
-            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
+            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,word))
 
             timeDiff = currTime - timeStamp
 
-            output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+            output = "Counter " + word + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
             if mentions == 1:
                 output += "."
             else:
