@@ -115,7 +115,7 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True,aliases=['cg'])
     @commands.is_owner()
     async def changeGame(self, ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
-        await client.change_presence(activity=discord.Game(name=game))
+        await self.client.change_presence(activity=discord.Game(name=game))
 
     @commands.command(pass_context=True)
     @commands.is_owner()
