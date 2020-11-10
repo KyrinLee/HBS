@@ -54,11 +54,11 @@ class Starboards(commands.Cog):
                 row = cursor.fetchall()
 
                 color = colors[max(0, min(count-starlimit,12))]
-
-		stars = ["⭐","🌟","✨"]
-		star = stars[max(count, 10) / 5]
-		
-		edited = False #SET EDITED TO FALSE BY DEFAULT
+                
+                stars = ["⭐","🌟","✨"]
+                star = stars[max(count,10)/5]
+                
+                edited = False #SET EDITED TO FALSE BY DEFAULT
 
             #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
                 try:
@@ -220,96 +220,7 @@ class Starboards(commands.Cog):
         cursor.close()
         conn.close()
 
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def createChannel(self,ctx: commands.Context,channelName=None, nsfw=""):
-        
-        if channelName==None:
-            raise checks.InvalidArgument("Please include a channel name.")
-
-        guild = ctx.message.guild
-
-        cat = ctx.channel.category
-
-        overwrites = {
-            guild.default_role: discord.PermissionOverwrite(read_messages=False),
-            guild.me: discord.PermissionOverwrite(read_messages=True),
-            guild.get_member(707112913722277899): discord.PermissionOverwrite(read_messages=True)
-        }
-
-        await guild.create_text_channel(channelName, overwrites=overwrites, category=cat, nsfw=(nsfw=="nsfw"))
-
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def getEmbed(self, ctx:commands.Context, chId):
-        for channel in ctx.guild.text_channels:
-            try:
-                msg = await channel.fetch_message(chId)
-            except NotFound:
-                continue
-        try:
-            await ctx.send(str(msg.embeds[0].to_dict()))
-        except:
-            await ctx.send("Message not found.")
-
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
-        async for message in self.client.get_channel(int(sourceChId)).history(limit=lim, oldest_first=True):
-            try:
-                s = message.content.split(" ")[1]
-                smsg = await self.client.get_channel(int(targetChId)).send(content=message.content,embed=message.embeds[0])
-                q = f'INSERT INTO test VALUES ({message.id},{smsg.id},{s},%s)'
-                cursor.execute(q, (datetime.fromtimestamp(time.time()),))
-                
-            except:
-                continue
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def clearChannel(self, ctx:commands.Context, channelID):
-        async for message in self.client.get_channel(int(channelID)).history(limit=2,oldest_first=False):
-            try:
-                await message.delete()
-            except:
-                continue
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def renameChannel(self, ctx:commands.Context, channelId, newname):
-        await self.client.get_channel(int(channelId)).edit(name=newname)
-
-    @commands.command(pass_context=True, enabled=False)
-    @commands.is_owner()
-    async def deleteChannel(self, ctx:commands.Context, channelId):
-        await self.client.get_channel(int(channelId)).delete()
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def deleteMessage(self, ctx:commands.Context, channelId, msgId):
-        m = await self.client.get_channel(int(channelId)).fetch_message(int(msgId))
-        await m.delete()
-
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def makeChannelPublic(self, ctx:commands.Context, channelId, lewd=""):
-        if lewd == "unlewd":
-            nsfw=False
-        elif lewd == "lewd":
-            nsfw=True
-        else:
-            nsfw=self.client.get_channel(int(channelId)).is_nsfw()
-        await self.client.get_channel(int(channelId)).edit(nsfw=nsfw)
-        await self.client.get_channel(int(channelId)).set_permissions(ctx.guild.default_role, read_messages=True)
-        await self.client.get_channel(int(channelId)).set_permissions(ctx.guild.default_role, send_messages=False)
+    
                     
 def setup(client):
     client.add_cog(Starboards(client))

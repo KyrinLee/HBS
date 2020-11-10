@@ -22,7 +22,7 @@ from psycopg2 import Error
 
 import checks
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","AdminCommands","EmojiTracking"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -87,59 +87,11 @@ async def on_message(message: discord.Message):
 
 #EMOJI HANDLING
                         
-    if message.guild.id == 609112858214793217 and message.author.id != 753345733377261650 and message.webhook_id is None:
-
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-        cursor = connection.cursor()
-        postgreSQL_select_Query = "SELECT id FROM emoji"
-        update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-        get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
-        cursor.execute(postgreSQL_select_Query)
-        oldEmojis = cursor.fetchall()
-
-        oldEmojis = [e[0] for e in oldEmojis]
-
-        emojis = re.findall(r'<:\w*:\d*>', message.content)
-        emojisA = re.findall(r'<a:\w*:\d*>', message.content)
-
-        for i in range(0, len(emojisA)):
-            emojis.append(emojisA[i])
-        #print(emojis)
-        emojiIDs = []
-
-        for i in range(0, len(emojis)):
-            emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
-
-        cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
-        lastEmojiUpdate = cursor.fetchall()[0][1];
-        
-        channel = client.get_channel(754527915290525807)
-        #sys.stdout.write(str(lastEmojiUpdate))
-        
-        currTime = datetime.fromtimestamp(time.time())
-        
-        date = str(currTime)[0:10];
-        #sys.stdout.write(date);
-
-        if str(lastEmojiUpdate) != date:
-            cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
-            await updateEmojiList(message)
-
-        for e in emojiIDs:
-            if e in oldEmojis:
-                    cursor.execute(get_usage,(e,))
-                    use = cursor.fetchall()
-                    cursor.execute(update_q, (use[0][0]+1,e))
-                                    
-        connection.commit()                            
-        cursor.close()
-        connection.close()
-    await client.process_commands(message)
+    
 
 @client.event
 async def on_raw_reaction_add(payload):
+    #HANDLE PK DELETION
     if payload.emoji.name == "❌":
         result = -1
         channel = client.get_channel(payload.channel_id)
@@ -174,257 +126,10 @@ async def on_raw_reaction_add(payload):
             await msg.delete()
         #await channel.send("message deleted")
 
+    #REMOVE HUSSIE MESSAGES 
     if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
         await msg.delete()
 
-    connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-    cursor = connection.cursor()
-    postgreSQL_select_Query = "SELECT id FROM emoji"
-    update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-    get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
-    cursor.execute(postgreSQL_select_Query)
-    emojis = cursor.fetchall()
-
-    emojis = [e[0] for e in emojis]
-
-    if str(payload.emoji.id) in emojis:
-        cursor.execute(get_usage,(str(payload.emoji.id),))
-        use = cursor.fetchall()
-        cursor.execute(update_q, (use[0][0]+1,str(payload.emoji.id)))
-                                
-    connection.commit()                            
-    cursor.close()
-    connection.close()
-
-'''@client.command(pass_context=True)
-async def sendEmoji(ctx, id):
-  if (ctx.author.id == client.owner_id):
-    await ctx.send(str(client.get_emoji(id)))
-'''
-
-
-@client.command(pass_context=True,aliases=['geu'])
-async def getEmojiUsage(ctx, num=None, animated=None):
-        if num == None:
-                num = 15
-        elif num == "-s" or num == "-a":
-                animated = num
-                num = 15
-        else:
-                num = int(num)
-
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-
-        if animated == "-s":
-                cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
-        elif animated == "-a":
-                cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
-        else:
-                cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
-
-        emojis = cursor.fetchall()
-        output = "Top " + str(num) + " emojis: "
-
-        for i in range(0,num):
-                output += str(client.get_emoji(int(emojis[i][1])))
-        output += "\nBottom " + str(num) + " emojis: "
-
-        for i in range(len(emojis)-1,len(emojis)-1-num,-1):
-                output += str(client.get_emoji(int(emojis[i][1])))
-
-                
-        if animated == "-s":
-                output+="\n(animated emojis excluded.)"
-        if animated == "-a":
-                output+="\n(static emojis excluded.)"
-        await ctx.send(output)
-
-
-@client.command(pass_context=True,aliases=['gfeu'])
-async def getFullEmojiUsage(ctx):
-        
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
-
-        data = cursor.fetchall()
-
-        output = ""
-        count = 0
-        for i in data:
-            if count == 2:
-                output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
-                count = 0
-            else:
-                output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\t"
-                count = count + 1
-                
-        outputArr = splitLongMsg(output)
-        for o in outputArr:
-                await ctx.send(o)
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-        
-async def updateEmojiList(message):
-        
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-        
-        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-        sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
-        
-        emojis = message.guild.emojis
-        newEmojis = []
-
-        i = 0
-        for emoji in emojis:
-                        newEmojis.append(str(emoji.id))
-                        i+=1
-
-        postgreSQL_select_Query = "SELECT * FROM emoji"
-
-        cursor.execute(postgreSQL_select_Query)
-        tempEmojis = cursor.fetchall()
-
-        oldEmojis = []
-        for e in tempEmojis:
-                oldEmojis.append(e[1])
-        
-        tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
-        tba = list(sorted(set(newEmojis) - set(oldEmojis)))
-
-        channel = client.get_channel(754527915290525807)
-        #await channel.send("TBD: " + str(len(tbd)))
-        #await channel.send("TBA: " + str(len(tba)))
-
-        delCount = 0
-        addCount = 0
-
-        for emoji in tbd:
-                cursor.execute(sql_delete_query, (emoji,))
-                await channel.send(f'Emoji {emoji} deleted.')
-                delCount += 1
-
-        for emoji in tba:
-                e = client.get_emoji(int(emoji))
-                record_to_insert = (e.name, str(e.id), e.animated, 0)
-                cursor.execute(sql_insert_query, record_to_insert)
-                await channel.send(f'Emoji {emoji} added.')
-                addCount = addCount + 1
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-        
-@client.command(pass_context=True)
-@checks.is_in_guild(609112858214793217)
-async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
-
-        await updateEmojiList(ctx.message)
-        await ctx.send("Emoji List Updated.")
-        
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def clearEmojiList(ctx,hidden=True,description="Clears emoji usage data."):
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-
-        if ctx.message.author.id == 707112913722277899:
-                delete_query = "DELETE FROM emoji"
-                cursor.execute(delete_query)
-                connection.commit()
-                await ctx.send("Emoji list cleared.")
-
-        else:
-                await ctx.send("You do not have the permissions for this command.")
-
-        connection.commit()
-        cursor.close()
-        connection.close()
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def addTestEmoji(ctx):
-        with open("stickbug.gif", 'rb') as fd:
-            await ctx.guild.create_custom_emoji(name='stickbug', image=fd.read())
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def deleteEmoji(ctx, id):
-        emoji = await ctx.guild.fetch_emoji(int(id))
-        await emoji.delete()
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def addEmoji(ctx,id,hidden=True):
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-        emoji = client.get_emoji(int(id))
-        
-        emojiData = (emoji.name,emoji.id,emoji.animated,0)
-        try:
-                cursor.execute(sql_insert_query, emojiData)
-                #await ctx.send("Emoji added.")
-                cursor.execute("SELECT * FROM emoji WHERE id = %s", (str(id),))
-                await ctx.send(cursor.fetchall())
-
-        except:
-                "Emoji addition failed."
-
-        cursor.close()
-        connection.close()
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def createEmojiTable(ctx,hidden=True,description="Creates emoji table."):
-
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        try:
-    
-                cursor = connection.cursor()
-                
-                create_table_query = '''CREATE TABLE emoji
-                          (name VARCHAR(30),
-                         id VARCHAR(30),
-                         animated BOOLEAN,
-                         usage INT); '''
-                
-                cursor.execute(create_table_query)
-                connection.commit()
-                print("Table created successfully in PostgreSQL ")
-
-        except (Exception, psycopg2.DatabaseError) as error :
-                print ("Error while creating PostgreSQL table", error)
-
-
-        finally:
-                #closing database connection.
-                        if(connection):
-                                cursor.close()
-                                connection.close()
-                                print("PostgreSQL connection is closed")
-
-@client.command(pass_context=True)
-@commands.is_owner()
-async def dump(ctx, hidden=True, description="Dumps emoji table data."):
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-
-        cursor.execute("SELECT * FROM emoji")
-        data = cursor.fetchall()
-
-        await ctx.send(data)
-        sys.stdout.write(data)
-                
-        cursor.close()
-        connection.close()
 
 @client.command(pass_context=True)
 async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
@@ -452,16 +157,6 @@ async def help(ctx, command=None):
     embed.add_field(name="Spoil Images", value="**hbs;spoil [text] <image(s)>\n\hbs;spoil [text] <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.\n",inline=False)
     embed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
     await ctx.send(embed=embed)
-
-@client.command(pass_context=True,aliases=['nick'])
-@commands.is_owner()
-async def botnick(ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
-    await ctx.guild.me.edit(nick=name)
-
-@client.command(pass_context=True,aliases=['cg'])
-@commands.is_owner()
-async def changeGame(ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
-    await client.change_presence(activity=discord.Game(name=game))
 
 @client.command(pass_context=True)
 async def vriska(ctx):
