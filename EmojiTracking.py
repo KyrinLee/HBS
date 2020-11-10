@@ -99,7 +99,7 @@ class EmojiTracking(commands.Cog):
 
 
     @commands.command(pass_context=True,aliases=['geu'])
-    async def getEmojiUsage(ctx, num=None, animated=None):
+    async def getEmojiUsage(self, ctx, num=None, animated=None):
             if num == None:
                     num = 15
             elif num == "-s" or num == "-a":
@@ -137,7 +137,7 @@ class EmojiTracking(commands.Cog):
 
 
     @commands.command(pass_context=True,aliases=['gfeu'])
-    async def getFullEmojiUsage(ctx):
+    async def getFullEmojiUsage(self, ctx):
             
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
@@ -163,7 +163,7 @@ class EmojiTracking(commands.Cog):
             cursor.close()
             connection.close()
             
-    async def updateEmojiList(message):
+    async def updateEmojiList(self, message):
             
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
@@ -216,7 +216,7 @@ class EmojiTracking(commands.Cog):
             
     @commands.command(pass_context=True)
     @checks.is_in_guild(609112858214793217)
-    async def updateEmojis(ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
+    async def updateEmojis(self, ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
             await updateEmojiList(ctx.message)
             await ctx.send("Emoji List Updated.")
@@ -224,7 +224,7 @@ class EmojiTracking(commands.Cog):
 
     @commands.command(pass_context=True)
     @commands.is_owner()
-    async def clearEmojiList(ctx,hidden=True,description="Clears emoji usage data."):
+    async def clearEmojiList(self, ctx,hidden=True,description="Clears emoji usage data."):
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
 
