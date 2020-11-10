@@ -247,3 +247,4 @@ class EmojiTracking(commands.Cog):
 
 def setup(client):
     client.add_cog(EmojiTracking(client))
+    

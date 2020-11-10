@@ -19,7 +19,7 @@ from psycopg2 import Error
 
 import checks
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","AdminCommands","EmojiTracking"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
