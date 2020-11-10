@@ -91,33 +91,34 @@ class dayCount(commands.Cog):
         cursor.execute("SELECT * FROM counters")
         data = cursor.fetchall()
 
-        await ctx.send(str(data))
-
         keywords = [w[0] for w in data]
 
-        await ctx.send(str(keywords))
+        words = [w for w in keywords if (counter.find(w)!= -1)]
 
-        '''
-        cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
-        data = cursor.fetchall()
-
-        keywords = data[0][0]
-
-        mentions = data[0][2] + 1
-        timeStamp = data[0][1]
-        
-        cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
-
-        timeDiff = currTime - timeStamp
-
-        output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
-        if mentions == 1:
-            output += "."
-        else:
-            output += "s."
+        if len(words) >= 1:
+            word = words[0]
             
-        await ctx.send(output)
-        '''
+            cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
+            data = cursor.fetchall()
+
+            mentions = data[0][2] + 1
+            timeStamp = data[0][1]
+            
+            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
+
+            timeDiff = currTime - timeStamp
+
+            output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+            if mentions == 1:
+                output += "."
+            else:
+                output += "s."
+                
+            await ctx.send(output)
+
+        else:
+            raise checks.InvalidArgument("Counter not found.")
+        
 
         connection.commit()
         cursor.close()
