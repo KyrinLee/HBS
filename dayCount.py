@@ -69,7 +69,7 @@ class dayCount(commands.Cog):
         self.client = client
 
     @commands.command()
-    async def reset(self,ctx: commands.Context, counter=None):
+    async def reset(self,ctx: commands.Context, *, counter=None):
 
         if counter==None:
             raise checks.InvalidArgument(message="Please include counter name.")
@@ -82,33 +82,40 @@ class dayCount(commands.Cog):
 
         cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)")
 
+        '''
         try:
             cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
             await ctx.send("Counter " + counter + " created.")
-        except:
-            cursor.close()
-            connection.close()
+        '''
 
-            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor.execute("SELECT * FROM counters")
+        data = cursor.fetchall()
 
-            cursor = connection.cursor()
-            cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
-            data = cursor.fetchall()
+        keywords = [w[0] for w in data[0]]
 
-            mentions = data[0][2] + 1
-            timeStamp = data[0][1]
+        ctx.send(str(keywords))
+
+        '''
+        cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
+        data = cursor.fetchall()
+
+        keywords = data[0][0]
+
+        mentions = data[0][2] + 1
+        timeStamp = data[0][1]
+        
+        cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
+
+        timeDiff = currTime - timeStamp
+
+        output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+        if mentions == 1:
+            output += "."
+        else:
+            output += "s."
             
-            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,counter))
-
-            timeDiff = currTime - timeStamp
-
-            output = "Counter " + counter + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
-            if mentions == 1:
-                output += "."
-            else:
-                output += "s."
-                
-            await ctx.send(output)
+        await ctx.send(output)
+        '''
 
         connection.commit()
         cursor.close()
