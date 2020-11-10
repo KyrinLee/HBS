@@ -151,11 +151,10 @@ class Starboards(commands.Cog):
                 cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
                 row = cursor.fetchall()
 
-                
                 color = colors[max(0, min(count-starlimit,12))]
                 
-		stars = ["⭐","🌟","✨"]
-		star = stars[max(count, 10) / 5]
+                stars = ["⭐","🌟","✨"]
+                star = stars[max(count,10)/5]
 
                 try: #TRY TO FIND MESSAGE IN STARBOARD DATABASE
                     smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
