@@ -93,7 +93,7 @@ class dayCount(commands.Cog):
 
         await ctx.send(str(data))
 
-        keywords = [w[0] for w in data[0]]
+        keywords = [w[0] for w in data]
 
         await ctx.send(str(keywords))
 
