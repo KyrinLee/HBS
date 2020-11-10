@@ -93,7 +93,7 @@ class dayCount(commands.Cog):
 
         keywords = [w[0] for w in data[0]]
 
-        ctx.send(str(keywords))
+        await ctx.send(str(keywords))
 
         '''
         cursor.execute("SELECT * FROM counters WHERE name=%s",(counter,))
