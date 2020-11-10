@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import sys
+import re
 
 import os
 import psycopg2
@@ -46,7 +47,7 @@ class EmojiTracking(commands.Cog):
             cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
             lastEmojiUpdate = cursor.fetchall()[0][1];
             
-            channel = client.get_channel(754527915290525807)
+            channel = self.client.get_channel(754527915290525807)
             #sys.stdout.write(str(lastEmojiUpdate))
             
             currTime = datetime.fromtimestamp(time.time())
@@ -67,7 +68,7 @@ class EmojiTracking(commands.Cog):
             connection.commit()                            
             cursor.close()
             connection.close()
-        await client.process_commands(message)
+        await self.client.process_commands(message)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -118,11 +119,11 @@ class EmojiTracking(commands.Cog):
             output = "Top " + str(num) + " emojis: "
 
             for i in range(0,num):
-                    output += str(client.get_emoji(int(emojis[i][1])))
+                    output += str(self.client.get_emoji(int(emojis[i][1])))
             output += "\nBottom " + str(num) + " emojis: "
 
             for i in range(len(emojis)-1,len(emojis)-1-num,-1):
-                    output += str(client.get_emoji(int(emojis[i][1])))
+                    output += str(self.client.get_emoji(int(emojis[i][1])))
 
                     
             if animated == "-s":
@@ -145,10 +146,10 @@ class EmojiTracking(commands.Cog):
             count = 0
             for i in data:
                 if count == 2:
-                    output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
+                    output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\n"
                     count = 0
                 else:
-                    output += str(client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\t"
+                    output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\t"
                     count = count + 1
                     
             outputArr = splitLongMsg(output)
@@ -187,7 +188,7 @@ class EmojiTracking(commands.Cog):
             tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
             tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-            channel = client.get_channel(754527915290525807)
+            channel = self.client.get_channel(754527915290525807)
             #await channel.send("TBD: " + str(len(tbd)))
             #await channel.send("TBA: " + str(len(tba)))
 
@@ -200,7 +201,7 @@ class EmojiTracking(commands.Cog):
                     delCount += 1
 
             for emoji in tba:
-                    e = client.get_emoji(int(emoji))
+                    e = self.client.get_emoji(int(emoji))
                     record_to_insert = (e.name, str(e.id), e.animated, 0)
                     cursor.execute(sql_insert_query, record_to_insert)
                     await channel.send(f'Emoji {emoji} added.')

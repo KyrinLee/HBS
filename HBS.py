@@ -10,14 +10,11 @@ import time
 from datetime import datetime, date
 
 import os
-
 import pk
 
 import sys
 
-import os
 import psycopg2
-
 from psycopg2 import Error
 
 import checks
