@@ -8,6 +8,9 @@ import psycopg2
 from psycopg2 import Error
 from discord import NotFound
 
+import time
+from datetime import datetime, date
+
 import asyncio
 import checks
 
