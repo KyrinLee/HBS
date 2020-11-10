@@ -91,6 +91,8 @@ class dayCount(commands.Cog):
         cursor.execute("SELECT * FROM counters")
         data = cursor.fetchall()
 
+        await ctx.send(str(data))
+
         keywords = [w[0] for w in data[0]]
 
         await ctx.send(str(keywords))
