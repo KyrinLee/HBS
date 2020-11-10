@@ -82,7 +82,8 @@ async def on_message(message: discord.Message):
                 if message.content in bannedPhrases:
                         await message.delete()
 
-#EMOJI HANDLING
+    
+    await self.client.process_commands(message)
                         
     
 
