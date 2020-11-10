@@ -13,8 +13,7 @@ from datetime import datetime, date
 
 import asyncio
 import checks
-
-from HBS import splitLongMsg
+import functions
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -157,7 +156,7 @@ class EmojiTracking(commands.Cog):
                     output += str(self.client.get_emoji(int(i[1]))) + ": " + str(i[3]) + "\t"
                     count = count + 1
                     
-            outputArr = splitLongMsg(output)
+            outputArr = functions.splitLongMsg(output)
             for o in outputArr:
                     await ctx.send(o)
 
