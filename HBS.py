@@ -83,7 +83,7 @@ async def on_message(message: discord.Message):
                         await message.delete()
 
     
-    await self.client.process_commands(message)
+    await client.process_commands(message)
                         
     
 
