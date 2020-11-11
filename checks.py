@@ -40,7 +40,7 @@ async def confirmationMenu(ctx, confirmationMessage=""):
     try:
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
     except:
-        ctx.send("Confirmation timed out.")
+        await ctx.send("Confirmation timed out.")
         return 0
     else:
         if reaction == '❌':
