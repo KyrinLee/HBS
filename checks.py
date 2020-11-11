@@ -55,13 +55,13 @@ def is_not_webhook():
             return False
     return commands.check(predicate)
 
-def is_in_skys(int id):
+def is_in_skys(id=0):
     if id != 609112858214793217:
         raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
     else:
         return True
 
-def is_not_self(int id):
+def is_not_self(id=0):
     if ctx.author.id == 753345733377261650:
         return False
     else:
