@@ -38,7 +38,7 @@ async def confirmationMenu(ctx, confirmationMessage=""):
         return user == message.author and str(reaction.emoji) == '👍'
 
     try:
-        reaction, user = await bot.wait_for('reaction_add', check=check, timeout=60.0)
+        reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
     except:
         ctx.send("Confirmation timed out.")
         return 0
