@@ -24,7 +24,7 @@ class EmojiTracking(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
 
-        if checks.is_in_skys(message.guild.id) and message.webhook_id == None and checks.is_not_self(message.author.id):
+        if checks.is_in_skys_id(message.guild.id) and message.webhook_id == None and checks.is_not_self(message.author.id):
 
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
@@ -55,7 +55,7 @@ class EmojiTracking(commands.Cog):
             channel = self.client.get_channel(754527915290525807)
             #sys.stdout.write(str(lastEmojiUpdate))
             
-            currTime = datetime.fromtimestamp(time.time())
+            currTime = datetime.utcnow()
             
             date = str(currTime)[0:10];
             #sys.stdout.write(date);
@@ -75,7 +75,7 @@ class EmojiTracking(commands.Cog):
             connection.close()
 
         elif message.guild == None:
-            raise commands.NoPrivateMessage()
+            await message.author.send("Stop tryna slide into my DMs! I'm taken :)")
 
 
     @commands.Cog.listener()
@@ -144,37 +144,46 @@ class EmojiTracking(commands.Cog):
 
     @commands.command(pass_context=True,aliases=['gfeu'])
     @checks.is_in_skys()
-    async def getFullEmojiUsage(self, ctx):
-            
-            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = connection.cursor()
+    async def getFullEmojiUsage(self, ctx, animated=None):
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
+        if animated == "-s":
+            cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
+        elif animated == "-a":
+            cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
+        else:
             cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
-            data = cursor.fetchall()
+        data = cursor.fetchall()
 
-            digits = [row[3] for row in data]
+        digits = [row[3] for row in data]
 
-            output = ""
-            count = 0
-            maxDigits = len(str(max(digits)))
+        output = ""
+        count = 0
+        maxDigits = len(str(max(digits)))
 
-            for i in data:
-                output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(i[3]).rjust(maxDigits) + " `")
+        for i in data:
+            output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(i[3]).rjust(maxDigits) + " `")
 
-                if count == 4:
-                    output += "\n"
-                    count = 0
-                else:
-                    count = count + 1
-                    
-            outputArr = functions.splitLongMsg(output)
+            if count == 4:
+                output += "\n"
+                count = 0
+            else:
+                count = count + 1
+                
+        if animated == "-s":
+            output+="\n(animated emojis excluded.)"
+        if animated == "-a":
+            output+="\n(static emojis excluded.)"
+                
+        outputArr = functions.splitLongMsg(output)
 
-            for o in outputArr:
-                await ctx.send(o)
+        for o in outputArr:
+            await ctx.send(o)
 
-            connection.commit()
-            cursor.close()
-            connection.close()
+        connection.commit()
+        cursor.close()
+        connection.close()
             
     async def updateEmojiList(self, message):
             

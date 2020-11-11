@@ -77,7 +77,7 @@ class dayCount(commands.Cog):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
 
-        currTime = datetime.fromtimestamp(time.time())
+        currTime = datetime.utcnow()
 
         cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
 
@@ -123,47 +123,71 @@ class dayCount(commands.Cog):
 
         if counter == None:
             raise checks.InvalidArgument("You gotta name the counter! <:angercry:757731437326762014>")
+
         else:
             counter = counter.lower()
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
-            if result == 1:
-                try:
-                    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                    cursor = conn.cursor()
-                    currTime = datetime.fromtimestamp(time.time())
+            #SEARCH DATABASE TO SEE IF COUNTER ALREADY EXISTS
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
 
-                    cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
-                    await ctx.send(f'Counter {counter} created.')
-                except:
-                    raise checks.FuckyError()
-                finally:
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
-                
-            elif result == 0:
-                await ctx.send("Counter creation cancelled.")
+            cursor.execute("SELECT * FROM counters WHERE name = %s",(counter,))
+            counters = cursor.fetchall()
+
+            if len(counters) == 0:
+                result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
+                if result == 1:
+                    try:
+                        currTime = datetime.utcnow()
+
+                        cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
+                        await ctx.send(f'Counter {counter} created.')
+                    except:
+                        raise checks.FuckyError()
+                elif result == 0:
+                    await ctx.send("Counter creation cancelled.")
+                else:
+                    raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
             else:
-                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+                raise checks.InvalidArgument("That counter already exists!")
+        
+            conn.commit()
+            cursor.close()
+            conn.close()
 
     @commands.is_owner()
     @commands.command(aliases=['removeCounter'])
     async def deleteCounter(self,ctx: commands.Context, counter=None):
         if counter == None:
             raise checks.InvalidArgument("You gotta tell me which one! <:angercry:757731437326762014>")
-
+        
         else:
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = conn.cursor()
-
             counter = counter.lower()
 
-            cursor.execute("DELETE FROM counters WHERE name = %s",(counter,))
-            await ctx.send(f'Counter {counter} deleted.') 
+            select_query = "SELECT * FROM counters WHERE name = %s"
+            
+            cursor.execute(select_query,(counter,))
+            counters = cursor.fetchall()
+
+            if len(counters) != 0:
+                result = await checks.confirmationMenu(self.client, ctx, f'Would you like to delete counter {counter}?')
+                if result == 1:
+                    
+                    cursor.execute("DELETE FROM counters WHERE name = %s",(counter,))
+                    await ctx.send(f'Counter {counter} deleted.') 
+
+                elif result == 0:
+                    await ctx.send("Counter deletion cancelled.")
+                else:
+                    raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+            else:
+                raise checks.InvalidArgument("That counter doesn't exist!")
 
             conn.commit()
             cursor.close()
             conn.close()
+            
 
     @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'])
     async def returnCounters(self, ctx:commands.Context):
@@ -176,18 +200,41 @@ class dayCount(commands.Cog):
         maxName = max([len(row[0]) for row in counters]) + 1
         maxNum = len(str(max([row[2] for row in counters])))
 
-        output = "`"
+        output = "```"
 
         for i in range(0,len(counters)):
             output += f'{(counters[i][0]+":").ljust(maxName)} {str(counters[i][2]).rjust(maxNum)} resets, last reset: {str(counters[i][1])[0:19]}\n'
 
-        output += "`"
+        output += "```"
 
         await ctx.send(output)
 
         conn.commit()
         cursor.close()
         conn.close()
+
+    @commands.command(aliases=['counter','seeCounter','counterInfo'])
+    async def viewCounter(self, ctx, counter=None):
+        if counter == None:
+            raise checks.InvalidArgument("You have to tell me which one!")
+        else:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+
+            counter = counter.lower()
+
+            cursor.execute("SELECT * FROM counters WHERE name = '%s'",(counter,))
+            counters = cursor.fetchall()
+
+            if len(counters) == 0:
+                raise checks.InvalidArgument("That counter doesn't exist silly!")
+            else:
+                await ctx.send(f'{(counters[0][0]+":")} {counters[0][2]} resets, last reset: {str(counters[0][1])[0:19]}')
+
+    @commands.command()
+    async def currTime(self, ctx):
+        currTime = datetime.utcnow()
+        await ctx.send(str(currTime))
         
 def setup(client):
     client.add_cog(dayCount(client))

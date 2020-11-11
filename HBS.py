@@ -28,7 +28,7 @@ intents = discord.Intents.default()
 intents.members = True
 
 client = commands.Bot(
-    command_prefix=("hbs;","\hbs;","hbs ","\hbs"),
+    command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
     help_command=None,
@@ -56,6 +56,7 @@ async def on_ready():
     game = cursor.fetchall()[0][1]
     await client.change_presence(activity=discord.Game(name=game))
 
+    client.add_check(commands.guild_only())
     conn.commit()
     cursor.close()
     conn.close()
@@ -74,7 +75,7 @@ async def on_message(message: discord.Message):
                     if message.content in bannedPhrases:
                             await message.delete()
     else:
-        raise commands.NoPrivateMessage()
+        await message.author.send("Stop tryna slide into my DMs! I'm taken :)")
 
     await client.process_commands(message)
                         

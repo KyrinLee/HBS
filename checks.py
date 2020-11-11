@@ -16,8 +16,7 @@ class FuckyError(commands.CommandError):
 class CheckFailure(commands.CommandError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
-        self.__dict__.update(kwargs)
-
+        self.__dict__.update(kwargs)\
 
 # ----- CHECK DEFINITIONS ----- #
 
@@ -29,13 +28,9 @@ def is_in_guild(guild_id):
             return True
     return commands.check(predicate)
 
-
 def is_in_skys():
     async def predicate(ctx):
-        if ctx.guild.id != 609112858214793217:
-            raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
-        else:
-            return True
+        return ctx.guild and ctx.guild.id == 609112858214793217
     return commands.check(predicate)
 
 def is_not_webhook():
@@ -46,14 +41,14 @@ def is_not_webhook():
             return False
     return commands.check(predicate)
 
-def is_in_skys(id=0):
+def is_in_skys_id(id):
     if id != 609112858214793217:
         raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
     else:
         return True
 
-def is_not_self(id=0):
-    if ctx.author.id == 753345733377261650:
+def is_not_self(id):
+    if id == 753345733377261650:
         return False
     else:
         return True

@@ -45,8 +45,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f'{ctx.command} has been disabled.')
 
         elif isinstance(error, commands.CheckFailure):
-            output = "*You* did a fucky. "
-
+            output = "You did a fucky. "
             if isinstance(error, commands.NotOwner):
                 output += "Stop tryna run commands you don't have permissions for! <:angercry:757731437326762014>"
             else:
@@ -60,14 +59,6 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, checks.InvalidArgument):
             await ctx.send(error)
             
-        elif isinstance(error, commands.NoPrivateMessage):
-            try:
-                sys.stdout.write("NPM")
-                sys.stdout.flush()
-                await ctx.send("Stop tryna slide into my DMs! I'm taken :)")
-            except discord.HTTPException:
-                pass
-
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
             await ctx.send("I did a fucky.")
