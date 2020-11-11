@@ -115,7 +115,17 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True,aliases=['cg'])
     @commands.is_owner()
     async def changeGame(self, ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
-        await self.client.change_presence(activity=discord.Game(name=game))
+        try:
+            await self.client.change_presence(activity=discord.Game(name=game))
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+            cursor.execute("UPDATE vars SET value = %s WHERE name = 'game'",(game,))
+        except:
+            raise checks.FuckyError()
+        finally:
+            conn.commit()
+            cursor.close()
+            conn.close()
 
     @commands.command(pass_context=True)
     @commands.is_owner()
