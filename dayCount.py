@@ -135,6 +135,7 @@ class dayCount(commands.Cog):
             if result == 1:
                 await ctx.send("Success!")
             else:
+                await ctx.send(str(result))
                 await ctx.send("Haha fuck you, try to find the error NOW")
 
 def setup(client):
