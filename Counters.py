@@ -64,7 +64,7 @@ def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
             values[field], remainder = divmod(remainder, constants[field])
     return f.format(fmt, **values)
 
-class dayCount(commands.Cog):
+class Counters(commands.Cog):
     def __init__(self, client):
         self.client = client
 
@@ -237,4 +237,4 @@ class dayCount(commands.Cog):
         await ctx.send(str(currTime))
         
 def setup(client):
-    client.add_cog(dayCount(client))
+    client.add_cog(Counters(client))

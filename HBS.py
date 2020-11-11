@@ -19,8 +19,9 @@ from psycopg2 import Error
 
 import checks
 import functions
+from HelpMenu import HBSCommand
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","HelpMenu"]
+startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -31,6 +32,8 @@ client = commands.Bot(
     command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
+    help_command=HBSCommand(indent=4,paginator=commands.Paginator()),
+    description="HussieBot Oppression & More",
     #help_command=None,
     intents=intents)
 
@@ -152,7 +155,7 @@ async def help(ctx, command=None):
 '''
 @client.command(pass_context=True)
 async def vriska(ctx):
-    await ctx.send("<:vriska:480855644388458497>")
+    await ctx.send("<:vriska:776019724956860417>")
     await ctx.message.delete()
     
 @client.event
@@ -176,16 +179,18 @@ if __name__ == "__main__":
 
     loadOutput = "Loaded Extensions: "
     failOutput = "Failed Extensions: \n"
-    if len(loaded) > 1:
+    if len(loaded) >= 1:
         for i in range(0,len(loaded)-1):
             loadOutput += loaded[i] + ", "
         loadOutput += loaded[len(loaded)-1] + "\n"
         sys.stdout.write(loadOutput)
 
-    if len(failed) > 1:
+    if len(failed) >= 1:
         sys.stdout.write(failOutput)
         for i in range(0,len(failed)):
             sys.stdout.write(f'\t{failed[i]}, Exception: {failedExc[i]}\n')
+
+    sys.stdout.flush()
 
 client.run(os.environ["token"])
 

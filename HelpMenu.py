@@ -10,39 +10,61 @@ import checks
 import functions
 import json
 
-DATABASE_URL = os.environ['DATABASE_URL']
+import itertools
+import copy
+import functools
+import inspect
+import re
+import discord.utils
 
-baseEmbed = discord.Embed(title="HBS Help", description="HussieBot Oppression & More", color=0x005682)
-baseEmbed.set_thumbnail(url="https://media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png")
-baseEmbed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
-
-def Merge(dict1, dict2):
-    res = {**dict1, **dict2}
-    return res
-
-
-class HelpMenu(commands.Cog):
-    def __init__(self, client):
-        self.client = client
-        with open('HelpMenu.json') as f:
-              self.data = json.load(f)
-
-
-    @commands.command()
-    async def helpi(self,ctx,option=None):
-        data = self.data
-        msg = await ctx.send("", embed=Embed.from_dict(Merge(data['base'],data['oldMenu'])))
-        if option == "old":
-            await self.displayOldHelp(msg, data['oldMenu'])
-
-    async def displayMainHelp(self,msg):
-        embed = msg.embeds[0]
+class HBSCommand(commands.DefaultHelpCommand):
+    def __init__(self, **options):
+        self.indent = options['indent']
+        self.paginator = commands.Paginator(suffix=None, prefix=None)
         
-    async def displayOldHelp(self, msg, fields):
-        embed = from_dict(fields)
-        await msg.edit(embed=embed)
+        self.command_attrs = {'help', 'Shows this message'}
+
+        super().__init__(**options)
 
 
-def setup(client):
-    client.add_cog(HelpMenu(client))
+    async def send_bot_help(self, mapping):
+        ctx = self.context
+        bot = ctx.bot
+
+        no_category = '\u200b{0.no_category}:'.format(self)
+        def get_category(command, *, no_category=no_category):
+            cog = command.cog
+            return "" + cog.qualified_name + ':' if cog is not None else no_category
+
+        filtered = await self.filter_commands(bot.commands, sort=True, key=get_category)
+        max_size = self.get_max_size(filtered)
+        to_iterate = itertools.groupby(filtered, key=get_category)
+
+        # Now we can add the commands to the page.
+        for category, commands in to_iterate:
+            commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
+            self.add_indented_commands(commands, heading=category, max_size=max_size)
+
+        note = self.get_ending_note()
+        if note:
+            self.paginator.add_line()
+            self.paginator.add_line(note)
+
+        await self.send_pages()
+
+
+    def add_indented_commands(self, commands, *, heading, max_size=None):
+        
+        if not commands:
+            return
+
+        self.paginator.add_line(heading)
+        max_size = max_size or self.get_max_size(commands)
+
+        get_width = discord.utils._string_width
+        for command in commands:
+            name = command.name
+            entry = '{0}{1: <24} {2}'.format(self.indent * ' ', name, command.short_doc)
+            self.paginator.add_line(self.shorten_text(entry))
+
     

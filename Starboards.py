@@ -25,7 +25,7 @@ class Starboards(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def addToStarboard(self,msg,forceStar):
+    async def addToStarboard(self,msg,forceStar=False):
         await self.client.get_channel(754527915290525807).send("x")
         reacts = msg.reactions
         count = 0
@@ -58,7 +58,10 @@ class Starboards(commands.Cog):
 
     #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
         try:
+            smsgid = row[0][1]
             smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+            if smsgid != None and smsg == None:
+                await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please fix ASAP.")
 
             update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
             cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
@@ -99,7 +102,7 @@ class Starboards(commands.Cog):
 
     #ELSE CREATE NEW STARRED MESSAGE
             else:
-                jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{payload.channel_id}/{msg.id})'
+                jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{msg.channel.id}/{msg.id})'
 
                 embed = discord.Embed(description=msg.content, color=color, timestamp=msg.created_at,type="rich")
                 embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
@@ -129,7 +132,7 @@ class Starboards(commands.Cog):
                 
                 await self.client.get_channel(754527915290525807).send("x")
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                await addToStarboard(msg,False)
+                await addToStarboard(msg)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -203,11 +206,9 @@ class Starboards(commands.Cog):
                 cursor.close()
                 conn.close()
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True, brief="Manually star a message.")
     @commands.is_owner()
     async def star(self,ctx, id=None):
-        
-        await self.client.get_channel(754527915290525807).send("x")
         if id == None:
             raise checks.InvalidArgument("Please include message ID or link.")
         elif str(id)[0:4] == "http":
@@ -218,15 +219,100 @@ class Starboards(commands.Cog):
         else:
             for channel in ctx.guild.text_channels:
                 try:
-                    msg = await channel.fetch_message(chId)
+                    msg = await channel.fetch_message(id)
                 except NotFound:
                     continue
 
-            if msg = None:
+            if msg == None:
                 raise checks.InvalidArgument("That message does not exist.")
 
-        await addToStarboard(msg,True)
+        await self.addToStarboard(msg,True)
 
+    @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change starboard channel.")
+    @commands.is_owner()
+    async def changeStarboard(self,ctx,id=None,lewd=False):
+        lewd = True if (lewd == lewd or nsfw) else False
+            
+        if id == None:
+            raise checks.InvalidArgument("Please include message ID or link.")
+
+        starboard = "lewdboard" if lewd else "starboard"
+        channel = self.client.get_channel(id)
+        result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
+        if result == 1:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+            cursor.execute(f'UPDATE starboards SET channelid = {id} WHERE name = {starboard}')
+            await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
+
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+        elif result == 0:
+            await ctx.send("Operation cancelled.")
+        else:
+            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+
+    @commands.command(pass_context=True, brief="Change lewdboard channel.")
+    @commands.is_owner()
+    async def changeLewdboard(self,ctx, id=None):
+        if id == None:
+            raise checks.InvalidArgument("Please include message ID or link.")
+        await self.changeStarboard(ctx,id,True)
+
+    @commands.command(aliases=['starboards','starboardInfo'],brief="View all starboard settings.")
+    async def viewStarboards(self, ctx:commands.Context,mobile=""):
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM starboards")
+        starboards = cursor.fetchall()
+
+        maxName = max([len(row[0]) for row in starboards])
+        maxChannelName = max([len(str(self.client.get_channel(int(row[1])))) for row in starboards])
+        
+        output = "```STARBOARD".ljust(maxName)+ " | " + "CHANNEL".ljust(maxChannelName+22) + " | NSFW  | STAR LIMIT \n" if mobile != "-m" else ""
+
+        for i in range(0,len(starboards)):
+            channel = self.client.get_channel(starboards[i][1])
+            if mobile == "-m":
+                output += f'**{starboards[i][0]}**\n#{channel.name} ({channel.id})\nNSFW: {str(starboards[i][2])}\nSTAR LIMIT: {str(starboards[i][4])}\n\n'
+            else:
+                output += f'{(starboards[i][0]).ljust(maxName)} | #{channel.name.ljust(maxChannelName)} ({channel.id}) | {str(starboards[i][2]).ljust(5)} | {str(starboards[i][4]).rjust(10)}\n'
+
+        output = (output + "```") if mobile != "-m" else output
+
+        await ctx.send(output)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+
+    @commands.command(brief="Change threshold for starboard.")
+    @commands.is_owner()
+    async def changeStarLimit(self,ctx,starlimit=-1,lewd=False):
+        if starlimit == -1:
+            raise checks.InvalidArgument("Please include new star limit.")
+        else:
+            starboard = "lewdboard" if lewd else "starboard"
+            
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
+            if result == 1:
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = conn.cursor()
+                cursor.execute(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
+                await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
+
+                conn.commit()
+                cursor.close()
+                conn.close()
+
+            elif result == 0:
+                await ctx.send("Operation cancelled.")
+            else:
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
     
                     
 def setup(client):

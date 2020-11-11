@@ -75,7 +75,7 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True)
     @commands.is_owner()
     async def clearChannel(self, ctx:commands.Context, channelID):
-        async for message in self.client.get_channel(int(channelID)).history(limit=2,oldest_first=False):
+        async for message in self.client.get_channel(int(channelID)).history(limit=1,oldest_first=False):
             try:
                 await message.delete()
             except:
@@ -156,6 +156,13 @@ class AdminCommands(commands.Cog):
     async def deleteEmoji(self, ctx, id):
             emoji = await ctx.guild.fetch_emoji(int(id))
             await emoji.delete()
+
+    @commands.command(pass_context=True)
+    @commands.is_owner()
+    async def getChannelPerms(self, ctx):
+        m = await (ctx.guild.fetch_member(753345733377261650))
+        sys.stdout.write(str(ctx.channel.permissions_for(m)))
+        
 
 def setup(client):
     client.add_cog(AdminCommands(client))
