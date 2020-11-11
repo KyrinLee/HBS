@@ -159,8 +159,14 @@ class dayCount(commands.Cog):
         cursor.execute("SELECT * FROM counters")
         counters = cursor.fetchall()
 
+        output = "`"
+
+        for i in range(0,len(counters)):
+            output += f'{counters[i][0].rjust(30)}: {counters[i][2]} resets, last reset: {counters[i][1]}\n'
+
+        output += "`"
+
+        await ctx.send(output)
         
-
-
 def setup(client):
     client.add_cog(dayCount(client))
