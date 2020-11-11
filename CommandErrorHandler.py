@@ -3,6 +3,7 @@ import traceback
 import sys
 from discord.ext import commands
 
+import checks
 
 class CommandErrorHandler(commands.Cog):
 
@@ -53,7 +54,7 @@ class CommandErrorHandler(commands.Cog):
                 
             await ctx.send(output)
 
-        elif isinstance(error, commands.FuckyError):
+        elif isinstance(error, checks.FuckyError):
             await ctx.send("Something went fucky here.")
             
         elif isinstance(error, commands.NoPrivateMessage):
