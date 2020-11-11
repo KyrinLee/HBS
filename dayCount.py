@@ -159,16 +159,15 @@ class dayCount(commands.Cog):
         cursor.execute("SELECT * FROM counters")
         counters = cursor.fetchall()
 
-        await ctx.send(str([row[0] for row in counters]))
-        await ctx.send(str([row[2] for row in counters]))
-
         maxName = len(str(max([row[0] for row in counters])))
         maxNum = len(str(max([row[2] for row in counters])))
+
+        await ctx.send(str(maxName) + " " + str(maxNum))
 
         output = "`"
 
         for i in range(0,len(counters)):
-            output += f'{counters[i][0].rjust(maxName)}: {str(counters[i][2]).rjust(maxNum)} resets, last reset: {counters[i][1]}\n'
+            output += f'{counters[i][0].rjust(maxName)}: {str(counters[i][2]).rjust(maxNum)} resets, last reset: {str(counters[i][1])[0:19]}\n'
 
         output += "`"
 
