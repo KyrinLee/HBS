@@ -26,58 +26,54 @@ class EmojiTracking(commands.Cog):
     @checks.is_not_self()
     @checks.is_not_webhook()
     async def on_message(self, message: discord.Message):
-        if message.guild is not None:
 
-                connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 
-                cursor = connection.cursor()
-                postgreSQL_select_Query = "SELECT id FROM emoji"
-                update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-                get_usage = "SELECT usage FROM emoji WHERE id=%s"
+            cursor = connection.cursor()
+            postgreSQL_select_Query = "SELECT id FROM emoji"
+            update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
+            get_usage = "SELECT usage FROM emoji WHERE id=%s"
 
-                cursor.execute(postgreSQL_select_Query)
-                oldEmojis = cursor.fetchall()
+            cursor.execute(postgreSQL_select_Query)
+            oldEmojis = cursor.fetchall()
 
-                oldEmojis = [e[0] for e in oldEmojis]
+            oldEmojis = [e[0] for e in oldEmojis]
 
-                emojis = re.findall(r'<:\w*:\d*>', message.content)
-                emojisA = re.findall(r'<a:\w*:\d*>', message.content)
+            emojis = re.findall(r'<:\w*:\d*>', message.content)
+            emojisA = re.findall(r'<a:\w*:\d*>', message.content)
 
-                for i in range(0, len(emojisA)):
-                    emojis.append(emojisA[i])
-                #print(emojis)
-                emojiIDs = []
+            for i in range(0, len(emojisA)):
+                emojis.append(emojisA[i])
+            #print(emojis)
+            emojiIDs = []
 
-                for i in range(0, len(emojis)):
-                    emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
+            for i in range(0, len(emojis)):
+                emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-                cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
-                lastEmojiUpdate = cursor.fetchall()[0][1];
-                
-                channel = self.client.get_channel(754527915290525807)
-                #sys.stdout.write(str(lastEmojiUpdate))
-                
-                currTime = datetime.fromtimestamp(time.time())
-                
-                date = str(currTime)[0:10];
-                #sys.stdout.write(date);
+            cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
+            lastEmojiUpdate = cursor.fetchall()[0][1];
+            
+            channel = self.client.get_channel(754527915290525807)
+            #sys.stdout.write(str(lastEmojiUpdate))
+            
+            currTime = datetime.fromtimestamp(time.time())
+            
+            date = str(currTime)[0:10];
+            #sys.stdout.write(date);
 
-                if str(lastEmojiUpdate) != date:
-                    cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
-                    await self.updateEmojiList(message)
+            if str(lastEmojiUpdate) != date:
+                cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
+                await self.updateEmojiList(message)
 
-                for e in emojiIDs:
-                    if e in oldEmojis:
-                            cursor.execute(get_usage,(e,))
-                            use = cursor.fetchall()
-                            cursor.execute(update_q, (use[0][0]+1,e))
-                                            
-                connection.commit()                            
-                cursor.close()
-                connection.close()
-
-        else:
-            raise commands.NoPrivateMessage()
+            for e in emojiIDs:
+                if e in oldEmojis:
+                        cursor.execute(get_usage,(e,))
+                        use = cursor.fetchall()
+                        cursor.execute(update_q, (use[0][0]+1,e))
+                                        
+            connection.commit()                            
+            cursor.close()
+            connection.close()
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):

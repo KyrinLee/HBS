@@ -64,23 +64,18 @@ async def on_ready():
 
 
 @client.event
+@checks.is_not_pm()
 async def on_message(message: discord.Message):
 
-    if message.guild is not None:
-
 #HANDLE HUSSIEBOT VRISKA REACTS
-        bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
-                         "Cool Thanks is a valid kid name."]
-        if message.author.id == 480855402289037312: #if hussiebot
-                    if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
-                            await message.delete()
-                    if message.content in bannedPhrases:
-                            await message.delete()
+    bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
+                     "Cool Thanks is a valid kid name."]
+    if message.author.id == 480855402289037312: #if hussiebot
+                if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
+                        await message.delete()
+                if message.content in bannedPhrases:
+                        await message.delete()
 
-    else:
-        raise commands.NoPrivateMessage()
-
-    
     await client.process_commands(message)
                         
     
