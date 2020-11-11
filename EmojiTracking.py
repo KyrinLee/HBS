@@ -22,10 +22,9 @@ class EmojiTracking(commands.Cog):
         self.client = client
         
     @commands.Cog.listener()
-    @checks.is_in_skys()
-    @checks.is_not_self()
-    @checks.is_not_webhook()
     async def on_message(self, message: discord.Message):
+
+        if checks.is_in_skys(message.guild.id) and message.webhook_id == None and checks.is_not_self(message.author.id):
 
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
 

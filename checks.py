@@ -29,7 +29,7 @@ def is_in_guild(guild_id):
             return True
     return commands.check(predicate)
 
-
+'''
 def is_in_skys():
     async def predicate(ctx):
         if ctx.guild.id != 609112858214793217:
@@ -45,7 +45,7 @@ def is_not_self():
         else:
             return True
     return commands.check(predicate)
-
+'''
 
 def is_not_webhook():
     async def predicate(ctx):
@@ -54,6 +54,18 @@ def is_not_webhook():
         else:
             return False
     return commands.check(predicate)
+
+def is_in_skys(int id):
+    if id != 609112858214793217:
+        raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
+    else:
+        return True
+
+def is_not_self(int id):
+    if ctx.author.id == 753345733377261650:
+        return False
+    else:
+        return True
 
 
 # ----- CONFIRMATION MENU ----- #

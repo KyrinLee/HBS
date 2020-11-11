@@ -50,8 +50,6 @@ async def on_ready():
 
     sys.stdout.flush()
 
-    client.add_check(commands.guild_only())
-
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM vars WHERE name = 'game'")
@@ -64,7 +62,6 @@ async def on_ready():
 
 
 @client.event
-@commands.guild_only()
 async def on_message(message: discord.Message):
 
 #HANDLE HUSSIEBOT VRISKA REACTS
