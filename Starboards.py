@@ -226,7 +226,7 @@ class Starboards(commands.Cog):
 
         await self.addToStarboard(msg,True)
 
-    @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change starboard channel.")
+    @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change a starboard channel.")
     @commands.is_owner()
     async def changeStarboard(self,ctx,id=None,lewd=False):
         lewd = True if (lewd == lewd or nsfw) else False
@@ -252,7 +252,7 @@ class Starboards(commands.Cog):
         else:
             raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
-    @commands.command(pass_context=True, brief="Change lewdboard channel.")
+    @commands.command(pass_context=True, brief="Change lewdboard channel.",hidden=True)
     @commands.is_owner()
     async def changeLewdboard(self,ctx, id=None):
         if id == None:
@@ -288,7 +288,7 @@ class Starboards(commands.Cog):
         conn.close()
 
 
-    @commands.command(brief="Change threshold for starboard.")
+    @commands.command(brief="Change threshold for a starboard.")
     @commands.is_owner()
     async def changeStarLimit(self,ctx,starlimit=-1,lewd=False):
         if starlimit == -1:

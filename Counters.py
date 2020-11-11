@@ -68,7 +68,7 @@ class Counters(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
+    @commands.command(aliases=['update'],brief="Reset/Update a counter.")
     async def reset(self,ctx: commands.Context, *, counter=None):
 
         if counter==None:
@@ -81,6 +81,7 @@ class Counters(commands.Cog):
 
         cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
 
+        #FIND KEYWORDS
         cursor.execute("SELECT * FROM counters")
         data = cursor.fetchall()
 
@@ -89,7 +90,7 @@ class Counters(commands.Cog):
         words = [w for w in keywords if (counter.find(w)!= -1)]
 
         if len(words) >= 1:
-            word = words[0].lower()
+            word = max(words, key = len).lower()
             
             cursor.execute("SELECT * FROM counters WHERE name=%s",(word,))
             data = cursor.fetchall()
@@ -118,7 +119,7 @@ class Counters(commands.Cog):
         connection.close()
 
         
-    @commands.command(aliases=['addCounter'])
+    @commands.command(aliases=['addCounter'],brief="Create a new counter.")
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
@@ -133,6 +134,7 @@ class Counters(commands.Cog):
             cursor.execute("SELECT * FROM counters WHERE name = %s",(counter,))
             counters = cursor.fetchall()
 
+            #IF COUNTER DOESN'T EXIST, CREATE IT
             if len(counters) == 0:
                 result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
                 if result == 1:
@@ -155,7 +157,7 @@ class Counters(commands.Cog):
             conn.close()
 
     @commands.is_owner()
-    @commands.command(aliases=['removeCounter'])
+    @commands.command(aliases=['removeCounter'],brief="Delete a counter.")
     async def deleteCounter(self,ctx: commands.Context, counter=None):
         if counter == None:
             raise checks.InvalidArgument("You gotta tell me which one! <:angercry:757731437326762014>")
@@ -189,7 +191,7 @@ class Counters(commands.Cog):
             conn.close()
             
 
-    @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'])
+    @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'],brief="List all counters.")
     async def returnCounters(self, ctx:commands.Context):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = conn.cursor()
@@ -213,7 +215,7 @@ class Counters(commands.Cog):
         cursor.close()
         conn.close()
 
-    @commands.command(aliases=['counter','seeCounter','counterInfo'])
+    @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
     async def viewCounter(self, ctx, counter=None):
         if counter == None:
             raise checks.InvalidArgument("You have to tell me which one!")
@@ -231,7 +233,7 @@ class Counters(commands.Cog):
             else:
                 await ctx.send(f'{(counters[0][0]+":")} {counters[0][2]} resets, last reset: {str(counters[0][1])[0:19]}')
 
-    @commands.command()
+    @commands.command(enabled=False)
     async def currTime(self, ctx):
         currTime = datetime.utcnow()
         await ctx.send(str(currTime))

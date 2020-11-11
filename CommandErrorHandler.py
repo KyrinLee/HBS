@@ -42,7 +42,7 @@ class CommandErrorHandler(commands.Cog):
             return
 
         if isinstance(error, commands.DisabledCommand):
-            await ctx.send(f'{ctx.command} has been disabled.')
+            await ctx.send(f'You cannot use this command! {ctx.command.capitalize()} is currently disabled.')
 
         elif isinstance(error, commands.CheckFailure):
             output = "You did a fucky. "

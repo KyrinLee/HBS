@@ -19,7 +19,8 @@ from psycopg2 import Error
 
 import checks
 import functions
-from HelpMenu import HBSCommand
+
+from HelpMenu import HBSHelpCommand
 
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
@@ -32,7 +33,7 @@ client = commands.Bot(
     command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
-    help_command=HBSCommand(indent=4,paginator=commands.Paginator()),
+    help_command=HBSHelpCommand(indent=4,paginator=commands.Paginator()),
     description="HussieBot Oppression & More",
     #help_command=None,
     intents=intents)
@@ -126,7 +127,7 @@ async def on_raw_reaction_add(payload):
         await msg.delete()
 
 
-@client.command(pass_context=True)
+@client.command(pass_context=True,brief="Spoil an image.")
 async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
     
     files = []
@@ -153,7 +154,7 @@ async def help(ctx, command=None):
     embed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
     await ctx.send(embed=embed)
 '''
-@client.command(pass_context=True)
+@client.command(pass_context=True,brief="Vriska.")
 async def vriska(ctx):
     await ctx.send("<:vriska:776019724956860417>")
     await ctx.message.delete()
@@ -189,6 +190,7 @@ if __name__ == "__main__":
         sys.stdout.write(failOutput)
         for i in range(0,len(failed)):
             sys.stdout.write(f'\t{failed[i]}, Exception: {failedExc[i]}\n')
+
 
     sys.stdout.flush()
 

@@ -103,7 +103,7 @@ class EmojiTracking(commands.Cog):
         conn.close()
 
 
-    @commands.command(pass_context=True,aliases=['geu'])
+    @commands.command(pass_context=True,aliases=['geu'],brief="Get most and least used emojis.")
     @checks.is_in_skys()
     async def getEmojiUsage(self, ctx, num=None, animated=None):
             if num == None:
@@ -141,8 +141,13 @@ class EmojiTracking(commands.Cog):
                     output+="\n(static emojis excluded.)"
             await ctx.send(output)
 
+# ----- GET FULL EMOJI USAGE ----- #
 
-    @commands.command(pass_context=True,aliases=['gfeu'])
+    @commands.command(pass_context=True,
+                      aliases=['gfeu'],
+                      brief="Get all emoji usage data.",
+                      sig=["hbs;getFullEmojiUsage [-s|-a]","hbs;gfeu             [-s|-a]"]
+                      )
     @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -236,7 +241,8 @@ class EmojiTracking(commands.Cog):
             cursor.close()
             connection.close()
             
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,brief="Update emoji list.")
+    @commands.is_owner()
     @checks.is_in_skys()
     async def updateEmojis(self, ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
@@ -244,20 +250,27 @@ class EmojiTracking(commands.Cog):
             await ctx.send("Emoji List Updated.")
             
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,brief="Clears all emoji data.")
     @commands.is_owner()
     async def clearEmojiList(self, ctx,hidden=True,description="Clears emoji usage data."):
-            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = connection.cursor()
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
+            if result == 1:
+                connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = connection.cursor()
 
-            delete_query = "DELETE FROM emoji"
-            cursor.execute(delete_query)
-            connection.commit()
-            await ctx.send("Emoji list cleared.")
+                delete_query = "DELETE FROM emoji"
+                cursor.execute(delete_query)
+                connection.commit()
+                await ctx.send("Emoji list cleared.")
 
-            connection.commit()
-            cursor.close()
-            connection.close()
+                connection.commit()
+                cursor.close()
+                connection.close()
+                
+            elif result == 0:
+                await ctx.send("Operation cancelled.")
+            else:
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
 
 

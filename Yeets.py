@@ -62,10 +62,10 @@ class Yeets(commands.Cog):
             cursor.close()
             conn.close()
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,aliases=['changeMsg'],brief="Change join/leave messages.")
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
-    async def changeMsg(self,ctx: commands.Context,msgName=None,*,message):
+    async def changeMessage(self,ctx: commands.Context,msgName=None,*,message):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
@@ -96,10 +96,10 @@ class Yeets(commands.Cog):
         cursor.close()
         conn.close()
 
-    @commands.command(pass_context=True)
+    @commands.command(pass_context=True,aliases=['changeYeets','changeJoin','changeLeave'],brief="Change join/leave message channel.",)
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
-    async def changeYeets(self, ctx:commands.Context, channelID=None):
+    async def changeYeetsChannel(self, ctx:commands.Context, channelID=None):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
@@ -133,19 +133,7 @@ class Yeets(commands.Cog):
         conn.commit()
         cursor.close()
         conn.close()
-
-    @changeYeets.error
-    async def changeYeets_error(self,ctx,error):
-        if isinstance(error, checks.CheckFailure):
-            if error.message != None:
-                await ctx.send(error.message)
-            else:
-                await ctx.send("You do not have permission to run this command here.")
-
-        elif isinstance(error, checks.InvalidArgument):
-            await ctx.send(error)
             
-        
             
 def setup(client):
     client.add_cog(Yeets(client))
