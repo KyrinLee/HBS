@@ -146,5 +146,9 @@ class dayCount(commands.Cog):
             else:
                 await ctx.send("Something be fucky here. Idk what happened. Maybe try again?")
 
+    @commands.is_owner()
+    @commands.command(aliases=['removeCounter'])
+    async def deleteCounter(self,ctx: commands.Context, counter=None):
+
 def setup(client):
     client.add_cog(dayCount(client))

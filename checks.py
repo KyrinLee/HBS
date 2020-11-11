@@ -30,6 +30,13 @@ def is_in_guild(guild_id):
     return commands.check(predicate)
 
 
+def is_in_skys():
+    async def predicate(ctx):
+        if ctx.guild.id != 609112858214793217:
+            raise CheckFailure(message="You cannot run this command in this server."_
+        else:
+            return True
+    return commands.check(predicate)
 
 
 # ----- CONFIRMATION MENU ----- #

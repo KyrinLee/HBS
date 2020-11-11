@@ -221,7 +221,7 @@ class EmojiTracking(commands.Cog):
             connection.close()
             
     @commands.command(pass_context=True)
-    @checks.is_in_guild(609112858214793217)
+    @checks.is_in_skys()
     async def updateEmojis(self, ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
 
             await updateEmojiList(ctx.message)
@@ -234,14 +234,10 @@ class EmojiTracking(commands.Cog):
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
 
-            if ctx.message.author.id == 707112913722277899:
-                    delete_query = "DELETE FROM emoji"
-                    cursor.execute(delete_query)
-                    connection.commit()
-                    await ctx.send("Emoji list cleared.")
-
-            else:
-                    await ctx.send("You do not have the permissions for this command.")
+            delete_query = "DELETE FROM emoji"
+            cursor.execute(delete_query)
+            connection.commit()
+            await ctx.send("Emoji list cleared.")
 
             connection.commit()
             cursor.close()
