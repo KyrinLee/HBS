@@ -53,6 +53,9 @@ class CommandErrorHandler(commands.Cog):
                 
             await ctx.send(output)
 
+        elif isinstance(error, commands.FuckyError):
+            await ctx.send("Something went fucky here.")
+            
         elif isinstance(error, commands.NoPrivateMessage):
             try:
                 await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
