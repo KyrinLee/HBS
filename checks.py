@@ -29,7 +29,7 @@ def is_in_guild(guild_id):
 
 # ----- CONFIRMATION MENU ----- #
 
-async def confirmationMenu(self, ctx, confirmationMessage="": str):
+async def confirmationMenu(self, ctx, confirmationMessage=""):
     msg = await ctx.send(confirmationMessage)
     await msg.add_reaction("✅")
     await msg.add_reaction("❌")
