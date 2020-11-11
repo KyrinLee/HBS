@@ -21,7 +21,7 @@ class AdminCommands(commands.Cog):
     async def createChannel(self,ctx: commands.Context,channelName=None, nsfw=""):
         
         if channelName==None:
-            raise checks.InvalidArgument("Please include a channel name.")
+            raise checks.InvalidArgument("I need a name for the channel dummie")
 
         guild = ctx.message.guild
 
@@ -47,8 +47,7 @@ class AdminCommands(commands.Cog):
         try:
             await ctx.send(str(msg.embeds[0].to_dict()))
         except:
-            await ctx.send("Message not found.")
-
+            raise checks.InvalidArgument("That's not a real message dummie")
 
     @commands.command(pass_context=True)
     @commands.is_owner()

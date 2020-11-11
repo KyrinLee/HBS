@@ -24,7 +24,7 @@ class CheckFailure(commands.CommandError):
 def is_in_guild(guild_id):
     async def predicate(ctx):
         if ctx.guild.id != guild_id:
-            raise CheckFailure(message="You cannot run this command in this server.")
+            raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
         else:
             return True
     return commands.check(predicate)
@@ -33,7 +33,7 @@ def is_in_guild(guild_id):
 def is_in_skys():
     async def predicate(ctx):
         if ctx.guild.id != 609112858214793217:
-            raise CheckFailure(message="You cannot run this command in this server.")
+            raise CheckFailure(message="You can't run that here! <:angercry:757731437326762014>")
         else:
             return True
     return commands.check(predicate)
@@ -52,7 +52,7 @@ async def confirmationMenu(client, ctx, confirmationMessage=""):
     try:
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
     except asyncio.TimeoutError:
-        await ctx.send("Confirmation timed out.")
+        await ctx.send("Oops too slow!")
         return 0
 
     if user == ctx.author:

@@ -72,7 +72,7 @@ class dayCount(commands.Cog):
     async def reset(self,ctx: commands.Context, *, counter=None):
 
         if counter==None:
-            raise checks.InvalidArgument(message="Please include counter name.")
+            raise checks.InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
@@ -110,7 +110,7 @@ class dayCount(commands.Cog):
             await ctx.send(output)
 
         else:
-            raise checks.InvalidArgument("Counter not found.")
+            raise checks.InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
         
 
         connection.commit()
@@ -144,7 +144,7 @@ class dayCount(commands.Cog):
             elif result == 0:
                 await ctx.send("Counter creation cancelled.")
             else:
-                await ctx.send("Something be fucky here. Idk what happened. Maybe try again?")
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.is_owner()
     @commands.command(aliases=['removeCounter'])
