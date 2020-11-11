@@ -129,7 +129,6 @@ class Starboards(commands.Cog):
         async with reactSem:
             if payload.emoji.name == "⭐":
                 
-                await self.client.get_channel(754527915290525807).send("x")
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
                 await self.addToStarboard(msg)
 
