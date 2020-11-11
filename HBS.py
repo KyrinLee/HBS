@@ -149,15 +149,31 @@ async def on_error(event_name, *args):
 
 
 if __name__ == "__main__":
+    loaded = []
+    failed = []
+    failedExc = []
     for extension in startup_extensions:
         try:
             client.load_extension(extension)
-            sys.stdout.write(f'Extension {extension} loaded\n')
+            loaded.append(extension)
             
         except Exception as e:
             exc = '{}: {}'.format(type(e).__name__, e)
-            print('Failed to load extension {}\n{}'.format(extension, exc))
+            failed.append(extension)
+            failedExc.append(exc)
 
+    loadOutput = "Loaded Extensions: "
+    failOutput = "Failed Extensions: \n"
+    if len(loaded) > 1:
+        for i in range(0,len(loaded)-1):
+            loadOutput += loaded[i] + ", "
+        loadOutput += loaded[len(loaded)-1] + "\n"
+        sys.stdout.write(loadOutput)
+
+    if len(failed) > 1:
+        sys.stdout.write(failOutput)
+        for i in range(0,len(failed)):
+            sys.stdout.write(f'\t{failed[i]}, Exception: {failedExc[i]}\n')
 
 client.run(os.environ["token"])
 
