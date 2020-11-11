@@ -42,14 +42,16 @@ def is_not_pm():
     async def predicate(ctx):
         if ctx.guild == None:
             return False
-        else return True
+        else:
+            return True
     return commands.check(predicate)
 
 def is_not_self():
     async def predicate(ctx):
         if ctx.author.id == 753345733377261650:
             return False
-        else return True
+        else:
+            return True
     return commands.check(predicate)
 
 
@@ -57,7 +59,8 @@ def is_not_webhook():
     async def predicate(ctx):
         if ctx.author.webhook_id == None:
             return True
-        else return False
+        else:
+            return False
     return commands.check(predicate)
 
 
