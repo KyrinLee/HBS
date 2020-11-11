@@ -63,7 +63,7 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.NoPrivateMessage):
             try:
                 sys.stdout.write("NPM")
-                await ctx.author.send("Stop tryna slide into my DMs! I'm taken :)")
+                await ctx.send("Stop tryna slide into my DMs! I'm taken :)")
             except discord.HTTPException:
                 pass
 
