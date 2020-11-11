@@ -74,6 +74,10 @@ class EmojiTracking(commands.Cog):
             cursor.close()
             connection.close()
 
+        elif message.guild.id == None:
+            raise commands.NoPrivateMessage()
+
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
 
