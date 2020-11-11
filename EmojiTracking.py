@@ -61,7 +61,7 @@ class EmojiTracking(commands.Cog):
 
             if str(lastEmojiUpdate) != date:
                 cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
-                await EmojiTracking.updateEmojiList(message)
+                await self.updateEmojiList(message)
 
             for e in emojiIDs:
                 if e in oldEmojis:
