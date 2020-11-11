@@ -131,7 +131,7 @@ class dayCount(commands.Cog):
         if counter == None:
             raise checks.InvalidArgument("Please include counter name.")
         else:
-            result = await checks.confirmationMenu(ctx,f'Would you like to create new counter {counter.lower()}?')
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter.lower()}?')
             if result == 1:
                 await ctx.send("Success!")
             else:
