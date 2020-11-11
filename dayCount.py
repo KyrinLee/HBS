@@ -75,18 +75,11 @@ class dayCount(commands.Cog):
             raise checks.InvalidArgument(message="Please include counter name.")
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
         cursor = connection.cursor()
 
         currTime = datetime.fromtimestamp(time.time())
 
-        cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)")
-
-        '''
-        try:
-            cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
-            await ctx.send("Counter " + counter + " created.")
-        '''
+        cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
 
         cursor.execute("SELECT * FROM counters")
         data = cursor.fetchall()
@@ -131,12 +124,27 @@ class dayCount(commands.Cog):
         if counter == None:
             raise checks.InvalidArgument("Please include counter name.")
         else:
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter.lower()}?')
+            counter = counter.lower()
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
             if result == 1:
-                await ctx.send("Success!")
+                try:
+                    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                    cursor = conn.cursor()
+                    currTime = datetime.fromtimestamp(time.time())
+
+                    cursor.execute("INSERT INTO counters (name, timestamp, mentions) VALUES (%s, %s, %s)",(counter,currTime,0))
+                    await ctx.send(f'Counter {counter} created.')
+                except:
+                    raise checks.FuckyError()
+                finally:
+                    conn.commit()
+                    cursor.close()
+                    conn.close()
+                
+            elif result == 0:
+                await ctx.send("Counter creation cancelled.")
             else:
-                await ctx.send(str(result))
-                await ctx.send("Haha fuck you, try to find the error NOW")
+                await ctx.send("Something be fucky here. Idk what happened. Maybe try again?")
 
 def setup(client):
     client.add_cog(dayCount(client))
