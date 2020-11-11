@@ -49,7 +49,12 @@ async def on_ready():
         sys.stdout.write(g.name + ", Owner ID: " + str(g.owner_id) + "\n");
 
     sys.stdout.flush()
-    await client.change_presence(activity=discord.Game(name='Vriska'))
+
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM vars WHERE name = 'game'")
+    game = cursor.fetchall()[0][1]
+    await client.change_presence(activity=discord.Game(name=game))
 
 
 @client.event
