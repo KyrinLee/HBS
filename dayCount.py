@@ -131,7 +131,11 @@ class dayCount(commands.Cog):
         if counter == None:
             raise checks.InvalidArgument("Please include counter name.")
         else:
-            await ctx.send("Vriska hasn't coded the checky thing yet. Ping her bc she forgot.")
+            result = await checks.confirmationMenu(f'Would you like to create new counter {counter.lower()}?')
+            if result == 1:
+                await ctx.send("Success!")
+            else:
+                await ctx.send("Haha fuck you, try to find the error NOW")
 
 def setup(client):
     client.add_cog(dayCount(client))
