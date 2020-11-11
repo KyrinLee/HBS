@@ -50,6 +50,8 @@ async def on_ready():
 
     sys.stdout.flush()
 
+    client.add_check(checks.is_not_pm())
+
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM vars WHERE name = 'game'")
