@@ -167,6 +167,10 @@ class dayCount(commands.Cog):
         output += "`"
 
         await ctx.send(output)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
         
 def setup(client):
     client.add_cog(dayCount(client))
