@@ -149,6 +149,18 @@ class dayCount(commands.Cog):
     @commands.is_owner()
     @commands.command(aliases=['removeCounter'])
     async def deleteCounter(self,ctx: commands.Context, counter=None):
+        await ctx.send("nope. o(-<")
+
+    @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'])
+    async def returnCounters(self, ctx:commands.Context):
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT * FROM counters")
+        counters = cursor.fetchall()
+
+        
+
 
 def setup(client):
     client.add_cog(dayCount(client))
