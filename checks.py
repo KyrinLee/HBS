@@ -50,10 +50,8 @@ async def confirmationMenu(client, ctx, confirmationMessage=""):
 
     if user == ctx.author:
         if str(reaction) == "❌":
-            await ctx.send("Cancelled.")
             return 0
         elif str(reaction) == "✅":
-            await ctx.send("Confirmed.")
             return 1
     else:
         return -1
