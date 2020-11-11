@@ -20,7 +20,7 @@ from psycopg2 import Error
 import checks
 import functions
 
-startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
+startup_extensions = ["dayCount","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","HelpMenu"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -31,7 +31,7 @@ client = commands.Bot(
     command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
     owner_ids=[707112913722277899,259774152867577856],
     case_insensitive=True,
-    help_command=None,
+    #help_command=None,
     intents=intents)
 
 
@@ -138,7 +138,7 @@ async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tag
     await ctx.message.delete()
 
 
-@client.command(pass_context=True)
+'''@client.command(pass_context=True)
 async def help(ctx, command=None):
     embed = discord.Embed(title="HBS Help", description="HussieBot Oppression & More", color=0x005682)
 
@@ -149,7 +149,7 @@ async def help(ctx, command=None):
     embed.add_field(name="Spoil Images", value="**hbs;spoil [text] <image(s)>\n\hbs;spoil [text] <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.\n",inline=False)
     embed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
     await ctx.send(embed=embed)
-
+'''
 @client.command(pass_context=True)
 async def vriska(ctx):
     await ctx.send("<:vriska:480855644388458497>")

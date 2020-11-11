@@ -7,6 +7,8 @@ import psycopg2
 from psycopg2 import Error
 from discord import NotFound
 
+import json
+
 import asyncio
 import checks
 
@@ -45,7 +47,9 @@ class AdminCommands(commands.Cog):
             except NotFound:
                 continue
         try:
-            await ctx.send(str(msg.embeds[0].to_dict()))
+            dictionary = msg.embeds[0].to_dict()
+            json_object = json.dumps(dictionary, indent = 4)   
+            await ctx.send("```json\n" + json_object + "```")  
         except:
             raise checks.InvalidArgument("That's not a real message dummie")
 
