@@ -8,6 +8,11 @@ class InvalidArgument(commands.CommandError):
         super().__init__(*args, **kwargs)
         self.__dict__.update(kwargs)
 
+class FuckyError(commands.CommandError, msg="Something went fucky here."):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dict__.update(kwargs)
+
 class CheckFailure(commands.CommandError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args,**kwargs)
