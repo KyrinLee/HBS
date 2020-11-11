@@ -156,7 +156,7 @@ class dayCount(commands.Cog):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM counters")
+        cursor.execute("SELECT * FROM counters ORDER BY mentions DESC")
         counters = cursor.fetchall()
 
         maxName = max([len(row[0]) for row in counters]) + 1
