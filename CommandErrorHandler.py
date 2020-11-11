@@ -56,6 +56,9 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, checks.FuckyError):
             await ctx.send("Something went fucky here.")
+
+        elif isinstance(error, checks.InvalidArgument):
+            await ctx.send(error)
             
         elif isinstance(error, commands.NoPrivateMessage):
             try:
