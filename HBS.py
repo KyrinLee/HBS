@@ -51,10 +51,14 @@ async def on_ready():
     sys.stdout.flush()
 
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    cursor = connection.cursor()
+    cursor = conn.cursor()
     cursor.execute("SELECT * FROM vars WHERE name = 'game'")
     game = cursor.fetchall()[0][1]
     await client.change_presence(activity=discord.Game(name=game))
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 
 @client.event
