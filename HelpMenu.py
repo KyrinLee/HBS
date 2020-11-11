@@ -24,7 +24,7 @@ def Merge(dict1, dict2):
 class HelpMenu(commands.Cog):
     def __init__(self, client):
         self.client = client
-        with open('helpMenu.json') as f:
+        with open('HelpMenu.json') as f:
               self.data = json.load(f)
 
 
