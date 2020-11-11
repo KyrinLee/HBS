@@ -159,8 +159,8 @@ class dayCount(commands.Cog):
         cursor.execute("SELECT * FROM counters")
         counters = cursor.fetchall()
 
-        maxName = len(str(max([row[0] for row in data])))
-        maxNum = len(str(max([row[2] for row in data])))
+        maxName = len(str(max([row[0] for row in counters])))
+        maxNum = len(str(max([row[2] for row in counters])))
 
         output = "`"
 
