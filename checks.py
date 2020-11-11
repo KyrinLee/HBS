@@ -38,18 +38,18 @@ async def confirmationMenu(client, ctx, confirmationMessage=""):
         return user == ctx.author
 
     try:
-        reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
+        reaction, user = await client.wait_for('reaction_add', timeout=60.0)
     except asyncio.TimeoutError:
         await ctx.send("Confirmation timed out.")
         return 0
 
-    await ctx.send(str(reaction) + " " + str(user))
-    if reaction == '❌':
-        await ctx.send("Cancelled.")
-        return 0
-    elif reaction == '✅':
-        await ctx.send("Confirmed.")
-        return 1
+    if user == ctx.author:
+        if str(reaction) == "❌":
+            await ctx.send("Cancelled.")
+            return 0
+        elif str(reaction) == "✅":
+            await ctx.send("Confirmed.")
+            return 1
     else:
         return -1
 
