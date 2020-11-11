@@ -42,10 +42,10 @@ async def confirmationMenu(ctx, confirmationMessage):
     except:
         ctx.send("Confirmation timed out.")
         return 0
-    else if reaction == '❌':
+    elif reaction == '❌':
         await ctx.send("Cancelled.")
         return 0
-    else if reaction == '✅':
+    elif reaction == '✅':
         await ctx.send("Confirmed.")
         return 1
     else:
