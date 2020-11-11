@@ -17,7 +17,7 @@ DATABASE_URL = os.environ['DATABASE_URL']
 from string import Formatter
 from datetime import timedelta
 
-def strfdelta(tdelta, fmt='{D:02}d {H:02}h {M:02}m {S:02}s', inputtype='timedelta'):
+def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
     """Convert a datetime.timedelta object or a regular number to a custom-
     formatted string, just like the stftime() method does for datetime.datetime
     objects.
