@@ -29,7 +29,7 @@ def is_in_guild(guild_id):
             return True
     return commands.check(predicate)
 
-'''
+
 def is_in_skys():
     async def predicate(ctx):
         if ctx.guild.id != 609112858214793217:
@@ -37,15 +37,6 @@ def is_in_skys():
         else:
             return True
     return commands.check(predicate)
-
-def is_not_self():
-    async def predicate(ctx):
-        if ctx.author.id == 753345733377261650:
-            return False
-        else:
-            return True
-    return commands.check(predicate)
-'''
 
 def is_not_webhook():
     async def predicate(ctx):
