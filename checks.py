@@ -35,7 +35,7 @@ async def confirmationMenu(client, ctx, confirmationMessage=""):
     await msg.add_reaction("❌")
 
     def check(reaction, user):
-        return user == message.author and str(reaction.emoji) == '👍'
+        return user == ctx.author
 
     try:
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
