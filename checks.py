@@ -39,7 +39,7 @@ async def confirmationMenu(client, ctx, confirmationMessage=""):
 
     try:
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
-    except:
+    except asyncio.TimeoutError:
         await ctx.send("Confirmation timed out.")
         return 0
     else:
