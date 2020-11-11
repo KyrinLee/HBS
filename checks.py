@@ -38,16 +38,6 @@ def is_in_skys():
             return True
     return commands.check(predicate)
 
-def is_not_pm():
-    async def predicate(ctx):
-        if ctx.guild == None:
-            sys.stdout.write("!")
-            raise commands.NoPrivateMessage()
-            return False
-        else:
-            return True
-    return commands.check(predicate)
-
 def is_not_self():
     async def predicate(ctx):
         if ctx.author.id == 753345733377261650:

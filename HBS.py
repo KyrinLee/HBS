@@ -64,7 +64,7 @@ async def on_ready():
 
 
 @client.event
-@checks.is_not_pm()
+@commands.guild_only()
 async def on_message(message: discord.Message):
 
 #HANDLE HUSSIEBOT VRISKA REACTS
