@@ -63,7 +63,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message: discord.Message):
-    if message.guild.id is not None:
+    if message.guild is not None:
         
     #HANDLE HUSSIEBOT VRISKA REACTS
         bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",

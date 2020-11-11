@@ -74,7 +74,7 @@ class EmojiTracking(commands.Cog):
             cursor.close()
             connection.close()
 
-        elif message.guild.id == None:
+        elif message.guild == None:
             raise commands.NoPrivateMessage()
 
 
