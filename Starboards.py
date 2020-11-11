@@ -131,7 +131,7 @@ class Starboards(commands.Cog):
                 
                 await self.client.get_channel(754527915290525807).send("x")
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                await addToStarboard(msg)
+                await self.addToStarboard(msg)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
