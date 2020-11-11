@@ -41,6 +41,7 @@ def is_in_skys():
 def is_not_pm():
     async def predicate(ctx):
         if ctx.guild == None:
+            raise commands.NoPrivateMessage()
             return False
         else:
             return True
