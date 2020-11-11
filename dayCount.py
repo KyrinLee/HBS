@@ -122,7 +122,7 @@ class dayCount(commands.Cog):
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
-            raise checks.InvalidArgument("Please include counter name.")
+            raise checks.InvalidArgument("You gotta name the counter! <:angercry:757731437326762014>")
         else:
             counter = counter.lower()
             result = await checks.confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
@@ -149,7 +149,21 @@ class dayCount(commands.Cog):
     @commands.is_owner()
     @commands.command(aliases=['removeCounter'])
     async def deleteCounter(self,ctx: commands.Context, counter=None):
-        await ctx.send("nope. o(-<")
+        if counter == None:
+            raise checks.InvalidArgument("You gotta tell me which one! <:angercry:757731437326762014>")
+
+        else:
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+
+            counter = counter.lower()
+
+            cursor.execute("DELETE FROM counters WHERE name = %s",(counter,))
+            await ctx.send(f'Counter {counter} deleted.') 
+
+            conn.commit()
+            cursor.close()
+            conn.close()
 
     @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'])
     async def returnCounters(self, ctx:commands.Context):
