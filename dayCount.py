@@ -162,8 +162,6 @@ class dayCount(commands.Cog):
         maxName = max([len(row[0]) for row in counters])
         maxNum = len(str(max([row[2] for row in counters])))
 
-        await ctx.send(str(maxName) + " " + str(maxNum))
-
         output = "`"
 
         for i in range(0,len(counters)):
