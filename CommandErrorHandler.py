@@ -45,31 +45,26 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f'{ctx.command} has been disabled.')
 
         elif isinstance(error, commands.CheckFailure):
-            output = "Check Failure: "
+            output = "*You* did a fucky. "
 
             if isinstance(error, commands.NotOwner):
-                output += "You do not have permission to run this command."
+                output += "Stop tryna run commands you don't have permissions for! <:angercry:757731437326762014>"
             else:
                 output += str(error)
                 
             await ctx.send(output)
 
         elif isinstance(error, checks.FuckyError):
-            await ctx.send("Something went fucky here.")
+            await ctx.send("Something went fucky here! Ping Vriska, she won't know what the problem is either but it'll at least be funny.")
 
         elif isinstance(error, checks.InvalidArgument):
             await ctx.send(error)
             
         elif isinstance(error, commands.NoPrivateMessage):
             try:
-                await ctx.author.send(f'{ctx.command} can not be used in Private Messages.')
+                await ctx.author.send(f'Stop tryna slide into my DMs! I\'m taken :)')
             except discord.HTTPException:
                 pass
-
-        # For this error example we check to see where it came from...
-        elif isinstance(error, commands.BadArgument):
-            if ctx.command.qualified_name == 'tag list':  # Check if the command being invoked is 'tag list'
-                await ctx.send('I could not find that member. Please try again.')
 
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
