@@ -68,6 +68,7 @@ class CommandErrorHandler(commands.Cog):
 
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
+            await ctx.send("I did a fucky.")
             print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
