@@ -26,7 +26,6 @@ class Starboards(commands.Cog):
         self.client = client
 
     async def addToStarboard(self,msg,forceStar=False):
-        await self.client.get_channel(754527915290525807).send("x")
         reacts = msg.reactions
         count = 0
         for r in reacts:
