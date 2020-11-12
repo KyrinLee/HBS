@@ -38,9 +38,10 @@ class Starboards(commands.Cog):
         sys.stdout.write(str(count))
         count = max(count)
 
-        if count == 0:
+        if count == 0 and emoji != "":
             for r in reacts:
-                if emojis.
+                if r.emoji == emoji:
+                    count = count + 1
         
         nsfw = False
         if msg.channel.is_nsfw():
@@ -67,7 +68,8 @@ class Starboards(commands.Cog):
         color = colors[max(0, min(count-starlimit,12))]
         
         stars = ["⭐","🌟","✨"]
-        star = stars[min(count,10)//5]
+        star = [stars[min(count,10)//5] if emoji == "" else emoji]
+
         
         edited = False #SET EDITED TO FALSE BY DEFAULT
 
