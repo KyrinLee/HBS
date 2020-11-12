@@ -78,7 +78,7 @@ class Starboards(commands.Cog):
             smsgid = row[0][1]
             smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
             if smsgid != None and smsg == None:
-                await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please fix ASAP.")
+                await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please ping ASAP. A starboard record references a message that no longer exists.")
 
             update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
             cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
