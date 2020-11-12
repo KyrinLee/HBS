@@ -25,7 +25,7 @@ class Starboards(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def addToStarboard(self,msg,forceStar=False):
+    async def addToStarboard(self,msg,starboardDBname=None,forceStar=False):
         reacts = msg.reactions
 
         emojis = "⭐🌟"
@@ -46,7 +46,8 @@ class Starboards(commands.Cog):
         board = cursor.fetchall()[0]
         starboardID = board[1]
         starlimit = board[4]
-        starboardDBname = board[3]
+        if starboardDBname == None:
+            starboardDBname = board[3]
 
         cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
         row = cursor.fetchall()
@@ -135,7 +136,11 @@ class Starboards(commands.Cog):
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
                 await self.addToStarboard(msg)
 
-    @commands.Cog.listener()
+            if payload.emoji.name == "🤝":
+
+                msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                await self.addToStarboard(msg, "moodboard")
+            
     async def on_raw_reaction_remove(self, payload):
         async with reactSem:
             if payload.emoji.name == "⭐":
