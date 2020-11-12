@@ -44,12 +44,17 @@ class Starboards(commands.Cog):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = conn.cursor()
 
-        cursor.execute("SELECT * FROM starboards WHERE nsfw=" + str(nsfw))
-        board = cursor.fetchall()[0]
-        starboardID = board[1]
-        starlimit = board[4]
         if starboardDBname == None:
+            cursor.execute("SELECT * FROM starboards WHERE nsfw=" + str(nsfw))
+            board = cursor.fetchall()[0]
+            starboardID = board[1]
+            starlimit = board[4]
             starboardDBname = board[3]
+        else:
+            cursor.execute("SELECT * FROM starboards WHERE tablename=" + str(starboardDBname))
+            board = cursor.fetchall()[0]
+            starboardID = board[1]
+            starlimit = board[4]
 
         cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
         row = cursor.fetchall()
@@ -138,10 +143,9 @@ class Starboards(commands.Cog):
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
                 await self.addToStarboard(msg)
 
-            if payload.emoji.name == "🤝":
+            elif payload.emoji.name == "🤝":
 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                sys.stdout.write("AAAAA")
                 await self.addToStarboard(msg, "moodboard")
             
     async def on_raw_reaction_remove(self, payload):
