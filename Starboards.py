@@ -30,7 +30,9 @@ class Starboards(commands.Cog):
 
         emojis = "⭐🌟"
         count = [0,0]
-        count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)] for r in reacts if emojis.find(r.emoji) != -1
+        for r in reacts:
+            if emojis.find(r.emoji) != -1:
+                count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)] 
 
         sys.stdout.write(str(count))
         count = max(count)
