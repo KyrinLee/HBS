@@ -25,17 +25,22 @@ class Starboards(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def addToStarboard(self,msg,starboardDBname=None,forceStar=False):
+    async def addToStarboard(self,msg,starboardDBname=None,emoji="",forceStar=False):
         reacts = msg.reactions
 
-        emojis = "⭐🌟"
-        count = [0,0]
-        for r in reacts:
-            if emojis.find(r.emoji) != -1:
-                count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)] 
+        if emoji == "":
+            emojis = "⭐🌟"
+            count = [0,0]
+            for r in reacts:
+                if emojis.find(r.emoji) != -1:
+                    count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)]
 
         sys.stdout.write(str(count))
         count = max(count)
+
+        if count == 0:
+            for r in reacts:
+                if emojis.
         
         nsfw = False
         if msg.channel.is_nsfw():
@@ -138,7 +143,7 @@ class Starboards(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         async with reactSem:
-            if payload.emoji.name == "⭐":
+            if payload.emoji.name == "⭐" or "🌟":
                 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
                 await self.addToStarboard(msg)
@@ -146,11 +151,11 @@ class Starboards(commands.Cog):
             elif payload.emoji.name == "🤝":
 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                await self.addToStarboard(msg, "moodboard")
+                await self.addToStarboard(msg, starboardDBname="moodboard",emoji="🤝")
             
     async def on_raw_reaction_remove(self, payload):
         async with reactSem:
-            if payload.emoji.name == "⭐":
+            if payload.emoji.name == "⭐" or "🌟":
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
                 reacts = msg.reactions
                 count = 0
@@ -186,15 +191,9 @@ class Starboards(commands.Cog):
                         await smsg.delete()
 
                     else: #IF STAR COUNT IS NOT ZERO
-                        if payload.emoji.name == "⭐":
-                
-                            msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                            await self.addToStarboard(msg, starboardDBname)
+                        await self.addToStarboard(msg, starboardDBname)
 
-                        elif payload.emoji.name == "🤝":
-
-                            msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                            await self.addToStarboard(msg, "moodboard")
+                       
                             
                         '''cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
@@ -225,6 +224,9 @@ class Starboards(commands.Cog):
                         await m.edit(embed=embed)
                         '''
 
+            else:
+                if payload.emoji.name == "🤝":
+                     await self.addToStarboard(msg, starboardDBname="moodboard",emoji="🤝")
                 
                 conn.commit()
                 cursor.close()
