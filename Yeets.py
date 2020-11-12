@@ -87,16 +87,20 @@ class Yeets(commands.Cog):
             messageName = "Leave Message"
             columnName = "leaveMsg"
 
-        try:
-            cursor.execute(update_q, (message,columnName))
-        except:
-            raise checks.FuckyError("An error occurred.")
-        
         if message != "":
+            cursor.execute(update_q, (message,columnName))
             await ctx.send(f'{messageName} changed to {message}.')
         else:
-            await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to delete the current {messageName.lower()}?')
+            if result == 1:
+                cursor.execute(update_q, (message,columnName))
+                await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')
         
+            elif result == 0:
+                await ctx.send("Operation cancelled.")
+            else:
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+
         '''if msgName.lower()[0] == "j":
             try:
                 cursor.execute(update_q, (message,"joinMsg"))
