@@ -32,7 +32,7 @@ class Yeets(commands.Cog):
             yeetsChannel = str(cursor.fetchall()[0][0])
             
             msg = joinmsg.replace("<name>",str(member.name))
-            #msg = joinmsg.replace("<NAME>",str(member.name).upper())
+            msg = msg.replace("<NAME>",str(member.name).upper())
 
             await self.client.get_channel(int(yeetsChannel)).send(msg)
 
