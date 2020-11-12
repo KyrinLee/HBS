@@ -89,7 +89,7 @@ class Yeets(commands.Cog):
 
         if message != "":
             cursor.execute(update_q, (message,columnName))
-            await ctx.send(f'{messageName} changed to {message}.')
+            await ctx.send(f'{messageName} changed to `{message}`.')
         else:
             result = await checks.confirmationMenu(self.client, ctx, f'Would you like to delete the current {messageName.lower()}?')
             if result == 1:
