@@ -93,7 +93,7 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         await self.send_pages()
 
 
-    async def send_group_help(self, group):
+    '''async def send_group_help(self, group):
         """|coro|
         Handles the implementation of the group page in the help command.
         This function is called when the help command is called with a group as the argument.
@@ -141,6 +141,7 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
             The command that was requested for help.
         """
         return None
+        '''
 
     
 
