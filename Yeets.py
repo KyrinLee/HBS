@@ -79,8 +79,25 @@ class Yeets(commands.Cog):
 
         if message == None:
             message = ""
-        
+
         if msgName.lower()[0] == "j":
+            messageName = "Join Message"
+            columnName = "joinMsg"
+        elif msgName.lower()[0] == "l":
+            messageName = "Leave Message"
+            columnName = "leaveMsg"
+
+        try:
+            cursor.execute(update_q, (message,columnName))
+        except:
+            raise checks.FuckyError("An error occurred.")
+        
+        if message != "":
+            await ctx.send(f'{messageName} changed to {message}.')
+        else:
+            await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')
+        
+        '''if msgName.lower()[0] == "j":
             try:
                 cursor.execute(update_q, (message,"joinMsg"))
                 if message == "":
@@ -101,6 +118,7 @@ class Yeets(commands.Cog):
                 
             except:
                 await ctx.send("An error occurred.")
+                '''
 
         conn.commit()
         cursor.close()
