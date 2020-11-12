@@ -95,34 +95,10 @@ class Yeets(commands.Cog):
             if result == 1:
                 cursor.execute(update_q, (message,columnName))
                 await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')
-        
             elif result == 0:
                 await ctx.send("Operation cancelled.")
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
-
-        '''if msgName.lower()[0] == "j":
-            try:
-                cursor.execute(update_q, (message,"joinMsg"))
-                if message == "":
-                    await ctx.send("Join Message deleted. To reinstate join messages, just run this command again with a non-empty message.")
-                else:
-                    await ctx.send("Join Message changed to " + message)
-                
-            except:
-                await ctx.send("An error occurred.")
-            
-        elif msgName.lower()[0] == "l":
-            try:
-                cursor.execute(update_q, (message,"leaveMsg"))
-                if message == "":
-                    await ctx.send("Join Message deleted. To reinstate join messages, just run this command again with a non-empty message.")
-                else:
-                    await ctx.send("Leave Message changed to " + message)
-                
-            except:
-                await ctx.send("An error occurred.")
-                '''
 
         conn.commit()
         cursor.close()
