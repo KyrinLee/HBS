@@ -68,7 +68,7 @@ class Yeets(commands.Cog):
     @commands.command(pass_context=True,aliases=['changeMsg'],brief="Change join/leave messages.")
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
-    async def changeMessage(self,ctx: commands.Context,msgName=None,*,message):
+    async def changeMessage(self,ctx: commands.Context,msgName=None,*,message=""):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 

@@ -58,6 +58,9 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, checks.InvalidArgument):
             await ctx.send(error)
+
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(error)
             
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
