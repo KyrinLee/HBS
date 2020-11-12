@@ -51,7 +51,7 @@ class Starboards(commands.Cog):
             starlimit = board[4]
             starboardDBname = board[3]
         else:
-            cursor.execute("SELECT * FROM starboards WHERE tablename=" + str(starboardDBname))
+            cursor.execute("SELECT * FROM starboards WHERE tablename= '" + str(starboardDBname) + "'")
             board = cursor.fetchall()[0]
             starboardID = board[1]
             starlimit = board[4]
