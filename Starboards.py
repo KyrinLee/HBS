@@ -35,10 +35,10 @@ class Starboards(commands.Cog):
                 if emojis.find(r.emoji) != -1:
                     count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)]
 
-        sys.stdout.write(str(count))
-        count = max(count)
+            sys.stdout.write(str(count))
+            count = max(count)
 
-        if count == 0 and emoji != "":
+        else:
             for r in reacts:
                 if r.emoji == emoji:
                     count = count + 1
@@ -62,79 +62,84 @@ class Starboards(commands.Cog):
             starboardID = board[1]
             starlimit = board[4]
 
-        cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
-        row = cursor.fetchall()
+        if count == 0: #DELETE STARRED MESSAGE IF STAR COUNT HITS ZERO. REMOVE FROM DATABASE.
+            cursor.execute(f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}')
+            await smsg.delete()
 
-        color = colors[max(0, min(count-starlimit,12))]
-        
-        stars = ["⭐","🌟","✨"]
-        star = [stars[min(count,10)//5] if emoji == "" else emoji]
+        else:
+            cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
+            row = cursor.fetchall()
 
-        
-        edited = False #SET EDITED TO FALSE BY DEFAULT
-
-    #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
-        try:
-            smsgid = row[0][1]
-            smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
-            if smsgid != None and smsg == None:
-                await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please ping ASAP. A starboard record references a message that no longer exists.")
-
-            update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
-            cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
-
-            text = f'{star} **{count}** <#{msg.channel.id}>'
-
-            embed_dict = smsg.embeds[0].to_dict()
-            embed_dict['color'] = color
-            embed = discord.Embed.from_dict(embed_dict)
+            color = colors[max(0, min(count-starlimit,12))]
             
-            await smsg.edit(content=text,embed=embed)
+            stars = ["⭐","🌟","✨"]
+            star = [stars[min(count,10)//5] if emoji == "" else emoji]
 
-            edited = True
-
-        except:
-            pass
-
-    #IF STARRED MESSAGE NOT FOUND IN TABLE BUT THE COUNT IS OVER THE STAR LIMIT
-        
-        if edited == False and (count >= starlimit or forceStar):
-            #SEARCH STARBOARD CHANNEL EMBEDS FOR ID.
-            id = 0
             
-            async for message in self.client.get_channel(starboardID).history(limit=4000):
-                if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
-                    id = message.id
-                    
-    #IF MESSAGE FOUND IN CHANNEL, UPDATE AND ADD TO TABLE. 
-            if id != 0:
+            edited = False #SET EDITED TO FALSE BY DEFAULT
+
+        #IF MSG IN STARBOARD DATABASE, GET MESSAGE AND UPDATE. SET EDITED TO TRUE TO SKIP OTHER TESTS.
+            try:
+                smsgid = row[0][1]
+                smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
+                if smsgid != None and smsg == None:
+                    await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please ping ASAP. A starboard record references a message that no longer exists.")
+
+                update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
+                cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+
                 text = f'{star} **{count}** <#{msg.channel.id}>'
-                m = await self.client.get_channel(starboardID).fetch_message(id)
-                await m.edit(content=text)
 
-                embed_dict = m.embeds[0].to_dict()
+                embed_dict = smsg.embeds[0].to_dict()
                 embed_dict['color'] = color
                 embed = discord.Embed.from_dict(embed_dict)
-                await m.edit(embed=embed)
+                
+                await smsg.edit(content=text,embed=embed)
 
-    #ELSE CREATE NEW STARRED MESSAGE
-            else:
-                jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{msg.channel.id}/{msg.id})'
+                edited = True
 
-                embed = discord.Embed(description=msg.content, color=color, timestamp=msg.created_at,type="rich")
-                embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
-                embed.add_field(name="Source", value=jumplink, inline=True)
-                try:
-                    embed.set_image(url=str(msg.attachments[0].url))
-                except:
-                    pass
-                embed.set_footer(text=str(msg.id))
+            except:
+                pass
 
-                text = f'{star} **{count}** <#{msg.channel.id}>'
-                smsg = await self.client.get_channel(starboardID).send(content=text, embed=embed)
+        #IF STARRED MESSAGE NOT FOUND IN TABLE BUT THE COUNT IS OVER THE STAR LIMIT
+            
+            if edited == False and (count >= starlimit or forceStar):
+                #SEARCH STARBOARD CHANNEL EMBEDS FOR ID.
+                id = 0
+                
+                async for message in self.client.get_channel(starboardID).history(limit=4000):
+                    if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                        id = message.id
+                        
+        #IF MESSAGE FOUND IN CHANNEL, UPDATE AND ADD TO TABLE. 
+                if id != 0:
+                    text = f'{star} **{count}** <#{msg.channel.id}>'
+                    m = await self.client.get_channel(starboardID).fetch_message(id)
+                    await m.edit(content=text)
 
-                query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
-                cursor.execute(query, (datetime.fromtimestamp(time.time()),))
+                    embed_dict = m.embeds[0].to_dict()
+                    embed_dict['color'] = color
+                    embed = discord.Embed.from_dict(embed_dict)
+                    await m.edit(embed=embed)
+
+        #ELSE CREATE NEW STARRED MESSAGE
+                else:
+                    jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{msg.channel.id}/{msg.id})'
+
+                    embed = discord.Embed(description=msg.content, color=color, timestamp=msg.created_at,type="rich")
+                    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
+                    embed.add_field(name="Source", value=jumplink, inline=True)
+                    try:
+                        embed.set_image(url=str(msg.attachments[0].url))
+                    except:
+                        pass
+                    embed.set_footer(text=str(msg.id))
+
+                    text = f'{star} **{count}** <#{msg.channel.id}>'
+                    smsg = await self.client.get_channel(starboardID).send(content=text, embed=embed)
+
+                    query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
+                    cursor.execute(query, (datetime.fromtimestamp(time.time()),))
 
             
 
@@ -148,18 +153,23 @@ class Starboards(commands.Cog):
             if payload.emoji.name == "⭐" or "🌟":
                 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                sys.stdout.write("star")
                 await self.addToStarboard(msg)
 
             elif payload.emoji.name == "🤝":
 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                sys.stdout.write("mood")
                 await self.addToStarboard(msg, starboardDBname="moodboard",emoji="🤝")
             
     async def on_raw_reaction_remove(self, payload):
         async with reactSem:
             if payload.emoji.name == "⭐" or "🌟":
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
-                reacts = msg.reactions
+                await self.addToStarboard(msg)
+                
+                '''reacts = msg.reactions
+                
                 count = 0
                 for r in reacts:
                     if r.emoji == "⭐":
@@ -197,7 +207,7 @@ class Starboards(commands.Cog):
 
                        
                             
-                        '''cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+                        cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
                         text = f'{star} **{count}** <#{msg.channel.id}>'
                         
