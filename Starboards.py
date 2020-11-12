@@ -27,10 +27,13 @@ class Starboards(commands.Cog):
 
     async def addToStarboard(self,msg,forceStar=False):
         reacts = msg.reactions
-        count = 0
-        for r in reacts:
-            if r.emoji == "⭐":
-                count = r.count
+
+        emojis = "⭐🌟"
+        count = [0,0]
+        count[emojis.find(r.emoji)] = count[emojis.find(r.emoji)] for r in reacts if emojis.find(r.emoji) != -1
+
+        sys.stdout.write(str(count))
+        count = max(count)
         
         nsfw = False
         if msg.channel.is_nsfw():
