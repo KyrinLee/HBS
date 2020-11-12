@@ -141,6 +141,7 @@ class Starboards(commands.Cog):
             if payload.emoji.name == "🤝":
 
                 msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                sys.stdout.write("AAAAA")
                 await self.addToStarboard(msg, "moodboard")
             
     async def on_raw_reaction_remove(self, payload):
