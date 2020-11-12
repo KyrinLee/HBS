@@ -186,7 +186,17 @@ class Starboards(commands.Cog):
                         await smsg.delete()
 
                     else: #IF STAR COUNT IS NOT ZERO
-                        cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+                        if payload.emoji.name == "⭐":
+                
+                            msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                            await self.addToStarboard(msg, starboardDBname)
+
+                        elif payload.emoji.name == "🤝":
+
+                            msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+                            await self.addToStarboard(msg, "moodboard")
+                            
+                        '''cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
 
                         text = f'{star} **{count}** <#{msg.channel.id}>'
                         
@@ -213,6 +223,7 @@ class Starboards(commands.Cog):
                         embed_dict['color'] = color
                         embed = discord.Embed.from_dict(embed_dict)
                         await m.edit(embed=embed)
+                        '''
 
                 
                 conn.commit()
