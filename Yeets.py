@@ -34,7 +34,8 @@ class Yeets(commands.Cog):
             msg = joinmsg.replace("<name>",str(member.name))
             msg = msg.replace("<NAME>",str(member.name).upper())
 
-            await self.client.get_channel(int(yeetsChannel)).send(msg)
+            if msg != "":
+                await self.client.get_channel(int(yeetsChannel)).send(msg)
 
             conn.commit()
             cursor.close()
@@ -56,7 +57,9 @@ class Yeets(commands.Cog):
             msg = leavemsg.replace("<name>",str(member.name))
             msg = msg.replace("<NAME>",str(member.name).upper())
             
-            await self.client.get_channel(int(yeetsChannel)).send(msg)
+            
+            if msg != "":
+                await self.client.get_channel(int(yeetsChannel)).send(msg)
 
             conn.commit()
             cursor.close()
@@ -72,25 +75,32 @@ class Yeets(commands.Cog):
         cursor = conn.cursor()
 
         if msgName == None:
-            msgName = ""
+            raise checks.InvalidArgument("Please specify 'join' or 'leave' message.")
+
+        if message == None:
+            message = ""
         
-        if msgName.lower() == "join" or msgName.lower() == "j":
+        if msgName.lower()[0] == "j":
             try:
                 cursor.execute(update_q, (message,"joinMsg"))
-                await ctx.send("Join Message changed to " + message)
+                if message == "":
+                    await ctx.send("Join Message deleted. To reinstate join messages, just run this command again with a non-empty message.")
+                else:
+                    await ctx.send("Join Message changed to " + message)
                 
             except:
                 await ctx.send("An error occurred.")
             
-        elif msgName.lower() == "leave" or msgName.lower() == "l":
+        elif msgName.lower()[0] == "l":
             try:
                 cursor.execute(update_q, (message,"leaveMsg"))
-                await ctx.send("Leave Message changed to " + message)
+                if message == "":
+                    await ctx.send("Join Message deleted. To reinstate join messages, just run this command again with a non-empty message.")
+                else:
+                    await ctx.send("Leave Message changed to " + message)
                 
             except:
                 await ctx.send("An error occurred.")
-        else:
-            await ctx.send("Please specify `join` or `leave` (`j` or `l`)")
 
         conn.commit()
         cursor.close()
