@@ -230,13 +230,13 @@ class Starboards(commands.Cog):
                 if payload.emoji.name == "🤝":
                      await self.addToStarboard(msg, starboardDBname="moodboard",emoji="🤝")
                 
-                conn.commit()
-                cursor.close()
-                conn.close()
+            conn.commit()
+            cursor.close()
+            conn.close()
 
     @commands.command(pass_context=True, brief="Manually star a message.")
     @commands.is_owner()
-    async def star(self,ctx, id=None):
+    async def star(self,ctx, id=None,emoji="⭐"):
         if id == None:
             raise checks.InvalidArgument("Please include message ID or link.")
         elif str(id)[0:4] == "http":
@@ -254,7 +254,7 @@ class Starboards(commands.Cog):
             if msg == None:
                 raise checks.InvalidArgument("That message does not exist.")
 
-        await self.addToStarboard(msg,True)
+        await self.addToStarboard(msg,forceStar=True,emoji=emoji)
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change a starboard channel.")
     @commands.is_owner()
