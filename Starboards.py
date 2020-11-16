@@ -203,35 +203,28 @@ class Starboards(commands.Cog):
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change a starboard channel.")
     @commands.is_owner()
-    async def changeStarboard(self,ctx,id=None,board="starboard"):
-        lewd = True if (lewd == lewd or nsfw) else False
-            
-        if id == None:
+    async def changeStarboard(self,ctx,board="starboard",id=None):
+        if board not in starboards:
+            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+        elif id == None:
             raise checks.InvalidArgument("Please include message ID or link.")
-
-        if board.find("lewd") != -1:
-            starboard = "lewdboard"
-        elif board.find("mood") != -1:
-            starboard = "moodboard"
         else:
-            starboard = "starboard"
-        
-        channel = self.client.get_channel(id)
-        result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
-        if result == 1:
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-            cursor.execute(f'UPDATE starboards SET channelid = {id} WHERE name = {starboard}')
-            await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
+            channel = self.client.get_channel(id)
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
+            if result == 1:
+                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+                cursor = conn.cursor()
+                cursor.execute(f'UPDATE starboards SET channelid = {id} WHERE name = {starboard}')
+                await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
 
-            conn.commit()
-            cursor.close()
-            conn.close()
+                conn.commit()
+                cursor.close()
+                conn.close()
 
-        elif result == 0:
-            await ctx.send("Operation cancelled.")
-        else:
-            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+            elif result == 0:
+                await ctx.send("Operation cancelled.")
+            else:
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.command(pass_context=True, brief="Change lewdboard channel.",hidden=True)
     @commands.is_owner()
@@ -272,12 +265,12 @@ class Starboards(commands.Cog):
 
     @commands.command(brief="Change threshold for a starboard.")
     @commands.is_owner()
-    async def changeStarLimit(self,ctx,starlimit=-1,lewd=False):
+    async def changeStarLimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
             raise checks.InvalidArgument("Please include new star limit.")
+        elif starboard not in starboards:
+            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         else:
-            starboard = "lewdboard" if lewd else "starboard"
-            
             result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
             if result == 1:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
