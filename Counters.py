@@ -67,9 +67,9 @@ class Counters(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(aliases=['update'],brief="Reset/Update a counter.")
+    @commands.command(aliases=['reset','update'],brief="Reset/Update a counter.")
     @checks.is_in_skys()
-    async def reset(self,ctx: commands.Context, *, counter=None):
+    async def resetCounter(self,ctx: commands.Context, *, counter=None):
 
         if counter==None:
             raise checks.InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
@@ -196,9 +196,9 @@ class Counters(commands.Cog):
             conn.close()
             
 
-    @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'],brief="List all counters.")
+    @commands.command(aliases=['counters','listCounters','allCounters','getCounters'],brief="List all counters.")
     @checks.is_in_skys()
-    async def returnCounters(self, ctx:commands.Context):
+    async def viewCounters(self, ctx:commands.Context):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = conn.cursor()
 

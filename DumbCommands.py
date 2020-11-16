@@ -16,7 +16,7 @@ class DumbCommands(commands.Cog):
         self.client = client
 
 
-    @commands.command(pass_context=True,aliases=["what is my ","what's my "],brief="Get your bounty.")
+    @commands.command(pass_context=True,brief="Get your bounty.")
     async def bounty(self, ctx: commands.Context, user:commands.clean_content=""):
         if user=="":
             user = ctx.author.display_name

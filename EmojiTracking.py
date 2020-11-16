@@ -108,21 +108,27 @@ class EmojiTracking(commands.Cog):
     async def getEmojiUsage(self, ctx, num=None, animated=None):
             if num == None:
                     num = 15
-            elif num == "-s" or num == "-a":
+            elif str(num)[0] == "s" or str(num)[0] == "a":
                     animated = num
                     num = 15
             else:
                     num = int(num)
 
+            if animated == None:
+                animated = " "
+
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
 
-            if animated == "-s":
-                    cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
-            elif animated == "-a":
-                    cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
+            if animated[0] == "s":
+                cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
+            elif animated[0] == "a":
+                cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
             else:
-                    cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
+                if animated != " ":
+                    await ctx.send("Invalid static/animated argument. Showing all emoji.")
+                cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
+           
 
             emojis = cursor.fetchall()
             output = "Top " + str(num) + " emojis: "
@@ -135,28 +141,29 @@ class EmojiTracking(commands.Cog):
                     output += str(self.client.get_emoji(int(emojis[i][1])))
 
                     
-            if animated == "-s":
+            if animated[0] == "s":
                     output+="\n(animated emojis excluded.)"
-            if animated == "-a":
+            if animated[0] == "a":
                     output+="\n(static emojis excluded.)"
             await ctx.send(output)
 
 # ----- GET FULL EMOJI USAGE ----- #
 
-    @commands.command(pass_context=True,
-                      aliases=['gfeu'],
-                      brief="Get all emoji usage data.",
-                      sig=["hbs;getFullEmojiUsage [-s|-a]","hbs;gfeu             [-s|-a]"]
-                      )
+    @commands.command(pass_context=True, aliases=['gfeu'], brief="Get all emoji usage data.")
     @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
-        if animated == "-s":
+        if animated == None:
+            animated = " "
+            
+        if animated[0] == "s":
             cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
-        elif animated == "-a":
+        elif animated[0] == "a":
             cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
         else:
+            if animated == " ":
+                await ctx.send("Invalid static/animated argument. Showing all emoji.")
             cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
         data = cursor.fetchall()
@@ -176,9 +183,9 @@ class EmojiTracking(commands.Cog):
             else:
                 count = count + 1
                 
-        if animated == "-s":
+        if animated[0] == "s":
             output+="\n(animated emojis excluded.)"
-        if animated == "-a":
+        if animated[0] == "a":
             output+="\n(static emojis excluded.)"
                 
         outputArr = functions.splitLongMsg(output)
@@ -192,67 +199,67 @@ class EmojiTracking(commands.Cog):
             
     async def updateEmojiList(self, message):
             
-            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = connection.cursor()
-            
-            sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
-            sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
-            
-            emojis = message.guild.emojis
-            newEmojis = []
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
+        
+        sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
+        sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
+        
+        emojis = message.guild.emojis
+        newEmojis = []
 
-            i = 0
-            for emoji in emojis:
-                            newEmojis.append(str(emoji.id))
-                            i+=1
+        i = 0
+        for emoji in emojis:
+                        newEmojis.append(str(emoji.id))
+                        i+=1
 
-            postgreSQL_select_Query = "SELECT * FROM emoji"
+        postgreSQL_select_Query = "SELECT * FROM emoji"
 
-            cursor.execute(postgreSQL_select_Query)
-            tempEmojis = cursor.fetchall()
+        cursor.execute(postgreSQL_select_Query)
+        tempEmojis = cursor.fetchall()
 
-            oldEmojis = []
-            for e in tempEmojis:
-                    oldEmojis.append(e[1])
-            
-            tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
-            tba = list(sorted(set(newEmojis) - set(oldEmojis)))
+        oldEmojis = []
+        for e in tempEmojis:
+                oldEmojis.append(e[1])
+        
+        tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
+        tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-            channel = self.client.get_channel(754527915290525807)
-            #await channel.send("TBD: " + str(len(tbd)))
-            #await channel.send("TBA: " + str(len(tba)))
+        channel = self.client.get_channel(754527915290525807)
+        #await channel.send("TBD: " + str(len(tbd)))
+        #await channel.send("TBA: " + str(len(tba)))
 
-            delCount = 0
-            addCount = 0
+        delCount = 0
+        addCount = 0
 
-            for emoji in tbd:
-                    cursor.execute(sql_delete_query, (emoji,))
-                    await channel.send(f'Emoji {emoji} deleted.')
-                    delCount += 1
+        for emoji in tbd:
+                cursor.execute(sql_delete_query, (emoji,))
+                await channel.send(f'Emoji {emoji} deleted.')
+                delCount += 1
 
-            for emoji in tba:
-                    e = self.client.get_emoji(int(emoji))
-                    record_to_insert = (e.name, str(e.id), e.animated, 0)
-                    cursor.execute(sql_insert_query, record_to_insert)
-                    await channel.send(f'Emoji {emoji} added.')
-                    addCount = addCount + 1
+        for emoji in tba:
+                e = self.client.get_emoji(int(emoji))
+                record_to_insert = (e.name, str(e.id), e.animated, 0)
+                cursor.execute(sql_insert_query, record_to_insert)
+                await channel.send(f'Emoji {emoji} added.')
+                addCount = addCount + 1
 
-            connection.commit()
-            cursor.close()
-            connection.close()
+        connection.commit()
+        cursor.close()
+        connection.close()
             
     @commands.command(pass_context=True,brief="Update emoji list.")
     @commands.is_owner()
     @checks.is_in_skys()
-    async def updateEmojis(self, ctx,description="Updates emoji list for current guild (Limited to Sky's Server.)"):
+    async def updateEmojis(self, ctx):
 
-            await updateEmojiList(ctx.message)
+            await self.updateEmojiList(ctx.message)
             await ctx.send("Emoji List Updated.")
             
 
-    @commands.command(pass_context=True,brief="Clears all emoji data.")
+    @commands.command(pass_context=True,brief="Clears all emoji usage data.")
     @commands.is_owner()
-    async def clearEmojiList(self, ctx,hidden=True,description="Clears emoji usage data."):
+    async def clearEmojiList(self, ctx):
             result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
             if result == 1:
                 connection = psycopg2.connect(DATABASE_URL, sslmode='require')

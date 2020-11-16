@@ -127,7 +127,7 @@ async def on_raw_reaction_add(payload):
 
 
 @client.command(pass_context=True,brief="Spoil an image.")
-async def spoil(ctx, *, text="", description="Resends image(s) under spoiler tags. Can send up to 10 images."):
+async def spoil(ctx, *, text=""):
     
     files = []
     for a in ctx.message.attachments:

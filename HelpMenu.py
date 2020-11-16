@@ -17,6 +17,7 @@ import inspect
 import re
 import discord.utils
 
+newline = "\n"
 
 class HBSHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
@@ -74,14 +75,13 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         if bot.description:
             self.paginator.add_line(bot.description, empty=True)
 
-        self.paginator.add_line(f'**{cog}**', empty=True)
+        self.paginator.add_line(f'{cog.qualified_name}:', empty=True)
 
         if cog.description:
             self.paginator.add_line(cog.description, empty=True)
 
         filtered = await self.filter_commands(cog.get_commands(), sort=self.sort_commands)
         if filtered:
-            self.paginator.add_line('**%s %s**' % (cog.qualified_name, self.commands_heading))
             for command in filtered:
                 self.paginator.add_line(f'{command.name}')
 
@@ -92,56 +92,88 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
 
         await self.send_pages()
 
-
-    '''async def send_group_help(self, group):
-        """|coro|
-        Handles the implementation of the group page in the help command.
-        This function is called when the help command is called with a group as the argument.
-        It should be noted that this method does not return anything -- rather the
-        actual message sending should be done inside this method. Well behaved subclasses
-        should use :meth:`get_destination` to know where to send, as this is a customisation
-        point for other users.
-        You can override this method to customise the behaviour.
-        .. note::
-            You can access the invocation context with :attr:`HelpCommand.context`.
-            To get the commands that belong to this group without aliases see
-            :attr:`Group.commands`. The commands returned not filtered. To do the
-            filtering you will have to call :meth:`filter_commands` yourself.
-        Parameters
-        -----------
-        group: :class:`Group`
-            The group that was requested for help.
-        """
-        return None
-
     async def send_command_help(self, command):
-        """|coro|
-        Handles the implementation of the single command page in the help command.
-        It should be noted that this method does not return anything -- rather the
-        actual message sending should be done inside this method. Well behaved subclasses
-        should use :meth:`get_destination` to know where to send, as this is a customisation
-        point for other users.
-        You can override this method to customise the behaviour.
-        .. note::
-            You can access the invocation context with :attr:`HelpCommand.context`.
-        .. admonition:: Showing Help
-            :class: helpful
-            There are certain attributes and methods that are helpful for a help command
-            to show such as the following:
-            - :attr:`Command.help`
-            - :attr:`Command.brief`
-            - :attr:`Command.short_doc`
-            - :attr:`Command.description`
-            - :meth:`get_command_signature`
-            There are more than just these attributes but feel free to play around with
-            these to help you get started to get the output that you want.
-        Parameters
-        -----------
-        command: :class:`Command`
-            The command that was requested for help.
-        """
-        return None
-        '''
+        bot = self.context.bot
+        if bot.description:
+            self.paginator.add_line(bot.description, empty=True)
+            
+        with open('HelpMenu.json') as f:
+            data = json.load(f)
+
+        prefix = bot.command_prefix[0]
+        
+        aliases = [command.name]
+        aliases = aliases + command.aliases
+        
+        command_data = data.pop(command.name,{})
+        
+        signature = command_data.get('signature',"") or command.signature
+        #REPLACE [animated] for [-s|-a]
+        signature = signature.replace("[animated]","[static|s|animated|a]")
+        signature = signature.replace("[starboard=starboard]","[starboard]")
+        signature = signature.replace("[mobile]","[-m]")
+        signature = signature.replace("[messageIDorLink]","<Message ID/Link>")
+        
+        additional_help = command_data.get('additional_help',"")
+        if additional_help == "":
+            if command.brief != None and command.help != None:
+                additional_help = command.brief + "\n" + command.help
+            else:
+                additional_help = command.brief or command.help
+            
+        lines_to_add = []
+        max_command_length = 0
+
+        lines_to_add = [(prefix + str(a)) for a in aliases]
+        max_command_length = len(max(lines_to_add, key = len)) 
+
+        for line in lines_to_add:
+            self.paginator.add_line(line.ljust(max_command_length + 1) + signature)
+            
+        self.paginator.add_line(newline + additional_help)
+        
+        await self.send_pages()
+
+    async def command_callback(self, ctx, *, command=None):
+        
+        await self.prepare_help_command(ctx, command)
+        bot = ctx.bot
+
+        if command is None:
+            mapping = self.get_bot_mapping()
+            return await self.send_bot_help(mapping)
+
+        # Check if it's a cog
+        cog = bot.get_cog(command) or bot.get_cog(command.capitalize())
+        if cog is not None:
+            return await self.send_cog_help(cog)
+
+        maybe_coro = discord.utils.maybe_coroutine
+
+        # If it's not a cog then it's a command.
+        # Since we want to have detailed errors when someone
+        # passes an invalid subcommand, we need to walk through
+        # the command group chain ourselves.
+        keys = command.split(' ')
+        cmd = bot.all_commands.get(keys[0])
+        if cmd is None:
+            string = await maybe_coro(self.command_not_found, self.remove_mentions(keys[0]))
+            return await self.send_error_message(string)
+
+        for key in keys[1:]:
+            try:
+                found = cmd.all_commands.get(key)
+            except AttributeError:
+                string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
+                return await self.send_error_message(string)
+            else:
+                if found is None:
+                    string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
+                    return await self.send_error_message(string)
+                cmd = found
+
+        return await self.send_command_help(cmd)
+        
 
     
 

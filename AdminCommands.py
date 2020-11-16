@@ -37,7 +37,7 @@ class AdminCommands(commands.Cog):
         except:
             raise checks.InvalidArgument("That's not a real message dummie. That or something else went fucky.")
 
-    @commands.command(pass_context=True,brief="Copy starboard from one channel to another.")
+    @commands.command(pass_context=True,brief="Copy starboard from one channel to another.",help="Transfers 1000 messages by default.")
     @commands.is_owner()
     async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -57,7 +57,7 @@ class AdminCommands(commands.Cog):
         conn.close()
 
 
-    @commands.command(pass_context=True,brief="Create new Channel.")
+    @commands.command(pass_context=True,brief="Create new Channel.",help="Category defaults to the category the command was sent in.\nTo set the channel as nsfw, include \"nsfw\" at the end of the command.")
     @commands.is_owner()
     async def createChannel(self,ctx: commands.Context,channelName=None, categoryID=None, nsfw=""):
         #IF NO CHANNEL NAME GIVEN
@@ -94,7 +94,7 @@ class AdminCommands(commands.Cog):
     async def renameChannel(self, ctx:commands.Context, channelId, newname):
         await self.client.get_channel(int(channelId)).edit(name=newname)
 
-    @commands.command(pass_context=True,brief="Clear Channel.")
+    @commands.command(pass_context=True,brief="Clear Channel.",help="Clears 0 messages by default.\nClears newest messages by default.")
     @commands.is_owner()
     async def clearChannel(self, ctx:commands.Context, channelID=None, numMessages=0, oldest="newest"):
         if channelID == None:
@@ -174,12 +174,12 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,aliases=['nick'],brief="Change bot nickname.")
     @commands.is_owner()
-    async def botnick(self, ctx, *, name, hidden=True, description="Changes bot nickname in current guild."):
+    async def botnick(self, ctx, *, name):
         await ctx.guild.me.edit(nick=name)
 
-    @commands.command(pass_context=True,aliases=['cg'],brief="Change game in bot's status.")
+    @commands.command(pass_context=True,aliases=['changeStatus'],brief="Change game in bot's status.")
     @commands.is_owner()
-    async def changeGame(self, ctx, *, game, hidden=True, description="Changes \"currently playing\" text."):
+    async def changeGame(self, ctx, *, game):
         #CHANGE STATUS AND ADD TO DATABASE
         try:
             await self.client.change_presence(activity=discord.Game(name=game))
@@ -195,7 +195,7 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,enabled=False,brief="Dumps emoji table data.")
     @commands.is_owner()
-    async def dump(self, ctx, hidden=True):
+    async def dump(self, ctx):
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
 
@@ -216,8 +216,8 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Deletes an emoji.")
     @commands.is_owner()
-    async def deleteEmoji(self, ctx, id):
-            emoji = await ctx.guild.fetch_emoji(int(id))
+    async def deleteEmoji(self, ctx, emojiID):
+            emoji = await ctx.guild.fetch_emoji(int(emojiID))
             await emoji.delete()
     
 

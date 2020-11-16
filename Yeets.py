@@ -65,10 +65,11 @@ class Yeets(commands.Cog):
             cursor.close()
             conn.close()
 
-    @commands.command(pass_context=True,aliases=['changeMsg'],brief="Change join/leave messages.")
+    @commands.command(pass_context=True,aliases=['changeMessage','changeMsg'],brief="Change join/leave messages.",
+                      help="Message example: '\u003cname\u003e has left the server.'\nUse \u003cname\u003e for default capitalization, or \u003cNAME\u003e for all caps.\nLeave message blank to disable join/leave message.")
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
-    async def changeMessage(self,ctx: commands.Context,msgName=None,*,message=""):
+    async def changeYeetsMessage(self,ctx: commands.Context,msgName=None,*,message=""):
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 

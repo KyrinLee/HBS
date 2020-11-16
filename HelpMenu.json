@@ -1,42 +1,41 @@
 {
-  "base": {
-    "footer": {
-      "text": "HBS is maintained by Vriska & Rose @ramblingArachnid#8781."
-    },
-    "thumbnail": {
-      "url": "https://media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png",
-      "proxy_url": "https://images-ext-2.discordapp.net/external/wwr7nOkcu8bWRkC1EJkpFcXBzs1dP54pHw-ZIMjMddk/https/media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png",
-      "width": 512,
-      "height": 512
-    },
-    "color": 22146,
-    "type": "rich",
-    "description": "HussieBot Oppression & More",
-    "title": "HBS Help"
-  },
-
-  "oldMenu": {
-  "fields": [
-    {
-      "name": "Reset Counter",
-      "value": "**hbs;reset <countername>**\nResets given counter.",
-      "inline": false
-    },
-    {
-      "name": "Get Emoji Usage",
-      "value": "**hbs;getEmojiUsage [num] [-s | -a] **\nReturns top and bottom [num] emojis (default 15). Static or animated emojis can be specified using -s or -a.",
-      "inline": false
-    },
-    {
-      "name": "Get Full Emoji Usage",
-      "value": "**hbs;getFullEmojiUsage**\nReturns all emojis in server with usage stats, sorted by most to least used.",
-      "inline": false
-    },
-    {
-      "name": "Spoil Images",
-      "value": "**hbs;spoil [text] <image(s)>\n\\hbs;spoil [text] <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.",
-      "inline": false
+	"clearChannel":{
+		"signature":"\u003cchannelID\u003e [numMessages] [oldest|o|newest|n]"
+	},
+	"createChannel":{
+		"signature":"\u003cchannelName\u003e [categoryID] [nsfw]"
+	},
+	"deleteMessage":{
+		"signature":"\u003cmessageID\u003e [channelID]"
+	},
+	"transferStarboard":{
+		"signature":"\u003cSource Channel ID\u003e \u003cTarget Channel ID\u003e [# of messages to clear]"
+		},
+	"deleteCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"newCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"resetCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"viewCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"changeStarboard":{
+		"signature":"[starboard] \u003cchannelID\u003e"
+	},
+	"changeStarlimit":{
+		"signature":"[starboard] \u003cstarlimit\u003e"
+	},
+	"enableStarboard":{
+		"signature":"[starboard] \u003cstarlimit\u003e"
+	},
+    "changeYeetsMessage":{
+        "signature":"\u003cjoin|leave\u003e [message]"
+	},
+    "changeYeetsChannel":{
+        "signature":"\u003cchannelID\u003e"
     }
-  ]
-}
 }

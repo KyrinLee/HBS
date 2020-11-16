@@ -57,6 +57,9 @@ class Starboards(commands.Cog):
             starlimit = board[4]
             starboardDBname = board[3]
 
+            if starlimit == 0:
+                return 
+
             cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
             row = cursor.fetchall()
 
@@ -176,10 +179,10 @@ class Starboards(commands.Cog):
             if starboardDBname != "":
                 await self.addToStarboard(msg, starboardDBname=starboardDBname)
             
-    @commands.command(pass_context=True, brief="Manually star a message.")
+    @commands.command(pass_context=True, brief="Manually star a message.", help="Starboard defaults to 'starboard'.")
     @commands.is_owner()
-    async def star(self,ctx, id=None, starboard=""):
-        if id == None:
+    async def star(self,ctx, messageIDorLink=None, starboard="starboard"):
+        if messageIDorLink == None:
             raise checks.InvalidArgument("Please include message ID or link.")
         elif str(id)[0:4] == "http":
             link = id.split('/')
@@ -189,7 +192,7 @@ class Starboards(commands.Cog):
         else:
             for channel in ctx.guild.text_channels:
                 try:
-                    msg = await channel.fetch_message(id)
+                    msg = await channel.fetch_message(messageIDorLink)
                 except NotFound:
                     continue
 
@@ -201,20 +204,20 @@ class Starboards(commands.Cog):
 
         await self.addToStarboard(msg,forceStar=True,board=starboard)
 
-    @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardchannel'], brief="Change a starboard channel.")
+    @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardChannel'], brief="Change a starboard channel.",help="Starboard defaults to 'starboard'.")
     @commands.is_owner()
-    async def changeStarboard(self,ctx,board="starboard",id=None):
-        if board not in starboards:
+    async def changeStarboard(self,ctx,starboard="starboard",channelID=None):
+        if starboard not in starboards:
             raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
-        elif id == None:
+        elif channelID == None:
             raise checks.InvalidArgument("Please include message ID or link.")
         else:
-            channel = self.client.get_channel(id)
+            channel = self.client.get_channel(channelID)
             result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
             if result == 1:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = conn.cursor()
-                cursor.execute(f'UPDATE starboards SET channelid = {id} WHERE name = {starboard}')
+                cursor.execute(f'UPDATE starboards SET channelid = {channelID} WHERE name = {starboard}')
                 await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
 
                 conn.commit()
@@ -226,14 +229,7 @@ class Starboards(commands.Cog):
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
-    @commands.command(pass_context=True, brief="Change lewdboard channel.",hidden=True)
-    @commands.is_owner()
-    async def changeLewdboard(self,ctx, id=None):
-        if id == None:
-            raise checks.InvalidArgument("Please include message ID or link.")
-        await self.changeStarboard(ctx,id,True)
-
-    @commands.command(aliases=['starboards','starboardInfo'],brief="View all starboard settings.")
+    @commands.command(aliases=['starboardInfo'],brief="View all starboard settings.",help="Use mobile selector -m for a more readable format on mobile.")
     @commands.is_owner()
     async def viewStarboards(self, ctx:commands.Context,mobile=""):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -263,20 +259,23 @@ class Starboards(commands.Cog):
         conn.close()
 
 
-    @commands.command(brief="Change threshold for a starboard.")
+    @commands.command(brief="Change threshold for a starboard.",help="Starboard defaults to 'starboard'.\nSet starlimit to 0 to disable starboard.")
     @commands.is_owner()
-    async def changeStarLimit(self,ctx,starboard="starboard",starlimit=-1):
+    async def changeStarlimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
-            raise checks.InvalidArgument("Please include new star limit.")
+            raise checks.InvalidArgument("Please include new star limit or 0 to disable.")
         elif starboard not in starboards:
             raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         else:
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
+            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
             if result == 1:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = conn.cursor()
                 cursor.execute(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
-                await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
+                if starlimit == 0:
+                    await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
+                else:
+                    await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
 
                 conn.commit()
                 cursor.close()
@@ -286,7 +285,22 @@ class Starboards(commands.Cog):
                 await ctx.send("Operation cancelled.")
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
-    
+
+    @commands.command(brief="Disable a starboard.",help="Starboard defaults to 'starboard'.")
+    @commands.is_owner()
+    async def disableStarboard(self,ctx,starboard="starboard"):
+        if starboard not in starboards:
+            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+        await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = 0)
+
+    @commands.command(brief="Enable a starboard.",help="Starboard defaults to 'starboard'.")
+    @commands.is_owner()
+    async def enableStarboard(self,ctx,starboard="starboard",starlimit=None):
+        if starboard not in starboards:
+            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+        if not starlimit.isdigit():
+            raise checks.InvalidArgument("Please include a valid integer star limit for the starboard.")
+        await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = int(starlimit))
                     
 def setup(client):
     client.add_cog(Starboards(client))
