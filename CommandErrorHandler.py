@@ -31,7 +31,7 @@ class CommandErrorHandler(commands.Cog):
             if cog._get_overridden_method(cog.cog_command_error) is not None:
                 return
 
-        ignored = (commands.CommandNotFound, )
+        ignored = ()
 
         # Allows us to check for original exceptions raised and sent to CommandInvokeError.
         # If nothing is found. We keep the exception passed to on_command_error.
@@ -41,7 +41,10 @@ class CommandErrorHandler(commands.Cog):
         if isinstance(error, ignored):
             return
 
-        if isinstance(error, commands.DisabledCommand):
+        elif isinstance(error, commands.CommandNotFound):
+            await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
+
+        elif isinstance(error, commands.DisabledCommand):
             await ctx.send(f'You cannot use this command! {ctx.command.capitalize()} is currently disabled.')
 
         elif isinstance(error, commands.CheckFailure):

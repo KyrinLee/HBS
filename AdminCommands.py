@@ -8,6 +8,7 @@ from psycopg2 import Error
 from discord import NotFound
 
 import json
+import re
 
 import asyncio
 import checks
@@ -95,7 +96,7 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Clear Channel.")
     @commands.is_owner()
-    async def clearChannel(self, ctx:commands.Context, channelID=None, numMessages=0, oldest=""):
+    async def clearChannel(self, ctx:commands.Context, channelID=None, numMessages=0, oldest="newest"):
         if channelID == None:
             raise checks.InvalidArgument("Please include a channel ID!")
         if numMessages == 0:
@@ -109,7 +110,7 @@ class AdminCommands(commands.Cog):
 
         #CLEAR MESSAGES
         channel = self.client.get_channel(int(channelID))
-        async for message in channel.history(limit=num,oldest_first=oldest):
+        async for message in channel.history(limit=numMessages,oldest_first=oldest):
             try:
                 await message.delete()
             except:
@@ -218,7 +219,7 @@ class AdminCommands(commands.Cog):
     async def deleteEmoji(self, ctx, id):
             emoji = await ctx.guild.fetch_emoji(int(id))
             await emoji.delete()
-        
+    
 
 def setup(client):
     client.add_cog(AdminCommands(client))

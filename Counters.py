@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import sys
 
@@ -15,7 +15,6 @@ import checks
 DATABASE_URL = os.environ['DATABASE_URL']
 
 from string import Formatter
-from datetime import timedelta
 
 def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
     """Convert a datetime.timedelta object or a regular number to a custom-
@@ -69,6 +68,7 @@ class Counters(commands.Cog):
         self.client = client
 
     @commands.command(aliases=['update'],brief="Reset/Update a counter.")
+    @checks.is_in_skys()
     async def reset(self,ctx: commands.Context, *, counter=None):
 
         if counter==None:
@@ -97,18 +97,21 @@ class Counters(commands.Cog):
 
             mentions = data[0][2] + 1
             timeStamp = data[0][1]
-            
-            cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,word))
 
             timeDiff = currTime - timeStamp
 
-            output = "Counter " + word + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
-            if mentions == 1:
-                output += "."
+            if timeDiff < timedelta(minutes=1):
+                await ctx.send("This timer is on cooldown! Please wait " + strfdelta((timedelta(minutes=1) - timeDiff),fmt='{S:02}s') + " to reset again.")
             else:
-                output += "s."
-                
-            await ctx.send(output)
+                cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,word))
+
+                output = "Counter " + word + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+                if mentions == 1:
+                    output += "."
+                else:
+                    output += "s."
+                    
+                await ctx.send(output)
 
         else:
             raise checks.InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
@@ -120,6 +123,7 @@ class Counters(commands.Cog):
 
         
     @commands.command(aliases=['addCounter'],brief="Create a new counter.")
+    @checks.is_in_skys()
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
@@ -157,6 +161,7 @@ class Counters(commands.Cog):
             conn.close()
 
     @commands.is_owner()
+    @checks.is_in_skys()
     @commands.command(aliases=['removeCounter'],brief="Delete a counter.")
     async def deleteCounter(self,ctx: commands.Context, counter=None):
         if counter == None:
@@ -192,6 +197,7 @@ class Counters(commands.Cog):
             
 
     @commands.command(aliases=['counters','listCounters','allCounters','viewCounters'],brief="List all counters.")
+    @checks.is_in_skys()
     async def returnCounters(self, ctx:commands.Context):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = conn.cursor()
@@ -216,6 +222,7 @@ class Counters(commands.Cog):
         conn.close()
 
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
+    @checks.is_in_skys()
     async def viewCounter(self, ctx, counter=None):
         if counter == None:
             raise checks.InvalidArgument("You have to tell me which one!")

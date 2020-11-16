@@ -18,9 +18,12 @@ import psycopg2
 from psycopg2 import Error
 
 import checks
-import functions
 
 from HelpMenu import HBSHelpCommand
+
+from functions import splitLongMsg, formatTriggerDoc
+import requests
+
 
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
@@ -31,7 +34,7 @@ intents.members = True
 
 client = commands.Bot(
     command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
-    owner_ids=[707112913722277899,259774152867577856],
+    owner_ids=[707112913722277899,259774152867577856,279738154662232074],
     case_insensitive=True,
     help_command=HBSHelpCommand(indent=4,paginator=commands.Paginator()),
     description="HussieBot Oppression & More",
@@ -60,7 +63,6 @@ async def on_ready():
     game = cursor.fetchall()[0][1]
     await client.change_presence(activity=discord.Game(name=game))
 
-    client.add_check(commands.guild_only())
     conn.commit()
     cursor.close()
     conn.close()
@@ -78,13 +80,10 @@ async def on_message(message: discord.Message):
                             await message.delete()
                     if message.content in bannedPhrases:
                             await message.delete()
-    else:
-        await message.author.send("Stop tryna slide into my DMs! I'm taken :)")
 
     await client.process_commands(message)
                         
     
-
 @client.event
 async def on_raw_reaction_add(payload):
     #HANDLE PK DELETION
@@ -158,6 +157,26 @@ async def help(ctx, command=None):
 async def vriska(ctx):
     await ctx.send("<:vriska:776019724956860417>")
     await ctx.message.delete()
+
+@client.command(pass_context=True,brief="Sends trigger document in simple text form.")
+async def triggerList(ctx):
+    if checks.is_in_skys() or not checks.is_in_guild():
+        url = "https://docs.google.com/document/d/1RHneHjg6oKlenY7j-jk_sp5ezkxglpRsNoZuoUeM6Jc/export?format=txt"
+        
+        content = requests.get(url)
+
+        text = re.sub(r'(\r\n){3,}','\n\n', content.text)
+        #text = re.sub(r'(\r\n.?)+', r'\r\n\r\n', content.text)
+
+        text = formatTriggerDoc(text)
+
+        with open("html.txt", "w", encoding="utf-8") as f:
+            f.write(text)
+        
+        output = splitLongMsg(text)
+
+        for o in output:
+            await ctx.send(o)
     
 @client.event
 async def on_error(event_name, *args):
