@@ -15,6 +15,8 @@ import asyncio
 import checks
 import functions
 
+from sigfig import round
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class EmojiTracking(commands.Cog):
@@ -178,7 +180,16 @@ class EmojiTracking(commands.Cog):
         count = 0
         maxDigits = len(str(max(digits)))
 
+        letters = ["","k","m","b"]
+        
         for i in data:
+            num = i[3]
+            letter = 0
+            while num > 9999:
+                num = round(i[3] / 1000,sigfigs=3)
+                letter = letter + 1
+            i[3] = str(num) + letters[letter]
+                
             output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(i[3]).rjust(maxDigits) + " `")
 
             if count == 4:
