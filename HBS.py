@@ -92,6 +92,7 @@ async def on_raw_reaction_add(payload):
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         sys = await pk.get_pk_system_from_userid(payload.user_id)
+        
         if sys != None:
             
             sys = sys["id"]
@@ -99,12 +100,17 @@ async def on_raw_reaction_add(payload):
             isMenu = False
 
             reacts = msg.reactions
-            for react in reacts:
+            users = [await react.users().flatten() for react in reacts if react.emoji == "✅"
+            menu = [user for user in users if user.id == 466378653216014359]
+            isMenu = True if len(menu) > 0 else False
+
+            '''for react in reacts:
                 if react.emoji == "✅":
                     users = await react.users().flatten()
                     for user in users:
                         if user.id == 466378653216014359:
                             isMenu = True
+            '''
 
             if msg.author.id == 466378653216014359 and (not isMenu):
                 for embed in msg.embeds:
