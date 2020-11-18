@@ -100,7 +100,7 @@ async def on_raw_reaction_add(payload):
             isMenu = False
 
             reacts = msg.reactions
-            users = [await react.users().flatten() for react in reacts if react.emoji == "✅"
+            users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
             menu = [user for user in users if user.id == 466378653216014359]
             isMenu = True if len(menu) > 0 else False
 
