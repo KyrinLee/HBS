@@ -28,6 +28,9 @@ import requests
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
+pluralkit_id = 466378653216014359
+hussiebot_id = 480855402289037312
+toddbot_id = 461265486655520788
 
 intents = discord.Intents.default()
 intents.members = True
@@ -75,7 +78,7 @@ async def on_message(message: discord.Message):
     #HANDLE HUSSIEBOT VRISKA REACTS
         bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
                          "Cool Thanks is a valid kid name."]
-        if message.author.id == 480855402289037312: #if hussiebot
+        if message.author.id == hussiebot_id: #if hussiebot
                     if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
                             await message.delete()
                     if message.content in bannedPhrases:
@@ -88,38 +91,37 @@ async def on_message(message: discord.Message):
 async def on_raw_reaction_add(payload):
     #HANDLE PK DELETION
     if payload.emoji.name == "❌":
-        result = -1
-        channel = client.get_channel(payload.channel_id)
-        msg = await channel.fetch_message(payload.message_id)
-        sys = await pk.get_pk_system_from_userid(payload.user_id)
         
-        if sys != None:
-            
-            sys = sys["id"]
-
-            reacts = msg.reactions
-            users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
-            pk_check_reacts = [user for user in users if user.id == 466378653216014359]
-
-            if msg.author.id == 466378653216014359 and (not len(pk_check_reacts)>0):
-                for embed in msg.embeds:
-                    emb = json.dumps(embed.to_dict())
-                    if (emb.find(sys) != -1):
-                        result = 1
-                if result == 1:
-                    await msg.edit(suppress=True)
-                    await msg.clear_reactions()
-                    msgDel = client.get_emoji(767960168444723210)
-                    await msg.add_reaction(msgDel)
-
-        if msg.author.id == 753345733377261650 and  len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
+        #REMOVE HUSSIE MESSAGES + TODD MESSAGES
+        if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id):
             await msg.delete()
-        #await channel.send("message deleted")
 
-    #REMOVE HUSSIE MESSAGES + TODD MESSAGES
-    if payload.emoji.name == "❌" and (msg.author.id == 480855402289037312 or msg.author.id == 461265486655520788):
-        await msg.delete()
-    
+        #REMOVE SPOILERED IMAGES FROM HBS
+        if msg.author.id == self.client.id and len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
+            await msg.delete()
+        
+        #REMOVE PK MESSAGES
+        if payload.user_id != pluralkit_id:
+            channel = client.get_channel(payload.channel_id)
+            msg = await channel.fetch_message(payload.message_id)
+            sys = await pk.get_pk_system_from_userid(payload.user_id)
+            
+            if sys != None:
+                
+                sys = sys["id"]
+
+                reacts = msg.reactions
+                users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
+                pk_check_reacts = [user for user in users if user.id == pluralkit_id]
+
+                if not len(pk_check_reacts) > 0:
+                    for embed in msg.embeds:
+                        emb = json.dumps(embed.to_dict())
+                        if (emb.find(sys) != -1): #IF SYSTEM ID FOUND IN EMBED
+                            await msg.edit(suppress=True)
+                            await msg.clear_reactions()
+                            msgDel = client.get_emoji(767960168444723210)
+                            await msg.add_reaction(msgDel)
 
 
 @client.command(pass_context=True,brief="Spoil an image.")
@@ -137,18 +139,6 @@ async def spoil(ctx, *, text=""):
     await ctx.message.delete()
 
 
-'''@client.command(pass_context=True)
-async def help(ctx, command=None):
-    embed = discord.Embed(title="HBS Help", description="HussieBot Oppression & More", color=0x005682)
-
-    embed.set_thumbnail(url="https://media.discordapp.net/attachments/753349219808444438/770918408371306516/hbs.png")
-    embed.add_field(name="Reset Counter", value="**hbs;reset <countername>**\nResets given counter.\n", inline=False)
-    embed.add_field(name="Get Emoji Usage", value="**hbs;getEmojiUsage [num] [-s | -a] **\nReturns top and bottom [num] emojis (default 15). Static or animated emojis can be specified using -s or -a.\n", inline=False)
-    embed.add_field(name="Get Full Emoji Usage", value="**hbs;getFullEmojiUsage**\nReturns all emojis in server with usage stats, sorted by most to least used.\n", inline=False)
-    embed.add_field(name="Spoil Images", value="**hbs;spoil [text] <image(s)>\n\hbs;spoil [text] <image(s)> (to escape pk autoproxy.)**\nResends image(s) under spoiler tag, with text. Can spoil up to 10 images at once.\n",inline=False)
-    embed.set_footer(text="HBS is maintained by Vriska & Rose @ramblingArachnid#8781.")
-    await ctx.send(embed=embed)
-'''
 @client.command(pass_context=True,brief="Vriska.")
 async def vriska(ctx):
     await ctx.send("<:vriska:776019724956860417>")
@@ -162,8 +152,6 @@ async def triggerList(ctx):
         content = requests.get(url)
 
         text = re.sub(r'(\r\n){3,}','\n\n', content.text)
-        #text = re.sub(r'(\r\n.?)+', r'\r\n\r\n', content.text)
-
         text = formatTriggerDoc(text)
 
         with open("html.txt", "w", encoding="utf-8") as f:
