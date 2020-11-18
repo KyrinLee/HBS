@@ -106,11 +106,11 @@ async def on_raw_reaction_add(payload):
         
         #REMOVE PK MESSAGES
         if payload.user_id != pluralkit_id:
-            sys = await pk.get_pk_system_from_userid(payload.user_id)
+            system = await pk.get_pk_system_from_userid(payload.user_id)
             
-            if sys != None:
+            if system != None:
                 
-                sys = sys["id"]
+                system = system["id"]
 
                 reacts = msg.reactions
                 users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
@@ -119,7 +119,7 @@ async def on_raw_reaction_add(payload):
                 if not len(pk_check_reacts) > 0:
                     for embed in msg.embeds:
                         emb = json.dumps(embed.to_dict())
-                        if (emb.find(sys) != -1): #IF SYSTEM ID FOUND IN EMBED
+                        if (emb.find(system) != -1): #IF SYSTEM ID FOUND IN EMBED
                             await msg.edit(suppress=True)
                             await msg.clear_reactions()
                             msgDel = client.get_emoji(767960168444723210)
