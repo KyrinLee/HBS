@@ -100,7 +100,7 @@ async def on_raw_reaction_add(payload):
             await msg.delete()
 
         #REMOVE SPOILERED IMAGES FROM HBS
-        if msg.author.id == self.client.id and len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
+        if msg.author.id == client.user.id and len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
             await msg.delete()
         
         #REMOVE PK MESSAGES
