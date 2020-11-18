@@ -162,7 +162,7 @@ class EmojiTracking(commands.Cog):
         elif animated[0] == "a":
             cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
         else:
-            if animated == " ":
+            if animated != " ":
                 await ctx.send("Invalid static/animated argument. Showing all emoji.")
             cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
