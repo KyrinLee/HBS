@@ -128,6 +128,7 @@ class Starboards(commands.Cog):
                     embed.add_field(name="Source", value=jumplink, inline=True)
                     try:
                         if not msg.attachments[0].is_spoiler():
+                            sys.stdout.write("AAAAA")
                             embed.set_image(url=str(msg.attachments[0].url))
                         else:
                             embed.description = embed.description + "(spoiled image, jump to message to view)"
