@@ -97,22 +97,11 @@ async def on_raw_reaction_add(payload):
             
             sys = sys["id"]
 
-            isMenu = False
-
             reacts = msg.reactions
             users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
-            menu = [user for user in users if user.id == 466378653216014359]
-            isMenu = True if len(menu) > 0 else False
+            pk_check_reacts = [user for user in users if user.id == 466378653216014359]
 
-            '''for react in reacts:
-                if react.emoji == "✅":
-                    users = await react.users().flatten()
-                    for user in users:
-                        if user.id == 466378653216014359:
-                            isMenu = True
-            '''
-
-            if msg.author.id == 466378653216014359 and (not isMenu):
+            if msg.author.id == 466378653216014359 and (not len(pk_check_reacts)>0):
                 for embed in msg.embeds:
                     emb = json.dumps(embed.to_dict())
                     if (emb.find(sys) != -1):
