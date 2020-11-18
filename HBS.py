@@ -121,9 +121,10 @@ async def on_raw_reaction_add(payload):
             await msg.delete()
         #await channel.send("message deleted")
 
-    #REMOVE HUSSIE MESSAGES 
-    if payload.emoji.name == "❌" and msg.author.id == 480855402289037312:
+    #REMOVE HUSSIE MESSAGES + TODD MESSAGES
+    if payload.emoji.name == "❌" and (msg.author.id == 480855402289037312 or msg.author.id == 461265486655520788):
         await msg.delete()
+    
 
 
 @client.command(pass_context=True,brief="Spoil an image.")
