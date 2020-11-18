@@ -1,20 +1,20 @@
 import re
 import sys
 
-def splitLongMsg(txt, limit=1990):
-    txtArr = txt.split('\n')
+def splitLongMsg(txt, limit=1990,char='\n'):
+    txtArr = txt.split(char)
 
     output = ""
     outputArr = []
 
     for i in range(0, len(txtArr)):
-        outputTest = output + txtArr[i] + "\n"
+        outputTest = output + txtArr[i] + char
         if len(outputTest) > limit:
             outputArr.append(output)
             #print(output)
-            output = txtArr[i] + "\n"
+            output = txtArr[i] + char
         else:
-            output = output + txtArr[i] + "\n"
+            output = output + txtArr[i] + char
 
     outputArr.append(output)
     return outputArr
@@ -34,3 +34,24 @@ def formatTriggerDoc(txt):
     txtArr[2] = re.sub(r'\r\n\|\|',r'||\n',txtArr[2])
 
     return "".join(txtArr)
+
+def numberFormat(num):
+    numAbbrs = ["k","m","b","t"]
+    
+    if num < 1000:
+        return num
+    power = 0
+    while num > 1:
+        num = num / 10
+        power = power + 1
+    num = round(num, 3)
+    
+    while True:
+        num = num * 10
+        power = power - 1
+        if power % 3 == 0:
+            break
+
+    power = power // 3 - 1
+    
+    return str(num).rstrip('0').rstrip('.') + numAbbrs[power]

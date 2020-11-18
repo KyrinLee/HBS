@@ -7,7 +7,7 @@ import asyncio
 from discord.ext import commands
 
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import os
 import pk
@@ -31,6 +31,12 @@ DATABASE_URL = os.environ['DATABASE_URL']
 pluralkit_id = 466378653216014359
 hussiebot_id = 480855402289037312
 toddbot_id = 461265486655520788
+
+week = timedelta(days=7)
+month = timedelta(days=30)
+
+bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
+                         "Cool Thanks is a valid kid name."]
 
 intents = discord.Intents.default()
 intents.members = True
@@ -76,14 +82,32 @@ async def on_message(message: discord.Message):
     if message.guild is not None:
         
     #HANDLE HUSSIEBOT VRISKA REACTS
-        bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
-                         "Cool Thanks is a valid kid name."]
         if message.author.id == hussiebot_id: #if hussiebot
                     if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
                             await message.delete()
                     if message.content in bannedPhrases:
                             await message.delete()
 
+    #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
+    '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM vars WHERE name = 'laststarboardpurge'")
+        last_starboard_purge = datetime.strptime(cursor.fetchall()[0][1], '%Y-%m-%d %H:%M:%S.%f')
+        
+        currTime = datetime.utcnow()
+        sys.stdout.write(str(currTime - last_starboard_purge) + " " + str(week))
+
+        if (currTime - last_starboard_purge > week):
+            starboards = client.get_cog('Starboards')
+
+            cursor.execute("UPDATE vars set value = %s WHERE name = 'laststarboardpurge'", (currTime,))
+            await starboards.purgeStarboards(currTime-week)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        '''
+            
     await client.process_commands(message)
                         
     

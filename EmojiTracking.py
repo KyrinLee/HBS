@@ -15,8 +15,6 @@ import asyncio
 import checks
 import functions
 
-from sigfig import round
-
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class EmojiTracking(commands.Cog):
@@ -27,10 +25,12 @@ class EmojiTracking(commands.Cog):
     async def on_message(self, message: discord.Message):
         try:
             if checks.is_not_self(message.author.id) and checks.is_in_skys_id(message.guild.id) and message.webhook_id == None:
-
+                
+                await self.updateEmojiList(message.guild)
+                
                 connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-
                 cursor = connection.cursor()
+                
                 postgreSQL_select_Query = "SELECT id FROM emoji"
                 update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
                 get_usage = "SELECT usage FROM emoji WHERE id=%s"
@@ -51,21 +51,6 @@ class EmojiTracking(commands.Cog):
                 for i in range(0, len(emojis)):
                     emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
 
-                cursor.execute("SELECT * FROM vars WHERE name = 'lastemojiupdate'")
-                lastEmojiUpdate = cursor.fetchall()[0][1];
-                
-                channel = self.client.get_channel(754527915290525807)
-                #sys.stdout.write(str(lastEmojiUpdate))
-                
-                currTime = datetime.utcnow()
-                
-                date = str(currTime)[0:10];
-                #sys.stdout.write(date);
-
-                if str(lastEmojiUpdate) != date:
-                    cursor.execute("UPDATE vars set value = %s WHERE name = 'lastemojiupdate'", (date,))
-                    await self.updateEmojiList(message)
-
                 for e in emojiIDs:
                     if e in oldEmojis:
                             cursor.execute(get_usage,(e,))
@@ -81,7 +66,9 @@ class EmojiTracking(commands.Cog):
 
 
     @commands.Cog.listener()
+    @checks.is_in_skys()
     async def on_raw_reaction_add(self, payload):
+        await self.updateEmojiList(self.client.get_guild(payload.guild_id))
 
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
 
@@ -135,11 +122,11 @@ class EmojiTracking(commands.Cog):
            
 
             emojis = cursor.fetchall()
-            output = "Top " + str(num) + " emojis: "
+            output = "`Top " + str(num) + " emojis:   ` "
 
             for i in range(0,num):
                     output += str(self.client.get_emoji(int(emojis[i][1])))
-            output += "\nBottom " + str(num) + " emojis: "
+            output += "\n`Bottom " + str(num) + " emojis:` "
 
             for i in range(len(emojis)-1,len(emojis)-1-num,-1):
                     output += str(self.client.get_emoji(int(emojis[i][1])))
@@ -178,25 +165,21 @@ class EmojiTracking(commands.Cog):
 
         output = ""
         count = 0
-        maxDigits = len(str(max(digits)))
+        maxDigits = min(len(str(max(digits))),5)
 
         letters = ["","k","m","b"]
         
         for i in data:
-            num = i[3]
-            letter = 0
-            while num > 9999:
-                num = round(i[3] / 1000,sigfigs=3)
-                letter = letter + 1
-            i[3] = str(num) + letters[letter]
-                
-            output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(i[3]).rjust(maxDigits) + " `")
+            num = functions.numberFormat(i[3])
 
-            if count == 4:
+            output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
+
+            if count == 3:
                 output += "\n"
                 count = 0
             else:
                 count = count + 1
+                
                 
         if animated[0] == "s":
             output+="\n(animated emojis excluded.)"
@@ -212,7 +195,7 @@ class EmojiTracking(commands.Cog):
         cursor.close()
         connection.close()
             
-    async def updateEmojiList(self, message):
+    async def updateEmojiList(self, guild):
             
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
@@ -220,7 +203,7 @@ class EmojiTracking(commands.Cog):
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
         sql_delete_query = """ DELETE FROM emoji WHERE id = %s """
         
-        emojis = message.guild.emojis
+        emojis = guild.emojis
         newEmojis = []
 
         i = 0
@@ -257,7 +240,7 @@ class EmojiTracking(commands.Cog):
     @checks.is_in_skys()
     async def updateEmojis(self, ctx):
 
-            await self.updateEmojiList(ctx.message)
+            await self.updateEmojiList(ctx.guild)
             await ctx.send("Emoji List Updated.")
             
 
@@ -282,8 +265,6 @@ class EmojiTracking(commands.Cog):
                 await ctx.send("Operation cancelled.")
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
-
-
 
 def setup(client):
     client.add_cog(EmojiTracking(client))

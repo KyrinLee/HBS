@@ -301,6 +301,24 @@ class Starboards(commands.Cog):
         if not starlimit.isdigit():
             raise checks.InvalidArgument("Please include a valid integer star limit for the starboard.")
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = int(starlimit))
+
+    '''async def purgeStarboards(self,oldTime):
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = conn.cursor()
+        output = ""
+
+        cursor.execute(f'SELECT * FROM starboard WHERE time < \'{oldTime}\'')
+        starboard_purge_data = cursor.fetchall()
+    
+        for i in range(0,len(starboard_purge_data)):
+            output += str(starboard_purge_data[i]) + "\n"
+
+        await self.client.get_channel(754527915290525807).send(output)
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+        '''
                     
 def setup(client):
     client.add_cog(Starboards(client))
