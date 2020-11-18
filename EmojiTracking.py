@@ -117,6 +117,8 @@ class EmojiTracking(commands.Cog):
             if animated == None:
                 animated = " "
 
+            await self.updateEmojiList(ctx.message)
+
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
 
@@ -152,6 +154,8 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True, aliases=['gfeu'], brief="Get all emoji usage data.")
     @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
+        await self.updateEmojiList(ctx.message)
+        
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
         if animated == None:
@@ -225,24 +229,13 @@ class EmojiTracking(commands.Cog):
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-        channel = self.client.get_channel(754527915290525807)
-        #await channel.send("TBD: " + str(len(tbd)))
-        #await channel.send("TBA: " + str(len(tba)))
-
-        delCount = 0
-        addCount = 0
-
         for emoji in tbd:
                 cursor.execute(sql_delete_query, (emoji,))
-                await channel.send(f'Emoji {emoji} deleted.')
-                delCount += 1
 
         for emoji in tba:
                 e = self.client.get_emoji(int(emoji))
                 record_to_insert = (e.name, str(e.id), e.animated, 0)
                 cursor.execute(sql_insert_query, record_to_insert)
-                await channel.send(f'Emoji {emoji} added.')
-                addCount = addCount + 1
 
         connection.commit()
         cursor.close()
