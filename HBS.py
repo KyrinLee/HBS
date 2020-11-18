@@ -91,6 +91,9 @@ async def on_message(message: discord.Message):
 async def on_raw_reaction_add(payload):
     #HANDLE PK DELETION
     if payload.emoji.name == "❌":
+        #GET CHANNEL AND MESSAGE
+        channel = client.get_channel(payload.channel_id)
+        msg = await channel.fetch_message(payload.message_id)
         
         #REMOVE HUSSIE MESSAGES + TODD MESSAGES
         if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id):
@@ -102,8 +105,6 @@ async def on_raw_reaction_add(payload):
         
         #REMOVE PK MESSAGES
         if payload.user_id != pluralkit_id:
-            channel = client.get_channel(payload.channel_id)
-            msg = await channel.fetch_message(payload.message_id)
             sys = await pk.get_pk_system_from_userid(payload.user_id)
             
             if sys != None:
