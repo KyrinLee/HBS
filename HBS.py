@@ -36,7 +36,7 @@ week = timedelta(days=7)
 month = timedelta(days=30)
 
 bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
-                         "Cool Thanks is a valid kid name."]
+                 "Cool Thanks is a valid kid name.", "Good Mornin is a valid kid name."]
 
 intents = discord.Intents.default()
 intents.members = True
@@ -121,6 +121,9 @@ async def on_raw_reaction_add(payload):
         
         #REMOVE HUSSIE MESSAGES + TODD MESSAGES
         if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id):
+            if msg.author.id == hussiebot_id:
+                with open('hussieDeleted.txt', 'a') as f:
+                    f.write(msg.content + "\n")
             await msg.delete()
 
         #REMOVE SPOILERED IMAGES FROM HBS
