@@ -35,8 +35,7 @@ toddbot_id = 461265486655520788
 week = timedelta(days=7)
 month = timedelta(days=30)
 
-bannedPhrases = ["Good Morning is a valid kid name.", "Fair Enough is a valid kid name.",
-                 "Cool Thanks is a valid kid name.", "Good Mornin is a valid kid name."]
+bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks"]
 
 intents = discord.Intents.default()
 intents.members = True
@@ -85,7 +84,8 @@ async def on_message(message: discord.Message):
         if message.author.id == hussiebot_id: #if hussiebot
                     if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
                             await message.delete()
-                    if message.content in bannedPhrases:
+                    for phrase in bannedPhrases:
+                        if message.content.find(phrase) != -1:
                             await message.delete()
 
     #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
