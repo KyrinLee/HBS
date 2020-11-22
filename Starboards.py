@@ -156,7 +156,7 @@ class Starboards(commands.Cog):
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
             elif str(payload.emoji) in moodreacts:
-                if msg.channel.category_id is not None and msg.channel.category_id == 609118603417092099:
+                if msg.channel.category_id is not None and msg.channel.category_id != 609118603417092099:
                     starboardDBname = "moodboard"
             elif payload.emoji.name == stars[0]:
                 starboardDBname = "starboard"
@@ -173,7 +173,7 @@ class Starboards(commands.Cog):
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
             elif str(payload.emoji) in moodreacts:
-                if msg.channel.category_id is not None and msg.channel.category_id == 609118603417092099:
+                if msg.channel.category_id is not None and msg.channel.category_id != 609118603417092099:
                     starboardDBname = "moodboard"
             elif payload.emoji.name == stars[0]:
                 starboardDBname = "starboard"
