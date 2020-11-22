@@ -196,7 +196,7 @@ class AdminCommands(commands.Cog):
             conn.commit()
             cursor.close()
             conn.close()
-        await ctx.send(f'HBS\'s status game changed to {game}')
+        await ctx.send(f'HBS\'s status game changed to {game}.')
 
     @commands.command(pass_context=True,enabled=False,brief="Dumps emoji table data.")
     @commands.is_owner()
