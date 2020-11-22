@@ -142,6 +142,8 @@ class AdminCommands(commands.Cog):
         if msgId == None:
             raise checks.InvalidArgument("You must include a message ID.")
 
+        awaitMsg = await ctx.send("Retrieving message... This may take a minute.")
+
         #get message
         m = await checks.getMessage(self.client, ctx, msgId, channelId)
 
@@ -157,6 +159,8 @@ class AdminCommands(commands.Cog):
             raise checks.InvalidArgument("Operation cancelled.")
         else:
             raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+
+        await awaitMsg.delete()
 
     '''@commands.command(pass_context=True)
     @commands.is_owner()
