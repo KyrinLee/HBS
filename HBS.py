@@ -203,7 +203,7 @@ async def hussieBlacklist(ctx):
     
 @client.event
 async def on_error(event_name, *args):
-    log = logging.exception("Exception from event {}".format(event_name))
+    logging.exception("Exception from event {}".format(event_name))
     await client.get_user(707112913722277899).send(log)
 
 if __name__ == "__main__":

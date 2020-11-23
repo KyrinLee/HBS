@@ -1,9 +1,1 @@
-.pyc
-.env
-New Text Document.txt
-config.json
-keys.txt
-html.txt
-htmlUnformatted.txt
-Junk
-*.pyc
+__pycache__
