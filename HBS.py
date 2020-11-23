@@ -35,7 +35,7 @@ toddbot_id = 461265486655520788
 week = timedelta(days=7)
 month = timedelta(days=30)
 
-bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks"]
+bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 
 intents = discord.Intents.default()
 intents.members = True
@@ -203,9 +203,8 @@ async def hussieBlacklist(ctx):
     
 @client.event
 async def on_error(event_name, *args):
-    await client.get_user(707112913722277899).send("Exception from event {}".format(event_name))
-    logging.exception("Exception from event {}".format(event_name))
-
+    log = logging.exception("Exception from event {}".format(event_name))
+    await client.get_user(707112913722277899).send(log)
 
 if __name__ == "__main__":
     loaded = []
