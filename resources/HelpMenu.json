@@ -1,0 +1,41 @@
+{
+	"clearChannel":{
+		"signature":"\u003cchannelID\u003e [numMessages] [oldest|o|newest|n]"
+	},
+	"createChannel":{
+		"signature":"\u003cchannelName\u003e [categoryID] [nsfw]"
+	},
+	"deleteMessage":{
+		"signature":"\u003cmessageID\u003e [channelID]"
+	},
+	"transferStarboard":{
+		"signature":"\u003cSource Channel ID\u003e \u003cTarget Channel ID\u003e [# of messages to clear]"
+		},
+	"deleteCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"newCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"resetCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"viewCounter":{
+		"signature":"\u003ccounter\u003e"
+	},
+	"changeStarboard":{
+		"signature":"[starboard] \u003cchannelID\u003e"
+	},
+	"changeStarlimit":{
+		"signature":"[starboard] \u003cstarlimit\u003e"
+	},
+	"enableStarboard":{
+		"signature":"[starboard] \u003cstarlimit\u003e"
+	},
+    "changeYeetsMessage":{
+        "signature":"\u003cjoin|leave\u003e [message]"
+	},
+    "changeYeetsChannel":{
+        "signature":"\u003cchannelID\u003e"
+    }
+}
