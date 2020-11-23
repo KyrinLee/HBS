@@ -7,7 +7,7 @@ import os
 import random as rd
 from math import trunc, floor
 
-import checks
+from modules import checks
 
 DATABASE_URL = os.environ['DATABASE_URL']
 

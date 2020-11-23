@@ -7,7 +7,7 @@ import psycopg2
 
 from psycopg2 import Error
 
-import checks
+from modules import checks
 
 DATABASE_URL = os.environ['DATABASE_URL']
 

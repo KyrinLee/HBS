@@ -11,7 +11,8 @@ import json
 import re
 
 import asyncio
-import checks
+
+from modules import checks
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -216,7 +217,7 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True,brief="Adds test stickbug emoji.")
     @commands.is_owner()
     async def addTestEmoji(self, ctx):
-            with open("stickbug.gif", 'rb') as fd:
+            with open("resources/stickbug.gif", 'rb') as fd:
                 await ctx.guild.create_custom_emoji(name='stickbug', image=fd.read())
 
     @commands.command(pass_context=True,brief="Deletes an emoji.")

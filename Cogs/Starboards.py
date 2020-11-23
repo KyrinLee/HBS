@@ -12,7 +12,7 @@ from discord import NotFound
 
 import asyncio
 
-import checks
+from modules import checks
 
 reactSem = asyncio.Semaphore(1)
 

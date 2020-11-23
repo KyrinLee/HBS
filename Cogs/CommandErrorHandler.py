@@ -3,7 +3,7 @@ import traceback
 import sys
 from discord.ext import commands
 
-import checks
+from modules import checks
 
 class CommandErrorHandler(commands.Cog):
 

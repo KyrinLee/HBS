@@ -12,8 +12,8 @@ import time
 from datetime import datetime, date
 
 import asyncio
-import checks
-import functions
+
+from modules import checks, functions
 
 DATABASE_URL = os.environ['DATABASE_URL']
 

@@ -6,8 +6,6 @@ import sys
 import os
 
 import asyncio
-import checks
-import functions
 import json
 
 import itertools
@@ -16,6 +14,9 @@ import functools
 import inspect
 import re
 import discord.utils
+
+
+from modules import checks, functions
 
 newline = "\n"
 
@@ -97,7 +98,7 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         if bot.description:
             self.paginator.add_line(bot.description, empty=True)
             
-        with open('HelpMenu.json') as f:
+        with open('resources/HelpMenu.json') as f:
             data = json.load(f)
 
         prefix = bot.command_prefix[0]

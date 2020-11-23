@@ -10,19 +10,18 @@ import time
 from datetime import datetime, date, timedelta
 
 import os
-import pk
-
 import sys
 
 import psycopg2
 from psycopg2 import Error
 
-import checks
-
-from HelpMenu import HBSHelpCommand
-
-from functions import splitLongMsg, formatTriggerDoc
 import requests
+import io
+from contextlib import redirect_stderr
+
+from modules import checks, pk
+from modules.HelpMenu import HBSHelpCommand
+from modules.functions import splitLongMsg, formatTriggerDoc
 
 
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
@@ -87,7 +86,7 @@ async def on_message(message: discord.Message):
                     for phrase in bannedPhrases:
                         if message.content.find(phrase) != -1:
                             await message.delete()
-                            #break
+                            break
 
     #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
     '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -203,8 +202,12 @@ async def hussieBlacklist(ctx):
     
 @client.event
 async def on_error(event_name, *args):
-    logging.exception("Exception from event {}".format(event_name))
-    await client.get_user(707112913722277899).send(log)
+    f = io.StringIO()
+    with redirect_stderr(f):
+        logging.exception("Exception from event {}".format(event_name))
+    out = f.getvalue()
+
+    await client.get_user(707112913722277899).send(str(out))
 
 if __name__ == "__main__":
     loaded = []
@@ -212,7 +215,7 @@ if __name__ == "__main__":
     failedExc = []
     for extension in startup_extensions:
         try:
-            client.load_extension(extension)
+            client.load_extension("cogs." + extension)
             loaded.append(extension)
             
         except Exception as e:
