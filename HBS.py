@@ -87,6 +87,7 @@ async def on_message(message: discord.Message):
                     for phrase in bannedPhrases:
                         if message.content.find(phrase) != -1:
                             await message.delete()
+                            break
 
     #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
     '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
