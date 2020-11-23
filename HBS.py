@@ -190,6 +190,16 @@ async def triggerList(ctx):
 
         for o in output:
             await ctx.send(o)
+
+
+@client.command(pass_context=True,brief="Sends list of HussieBot's currently blacklisted phrases.")
+async def hussieBlacklist(ctx):
+    output = "Currently Blacklisted Phrases: \n"
+    for phrase in bannedPhrases:
+        output += phrase + "\n"
+
+    output = output.rstrip("\n")
+    await ctx.send(output)
     
 @client.event
 async def on_error(event_name, *args):
