@@ -87,7 +87,7 @@ async def on_message(message: discord.Message):
                     for phrase in bannedPhrases:
                         if message.content.find(phrase) != -1:
                             await message.delete()
-                            break
+                            #break
 
     #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
     '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -193,6 +193,7 @@ async def triggerList(ctx):
     
 @client.event
 async def on_error(event_name, *args):
+    client.get_user(707112913722277899).send("Exception from event {}".format(event_name))
     logging.exception("Exception from event {}".format(event_name))
 
 
