@@ -199,6 +199,17 @@ async def hussieBlacklist(ctx):
 
     output = output.rstrip("\n")
     await ctx.send(output)
+
+
+@client.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.")
+@commands.cooldown(1, 300, commands.BucketType.user)
+async def whitespace(ctx):
+    
+
+@client.command(pass_context=True,brief="Sends bubblewrap message.")
+async def bubblewrap(ctx):
+    output = "||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||\n" * 4 + "||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||"
+    await ctx.send(output)
     
 @client.event
 async def on_error(event_name, *args):
