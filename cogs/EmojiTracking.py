@@ -106,7 +106,7 @@ class EmojiTracking(commands.Cog):
             if animated == None:
                 animated = " "
 
-            await self.updateEmojiList(ctx.message)
+            await self.updateEmojiList(ctx.guild)
 
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
@@ -143,7 +143,7 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True, aliases=['gfeu'], brief="Get all emoji usage data.")
     @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
-        await self.updateEmojiList(ctx.message)
+        await self.updateEmojiList(ctx.guild)
         
         connection = psycopg2.connect(DATABASE_URL, sslmode='require')
         cursor = connection.cursor()
