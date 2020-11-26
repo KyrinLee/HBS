@@ -19,6 +19,8 @@ import requests
 import io
 from contextlib import redirect_stderr
 
+import random 
+
 from modules import checks, pk
 from modules.HelpMenu import HBSHelpCommand
 from modules.functions import splitLongMsg, formatTriggerDoc
@@ -30,11 +32,14 @@ DATABASE_URL = os.environ['DATABASE_URL']
 pluralkit_id = 466378653216014359
 hussiebot_id = 480855402289037312
 toddbot_id = 461265486655520788
+yagbot_id = 204255221017214977
 
 week = timedelta(days=7)
 month = timedelta(days=30)
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
+starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
+spaces = [" " for x in range(30)]
 
 intents = discord.Intents.default()
 intents.members = True
@@ -120,12 +125,9 @@ async def on_raw_reaction_add(payload):
         msg = await channel.fetch_message(payload.message_id)
         
         #REMOVE HUSSIE MESSAGES + TODD MESSAGES
-        if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id):
-            if msg.author.id == hussiebot_id:
-                with open('hussieDeleted.txt', 'a') as f:
-                    f.write(msg.content + "\n")
+        if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id or msg.author.id == yagbot_id or msg.author.id == client.user.id):
             await msg.delete()
-
+            
         #REMOVE SPOILERED IMAGES FROM HBS
         if msg.author.id == client.user.id and len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
             await msg.delete()
@@ -201,18 +203,51 @@ async def hussieBlacklist(ctx):
     await ctx.send(output)
 
 
-@client.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.")
+@client.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
 @commands.cooldown(1, 300, commands.BucketType.user)
-async def whitespace(ctx):
-    
+async def whitespace(ctx,delete_after):
+    try:
+        int(delete_after)
+    except ValueError:
+        if delete_after[0] == "p" or delete_after[0] == "s":
+            delete_after = -1
+        else:
+            delete_after = 8
+        
+    output = "```"
+    output += (' '.join(random.choices(starsList + spaces, k=900)))
+
+    hours = None if delete_after == -1 else int(delete_after) * 3600
+    await ctx.send(output + "```",delete_after=hours)
 
 @client.command(pass_context=True,brief="Sends bubblewrap message.")
-async def bubblewrap(ctx):
-    output = "||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||\n" * 4 + "||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||||pop||"
+async def bubblewrap(ctx,size="5x5"):
+    dimensions = re.split('x| ',size)
+    try:
+        width = int(dimensions[0])
+        height = int(dimensions[1])
+    except:
+        raise checks.InvalidArgument("Invalid size! Run hbs;bubblewrap for a 5x5 grid, or specify a grid size like this: hbs;bubblewrap 9x9")
+    output = "Bubble Wrap!\n\n" + (("||pop||" * width + "\n") * height)
+    output = output.rstrip("\n")
+    if len(output) > 2000:
+        await ctx.send("Unfortunately discord's message character limit doesn't support bubble wrap that size :( \nHere's what I could fit!") 
+        outputArr = splitLongMsg(output, 2000)
+        output = outputArr[0]
     await ctx.send(output)
+
+@client.command(pass_context=True)
+async def getUniqueChars(ctx):
+    await ctx.send(str(list(set(stars))))
     
 @client.event
 async def on_error(event_name, *args):
+    try:
+        if (event_name == "on_raw_reaction_add") and (sys.exc_info()[1].code == 10008):
+            return #IGNORE ERRORS IN RAW_REACTION_ADD WHEN A MESSAGE IS REACTED TO AND THEN DELETED
+    except:
+        pass
+    
     f = io.StringIO()
     with redirect_stderr(f):
         logging.exception("Exception from event {}".format(event_name))

@@ -53,5 +53,7 @@ def numberFormat(num):
             break
 
     power = power // 3 - 1
+    if len(str(num)) > 5:
+        num = str(num)[0:4]
     
     return str(num).rstrip('0').rstrip('.') + numAbbrs[power]

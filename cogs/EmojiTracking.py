@@ -165,7 +165,7 @@ class EmojiTracking(commands.Cog):
 
         output = ""
         count = 0
-        maxDigits = min(len(str(max(digits))),5)
+        maxDigits = 5
 
         letters = ["","k","m","b"]
         

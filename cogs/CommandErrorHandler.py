@@ -65,6 +65,10 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(error)
             
+        elif isinstance(error, discord.HTTPException):
+            if error.code == 50035:
+                await ctx.send("I tried to send a message longer than 2000 characters! I probably shouldn't be doing that.")
+            
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
             await ctx.send("I did a fucky.")
