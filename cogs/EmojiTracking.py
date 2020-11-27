@@ -172,14 +172,13 @@ class EmojiTracking(commands.Cog):
         for i in data:
             num = functions.numberFormat(i[3])
 
-            output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
-
-            if count == 3:
-                output += "\n"
-                count = 0
-            else:
-                count = count + 1
-                
+            if self.client.get_emoji(int(i[1])).available == True:
+                output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
+                if count == 3:
+                    output += "\n"
+                    count = 0
+                else:
+                    count = count + 1
                 
         if animated[0] == "s":
             output+="\n(animated emojis excluded.)"
@@ -223,8 +222,9 @@ class EmojiTracking(commands.Cog):
         tbd = list(sorted(set(oldEmojis) - set(newEmojis)))
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
-        for emoji in tbd:
-                cursor.execute(sql_delete_query, (emoji,))
+        #TEMP DISABLED
+        #for emoji in tbd:
+                #cursor.execute(sql_delete_query, (emoji,))
 
         for emoji in tba:
                 e = self.client.get_emoji(int(emoji))
