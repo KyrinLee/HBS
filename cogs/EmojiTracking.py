@@ -223,8 +223,9 @@ class EmojiTracking(commands.Cog):
         tba = list(sorted(set(newEmojis) - set(oldEmojis)))
 
         #TEMP DISABLED
-        #for emoji in tbd:
-                #cursor.execute(sql_delete_query, (emoji,))
+        if guild.premium_tier > 0:
+            for emoji in tbd:
+                cursor.execute(sql_delete_query, (emoji,))
 
         for emoji in tba:
                 e = self.client.get_emoji(int(emoji))

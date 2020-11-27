@@ -13,6 +13,7 @@ import re
 import asyncio
 
 from modules import checks
+from modules.functions import getMessage
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -22,13 +23,9 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Return json embed data.")
     @commands.is_owner()
-    async def getEmbed(self, ctx:commands.Context, msgId):
+    async def getEmbed(self, ctx:commands.Context, msgIDorLink):
         #SEARCH ALL CHANNELS FOR MESSAGE
-        for channel in ctx.guild.text_channels:
-            try:
-                msg = await channel.fetch_message(msgId)
-            except NotFound:
-                continue
+        msg = await getMessage(self.client, ctx, msgIDorLink)
 
         #TRY TO RETURN JSON EMBED DATA
         try:
@@ -139,14 +136,12 @@ class AdminCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Delete message.")
     @commands.is_owner()
-    async def deleteMessage(self, ctx:commands.Context, msgId=None, channelId=None):
-        if msgId == None:
+    async def deleteMessage(self, ctx:commands.Context, msgIDorLink=None, channelId=None):
+        if msgIDorLink == None:
             raise checks.InvalidArgument("You must include a message ID.")
-
-        awaitMsg = await ctx.send("Retrieving message... This may take a minute.")
-
+        
         #get message
-        m = await checks.getMessage(self.client, ctx, msgId, channelId)
+        m = await getMessage(self.client, ctx, msgIDorLink, channelId)
 
         #get confirmation and delete
         result = await checks.confirmationMenu(self.client, ctx, f'Are you sure you would like to delete this message? `{m.clean_content[0:20]}...`',autoclear=True)
@@ -160,8 +155,6 @@ class AdminCommands(commands.Cog):
             raise checks.InvalidArgument("Operation cancelled.")
         else:
             raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
-
-        await awaitMsg.delete()
 
     '''@commands.command(pass_context=True)
     @commands.is_owner()

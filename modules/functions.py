@@ -1,5 +1,6 @@
 import re
 import sys
+from modules import checks
 
 def splitLongMsg(txt, limit=1990,char='\n'):
     txtArr = txt.split(char)
@@ -34,6 +35,70 @@ def formatTriggerDoc(txt):
     txtArr[2] = re.sub(r'\r\n\|\|',r'||\n',txtArr[2])
 
     return "".join(txtArr)
+
+
+# ----- CONFIRMATION MENU ----- #
+
+async def confirmationMenu(client, ctx, confirmationMessage="",autoclear=""):
+    msg = await ctx.send(confirmationMessage)
+  
+    await msg.add_reaction("✅")
+    await msg.add_reaction("❌")
+
+    def check(reaction, user):
+        return user == ctx.author
+
+    try:
+        reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
+    except asyncio.TimeoutError:
+        await ctx.send("Oops too slow!")
+        if autoclear: await msg.delete()
+        return 0
+
+    if user == ctx.author:
+        if str(reaction) == "❌":
+            if autoclear: await msg.delete()
+            return 0
+        elif str(reaction) == "✅":
+            if autoclear: await msg.delete()
+            return 1
+    else:
+        if autoclear: await msg.delete()
+        return -1
+
+# ----- FIND MESSAGE VIA ID OR LINK ----- #
+async def getMessage(client, ctx,id=None, channelId=None):
+    if id == None:
+        raise checks.InvalidArgument("Please include valid message ID or link.")
+
+    else:
+        awaitMsg = await ctx.send("Retrieving message... This may take a minute.")
+
+        if str(id)[0:4] == "http":
+            link = id.split('/')
+            channel_id = int(link[6])
+            msg_id = int(link[5])
+            msg = await client.get_channel(channel_id).fetch_message(msg_id)
+        else:
+            msg = []
+            for channel in ctx.guild.text_channels:
+                try:
+                    msg.append(await channel.fetch_message(id))
+                except:
+                    continue
+        
+            if msg == []:
+                await awaitMsg.delete()
+                raise checks.InvalidArgument("That message does not exist.")
+            elif len(msg) > 1:
+                await awaitMsg.delete()
+                raise checks.InvalidArgument("Multiple messages with that ID found. Please run the command again using the message link instead of the ID.")
+        
+
+        await awaitMsg.delete()
+    return msg[0]
+
+
 
 def numberFormat(num):
     numAbbrs = ["k","m","b","t"]

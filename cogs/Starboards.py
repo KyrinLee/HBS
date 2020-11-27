@@ -13,6 +13,7 @@ from discord import NotFound
 import asyncio
 
 from modules import checks
+from modules.functions import getMessage
 
 reactSem = asyncio.Semaphore(1)
 
@@ -184,22 +185,7 @@ class Starboards(commands.Cog):
     @commands.command(pass_context=True, brief="Manually star a message.", help="Starboard defaults to 'starboard'.")
     @commands.is_owner()
     async def star(self,ctx, messageIDorLink=None, starboard="starboard"):
-        if messageIDorLink == None:
-            raise checks.InvalidArgument("Please include message ID or link.")
-        elif str(id)[0:4] == "http":
-            link = id.split('/')
-            channel_id = int(link[6])
-            msg_id = int(link[5])
-            msg = await client.get_channel(channel_id).fetch_message(msg_id)
-        else:
-            for channel in ctx.guild.text_channels:
-                try:
-                    msg = await channel.fetch_message(messageIDorLink)
-                except NotFound:
-                    continue
-
-            if msg == None:
-                raise checks.InvalidArgument("That message does not exist.")
+        msg = await getMessage(self.client, ctx, messageIDorLink)
 
         if board not in starboards:
             raise checks.InvalidArgument("That starboard does not exist.")
@@ -321,6 +307,7 @@ class Starboards(commands.Cog):
         cursor.close()
         conn.close()
         '''
+
                     
 def setup(client):
     client.add_cog(Starboards(client))
