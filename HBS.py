@@ -24,18 +24,11 @@ import random
 from modules import checks, pk
 from modules.HelpMenu import HBSHelpCommand
 from modules.functions import splitLongMsg, formatTriggerDoc
-
+from resources.constants import *
 
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
 DATABASE_URL = os.environ['DATABASE_URL']
-pluralkit_id = 466378653216014359
-hussiebot_id = 480855402289037312
-toddbot_id = 461265486655520788
-yagbot_id = 204255221017214977
-
-week = timedelta(days=7)
-month = timedelta(days=30)
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
@@ -46,10 +39,11 @@ intents.members = True
 
 client = commands.Bot(
     command_prefix=("hbs;","\hbs;","hbs ","\hbs ","Hbs;","\Hbs;","Hbs ","\Hbs "),
-    owner_ids=[707112913722277899,259774152867577856,279738154662232074],
+    owner_ids=[VRISKA_ID, SKYS_ID, EM_ID],
     case_insensitive=True,
     help_command=HBSHelpCommand(indent=4,paginator=commands.Paginator()),
     description="HussieBot Oppression & More",
+    status="online",
     #help_command=None,
     intents=intents)
 
@@ -79,61 +73,61 @@ async def on_ready():
     cursor.close()
     conn.close()
 
-
 @client.event
 async def on_message(message: discord.Message):
-    if message.guild is not None:
+    if (message.guild == None):
+        return
         
     #HANDLE HUSSIEBOT VRISKA REACTS
-        if message.author.id == hussiebot_id: #if hussiebot
-                    if (message.content == "<:vriska:480855644388458497>" or message.content == ":vriska:" or message.content == ":eye:"): 
-                            await message.delete()
-                    for phrase in bannedPhrases:
-                        if message.content.find(phrase) != -1:
-                            await message.delete()
-                            break
+    if message.author.id == HUSSIEBOT_ID: #if hussiebot
+        if (message.content in ["<:vriska:480855644388458497>",":vriska:",":eye:"]): 
+                await message.delete()
+        for phrase in bannedPhrases:
+            if message.content.find(phrase) != -1:
+                await message.delete()
+                break
 
     #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
     '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM vars WHERE name = 'laststarboardpurge'")
-        last_starboard_purge = datetime.strptime(cursor.fetchall()[0][1], '%Y-%m-%d %H:%M:%S.%f')
-        
-        currTime = datetime.utcnow()
-        sys.stdout.write(str(currTime - last_starboard_purge) + " " + str(week))
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM vars WHERE name = 'laststarboardpurge'")
+    last_starboard_purge = datetime.strptime(cursor.fetchall()[0][1], '%Y-%m-%d %H:%M:%S.%f')
+    
+    currTime = datetime.utcnow()
+    sys.stdout.write(str(currTime - last_starboard_purge) + " " + str(week))
 
-        if (currTime - last_starboard_purge > week):
-            starboards = client.get_cog('Starboards')
+    if (currTime - last_starboard_purge > week):
+        starboards = client.get_cog('Starboards')
 
-            cursor.execute("UPDATE vars set value = %s WHERE name = 'laststarboardpurge'", (currTime,))
-            await starboards.purgeStarboards(currTime-week)
+        cursor.execute("UPDATE vars set value = %s WHERE name = 'laststarboardpurge'", (currTime,))
+        await starboards.purgeStarboards(currTime-week)
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+    conn.commit()
+    cursor.close()
+    conn.close()
         '''
+    if (message.author.id != client.user.id) and (message.guild.id == SKYS_SERVER_ID) and (message.webhook_id == None):
+        await client.get_cog('EmojiTracking').on_message_emojis(message)
             
     await client.process_commands(message)
                         
     
 @client.event
 async def on_raw_reaction_add(payload):
+    if (payload.guild_id == None):
+        return
     #HANDLE PK DELETION
     if payload.emoji.name == "❌":
         #GET CHANNEL AND MESSAGE
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
         
-        #REMOVE HUSSIE MESSAGES + TODD MESSAGES
-        if (msg.author.id == hussiebot_id or msg.author.id == toddbot_id or msg.author.id == yagbot_id or msg.author.id == client.user.id):
-            await msg.delete()
-            
-        #REMOVE SPOILERED IMAGES FROM HBS
-        if msg.author.id == client.user.id and len(msg.mentions) > 0 and msg.mentions[0].id == payload.user_id:
+        #REMOVE UNWANTED MESSAGES FROM BOTS
+        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, YAGBOT_ID, client.user.id]):
             await msg.delete()
         
         #REMOVE PK MESSAGES
-        if payload.user_id != pluralkit_id:
+        if payload.user_id != PLURALKIT_ID:
             system = await pk.get_pk_system_from_userid(payload.user_id)
             
             if system != None:
@@ -175,6 +169,7 @@ async def vriska(ctx):
     await ctx.message.delete()
 
 @client.command(pass_context=True,brief="Sends trigger document in simple text form.")
+@commands.check_any(checks.is_in_skys(), checks.is_in_DMs())
 async def triggerList(ctx):
     if checks.is_in_skys() or not checks.is_in_guild():
         url = "https://docs.google.com/document/d/1RHneHjg6oKlenY7j-jk_sp5ezkxglpRsNoZuoUeM6Jc/export?format=txt"
@@ -209,7 +204,7 @@ async def whitespace(ctx,delete_after):
     try:
         int(delete_after)
     except ValueError:
-        if delete_after[0] == "p" or delete_after[0] == "s":
+        if delete_after[0] in ["p", "s"]:
             delete_after = -1
         else:
             delete_after = 8
@@ -235,10 +230,6 @@ async def bubblewrap(ctx,size="5x5"):
         outputArr = splitLongMsg(output, 2000)
         output = outputArr[0]
     await ctx.send(output)
-
-@client.command(pass_context=True)
-async def getUniqueChars(ctx):
-    await ctx.send(str(list(set(stars))))
     
 @client.event
 async def on_error(event_name, *args):
@@ -253,7 +244,7 @@ async def on_error(event_name, *args):
         logging.exception("Exception from event {}".format(event_name))
     out = f.getvalue()
 
-    await client.get_user(707112913722277899).send(str(out))
+    await client.get_user(VRISKA_ID).send(str(out))
 
 if __name__ == "__main__":
     loaded = []

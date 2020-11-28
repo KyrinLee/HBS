@@ -149,8 +149,11 @@ class Starboards(commands.Cog):
             conn.close()
 
     @commands.Cog.listener()
+    @checks.is_in_skys()
     async def on_raw_reaction_add(self, payload):
         async with reactSem:
+            if (payload.guild_id == None):
+                return
             msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
             starboardDBname = ""
             
@@ -168,6 +171,8 @@ class Starboards(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         async with reactSem:
+            if (payload.guild_id == None):
+                return
             msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
             starboardDBname = ""
             
@@ -183,6 +188,7 @@ class Starboards(commands.Cog):
                 await self.addToStarboard(msg, starboardDBname=starboardDBname)
             
     @commands.command(pass_context=True, brief="Manually star a message.", help="Starboard defaults to 'starboard'.")
+    @checks.is_in_skys()
     @commands.is_owner()
     async def star(self,ctx, messageIDorLink=None, starboard="starboard"):
         msg = await getMessage(self.client, ctx, messageIDorLink)
@@ -193,6 +199,7 @@ class Starboards(commands.Cog):
         await self.addToStarboard(msg,forceStar=True,board=starboard)
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardChannel'], brief="Change a starboard channel.",help="Starboard defaults to 'starboard'.")
+    @checks.is_in_skys()
     @commands.is_owner()
     async def changeStarboard(self,ctx,starboard="starboard",channelID=None):
         if starboard not in starboards:
@@ -218,6 +225,7 @@ class Starboards(commands.Cog):
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.command(aliases=['starboardInfo'],brief="View all starboard settings.",help="Use mobile selector -m for a more readable format on mobile.")
+    @checks.is_in_skys()
     @commands.is_owner()
     async def viewStarboards(self, ctx:commands.Context,mobile=""):
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
@@ -248,6 +256,7 @@ class Starboards(commands.Cog):
 
 
     @commands.command(brief="Change threshold for a starboard.",help="Starboard defaults to 'starboard'.\nSet starlimit to 0 to disable starboard.")
+    @checks.is_in_skys()
     @commands.is_owner()
     async def changeStarlimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
@@ -275,6 +284,7 @@ class Starboards(commands.Cog):
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.command(brief="Disable a starboard.",help="Starboard defaults to 'starboard'.")
+    @checks.is_in_skys()
     @commands.is_owner()
     async def disableStarboard(self,ctx,starboard="starboard"):
         if starboard not in starboards:

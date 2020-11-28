@@ -48,18 +48,21 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(f'You cannot use this command! {ctx.command.capitalize()} is currently disabled.')
 
         elif isinstance(error, commands.CheckFailure):
-            output = "You did a fucky. "
             if isinstance(error, commands.NotOwner):
-                output += "Stop tryna run commands you don't have permissions for! <:angercry:757731437326762014>"
+                output = "Stop tryna run commands you don't have permissions for! <:angercry:757731437326762014>"
+            elif isinstance(error, checks.NoDMs):
+                output = "You can't run this command in DMs!"
+            elif isinstance(error, checks.WrongServer):
+                output = "You can't run that command in this server!"
             else:
-                output += str(error)
+                output = error
                 
             await ctx.send(output)
 
         elif isinstance(error, checks.FuckyError):
             await ctx.send("Something went fucky here! Ping Vriska, she won't know what the problem is either but it'll at least be funny." + str(error))
 
-        elif isinstance(error, checks.InvalidArgument):
+        elif isinstance(error, discord.InvalidArgument):
             await ctx.send(error)
 
         elif isinstance(error, commands.MissingRequiredArgument):

@@ -1,59 +1,46 @@
 import discord
 from discord.ext import commands
 
-import asyncio
+import sys
 
-class InvalidArgument(commands.CommandError):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.__dict__.update(kwargs)
+import asyncio
+from resources.constants import *
+
+class NoDMs(commands.CheckFailure):
+    pass
+class WrongServer(commands.CheckFailure):
+    pass
+class NotVriska(commands.CheckFailure):
+    pass
 
 class FuckyError(commands.CommandError):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__dict__.update(kwargs)
 
-class CheckFailure(commands.CommandError):
-    def __init__(self, *args, **kwargs):
-        msg = kwargs.pop('msg',None)
-        super().__init__(*args,**kwargs)
-        self.__dict__.update(kwargs)
 
 # ----- CHECK DEFINITIONS ----- #
 
 def is_in_guild(guild_id):
     async def predicate(ctx):
         if ctx.guild == None:
-            return False
+            raise NoDMs()
         elif ctx.guild.id != guild_id:
-            return False
+            raise WrongServer()
         else:
             return True
+    
     return commands.check(predicate)
 
 def is_in_skys():
+    return is_in_guild(SKYS_SERVER_ID)
+
+def is_in_DMs():
+    return commands.check(not commands.guild_only())
+    
+def is_vriska():
     async def predicate(ctx):
-        return ctx.guild and ctx.guild.id == 609112858214793217
-    return commands.check(predicate)
-
-def is_not_webhook():
-    async def predicate(ctx):
-        if ctx.author.webhook_id == None:
-            return True
-        else:
-            return False
-    return commands.check(predicate)
-
-def is_in_skys_id(id):
-    if id != 609112858214793217:
-        #raise CheckFailure("You can't run that here! <:angercry:757731437326762014>")
-        return False
-    else:
+        if ctx.author.id != VRISKA_ID:
+            raise commands.CheckFailure("Only Vriska can run this command for security reasons.")
         return True
-
-def is_not_self(id):
-    if id == 753345733377261650:
-        return False
-    else:
-        return True
-
+    return commands.check(predicate)
