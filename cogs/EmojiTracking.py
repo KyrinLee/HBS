@@ -20,50 +20,6 @@ DATABASE_URL = os.environ['DATABASE_URL']
 class EmojiTracking(commands.Cog):
     def __init__(self, client):
         self.client = client
-        
-    '''@commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        try:
-            if checks.is_not_self(message.author.id) and checks.is_in_skys_id(message.guild.id) and message.webhook_id == None:
-                
-                await self.updateEmojiList(message.guild)
-                
-                connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-                cursor = connection.cursor()
-                
-                postgreSQL_select_Query = "SELECT id FROM emoji"
-                update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-                get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
-                cursor.execute(postgreSQL_select_Query)
-                oldEmojis = cursor.fetchall()
-
-                oldEmojis = [e[0] for e in oldEmojis]
-
-                emojis = re.findall(r'<:\w*:\d*>', message.content)
-                emojisA = re.findall(r'<a:\w*:\d*>', message.content)
-
-                for i in range(0, len(emojisA)):
-                    emojis.append(emojisA[i])
-                #print(emojis)
-                emojiIDs = []
-
-                for i in range(0, len(emojis)):
-                    emojiIDs.append(emojis[i].split(":")[2].replace('>', ''))
-
-                for e in emojiIDs:
-                    if e in oldEmojis:
-                            cursor.execute(get_usage,(e,))
-                            use = cursor.fetchall()
-                            cursor.execute(update_q, (use[0][0]+1,e))
-                                            
-                connection.commit()                            
-                cursor.close()
-                connection.close()
-
-        except:
-            pass
-            '''
 
     async def on_message_emojis(self, message):
         await self.updateEmojiList(message.guild)
@@ -134,6 +90,7 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True,aliases=['geu'],brief="Get most and least used emojis.")
     @checks.is_in_skys()
     async def getEmojiUsage(self, ctx, num=None, animated=None):
+        async with ctx.channel.typing():
             if num == None:
                 num = 15
             elif str(num)[0] in ["s","a"]:
@@ -156,7 +113,7 @@ class EmojiTracking(commands.Cog):
             else:
                 where_statement = ""
                 await ctx.send("Invalid static/animated argument. Showing all emoji.")
-            
+
             cursor.execute(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
 
             emojis = cursor.fetchall()
@@ -183,56 +140,59 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True, aliases=['gfeu'], brief="Get all emoji usage data.")
     @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
-        await self.updateEmojiList(ctx.guild)
-        
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-        if animated == None:
-            animated = " "
+        async with ctx.channel.typing():
+            await self.updateEmojiList(ctx.guild)
             
-        if animated[0] == "s":
-            cursor.execute("SELECT * FROM emoji WHERE animated = FALSE ORDER BY usage DESC")
-        elif animated[0] == "a":
-            cursor.execute("SELECT * FROM emoji WHERE animated = TRUE ORDER BY usage DESC")
-        else:
-            if animated != " ":
+            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = connection.cursor()
+            
+            if animated == None:
+                where_statement = ""
+            elif animated[0] == "s":
+                where_statement = "WHERE animated = FALSE"
+            elif animated[0] == "a":
+                where_statement = "WHERE animated = TRUE"
+            else:
+                where_statement = ""
                 await ctx.send("Invalid static/animated argument. Showing all emoji.")
-            cursor.execute("SELECT * FROM emoji ORDER BY usage DESC")
 
-        data = cursor.fetchall()
+            cursor.execute(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
 
-        digits = [row[3] for row in data]
+            data = cursor.fetchall()
 
-        output = ""
-        count = 0
-        maxDigits = 5
+            digits = [row[3] for row in data]
 
-        letters = ["","k","m","b"]
-        
-        for i in data:
-            num = functions.numberFormat(i[3])
+            output = ""
+            count = 0
+            maxDigits = 5
 
-            if self.client.get_emoji(int(i[1])).available == True:
-                output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
-                if count == 3:
-                    output += "\n"
-                    count = 0
-                else:
-                    count = count + 1
-                
-        if animated[0] == "s":
-            output+="\n(animated emojis excluded.)"
-        if animated[0] == "a":
-            output+="\n(static emojis excluded.)"
-                
-        outputArr = functions.splitLongMsg(output)
+            letters = ["","k","m","b"]
+            
+            for i in data:
+                num = functions.numberFormat(i[3])
 
-        for o in outputArr:
-            await ctx.send(o)
+                if self.client.get_emoji(int(i[1])).available == True:
+                    output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
+                    if count == 3:
+                        output += "\n"
+                        count = 0
+                    else:
+                        count = count + 1
+                    
+            if animated != None:
+                if animated[0] == "s":
+                    output+="\n(animated emojis excluded.)"
+                if animated[0] == "a":
+                    output+="\n(static emojis excluded.)"
+                    
+            outputArr = functions.splitLongMsg(output)
 
-        connection.commit()
-        cursor.close()
-        connection.close()
+            for o in outputArr:
+                await ctx.send(o)
+
+            connection.commit()
+            cursor.close()
+            connection.close()
             
     async def updateEmojiList(self, guild):
             
@@ -280,7 +240,7 @@ class EmojiTracking(commands.Cog):
     @commands.is_owner()
     @checks.is_in_skys()
     async def updateEmojis(self, ctx):
-
+        async with ctx.channel.typing():
             await self.updateEmojiList(ctx.guild)
             await ctx.send("Emoji List Updated.")
             
@@ -288,8 +248,9 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True,brief="Clears all emoji usage data.")
     @commands.is_owner()
     async def clearEmojiList(self, ctx):
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
-            if result == 1:
+        result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
+        if result == 1:
+            async with ctx.channel.typing():
                 connection = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = connection.cursor()
 
@@ -301,11 +262,11 @@ class EmojiTracking(commands.Cog):
                 connection.commit()
                 cursor.close()
                 connection.close()
-                
-            elif result == 0:
-                await ctx.send("Operation cancelled.")
-            else:
-                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+            
+        elif result == 0:
+            await ctx.send("Operation cancelled.")
+        else:
+            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
 def setup(client):
     client.add_cog(EmojiTracking(client))

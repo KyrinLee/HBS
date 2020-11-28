@@ -1,4 +1,3 @@
-from datetime import timedelta
 import os
 
 SKYS_SERVER_ID = 609112858214793217
@@ -12,7 +11,5 @@ VRISKA_ID = 707112913722277899
 SKYS_ID = 259774152867577856
 EM_ID = 279738154662232074
 
-WEEK = timedelta(days=7)
-MONTH = timedelta(days=30)
-
 DATABASE_URL = os.environ['DATABASE_URL']
+TOKEN = os.environ["token"]

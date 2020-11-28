@@ -36,7 +36,9 @@ def is_in_skys():
     return is_in_guild(SKYS_SERVER_ID)
 
 def is_in_DMs():
-    return commands.check(not commands.guild_only())
+    async def predicate(ctx):
+        return (ctx.guild == None)
+    return commands.check(predicate)
     
 def is_vriska():
     async def predicate(ctx):

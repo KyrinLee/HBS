@@ -26,9 +26,9 @@ from modules.HelpMenu import HBSHelpCommand
 from modules.functions import splitLongMsg, formatTriggerDoc
 from resources.constants import *
 
-startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
-
 DATABASE_URL = os.environ['DATABASE_URL']
+
+startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands"]
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
@@ -76,6 +76,7 @@ async def on_ready():
 @client.event
 async def on_message(message: discord.Message):
     if (message.guild == None):
+        await client.process_commands(message)
         return
         
     #HANDLE HUSSIEBOT VRISKA REACTS
@@ -239,12 +240,13 @@ async def on_error(event_name, *args):
     except:
         pass
     
-    f = io.StringIO()
+    '''f = io.StringIO()
     with redirect_stderr(f):
         logging.exception("Exception from event {}".format(event_name))
     out = f.getvalue()
 
-    await client.get_user(VRISKA_ID).send(str(out))
+    await client.get_user(VRISKA_ID).send(str(out))'''
+    logging.exception("Exception from event {}".format(event_name))
 
 if __name__ == "__main__":
     loaded = []

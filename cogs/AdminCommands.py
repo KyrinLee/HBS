@@ -177,7 +177,14 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True,aliases=['nick'],brief="Change bot nickname.")
     @commands.is_owner()
     async def botnick(self, ctx, *, name):
+        if name in [None, "", "clear","c"]:
+            name = None
+            output = "Bot nickname cleared."
+        else:
+            output = f'Bot name changed to {name}'
+
         await ctx.guild.me.edit(nick=name)
+        await ctx.send(output)
 
     @commands.command(pass_context=True,aliases=['changeStatus'],brief="Change game in bot's status.")
     @commands.is_owner()
@@ -227,7 +234,7 @@ class AdminCommands(commands.Cog):
         conn.commit()
         cursor.close()
         conn.close()
-
+    
 def setup(client):
     client.add_cog(AdminCommands(client))
         
