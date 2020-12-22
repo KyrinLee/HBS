@@ -36,26 +36,6 @@ class AdminCommands(commands.Cog):
             except:
                 raise InvalidArgument("That's not a real message dummie. That or something else went fucky.")
 
-    @commands.command(pass_context=True,brief="Copy starboard from one channel to another.",help="Transfers 1000 messages by default.")
-    @commands.is_owner()
-    async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
-        async with ctx.channel.typing():
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-            async for message in self.client.get_channel(int(sourceChId)).history(limit=lim, oldest_first=True):
-                try:
-                    s = message.content.split(" ")[1]
-                    smsg = await self.client.get_channel(int(targetChId)).send(content=message.content,embed=message.embeds[0])
-                    q = f'INSERT INTO test VALUES ({message.id},{smsg.id},{s},%s)'
-                    cursor.execute(q, (datetime.fromtimestamp(time.time()),))
-                    
-                except:
-                    continue
-
-            conn.commit()
-            cursor.close()
-            conn.close()
-
 
     @commands.command(pass_context=True,brief="Create new Channel.",help="Category defaults to the category the command was sent in.\nTo set the channel as nsfw, include \"nsfw\" at the end of the command.")
     @commands.is_owner()
@@ -234,6 +214,27 @@ class AdminCommands(commands.Cog):
         conn.commit()
         cursor.close()
         conn.close()
+
+    @commands.command(pass_context=True, aliases=["disable tupper", "disableTupperbox","disable tupperbox"], brief="Disables Tupperbox.")
+    async def disableTupper(self,ctx):
+        async with ctx.channel.typing():
+            tupper = ctx.guild.get_member(TUPPERBOX_ID)
+            pk_down_role = ctx.guild.get_role(PK_DOWN_ROLE_ID)
+            shupperbox_role = ctx.guild.get_role(SHUPPERBOX_ROLE_ID)
+            await tupper.remove_roles(pk_down_role)
+            await tupper.add_roles(shupperbox_role)
+            await ctx.channel.send("Tupperbox disabled.")
+
+    @commands.command(pass_context=True, aliases=["enable tupper", "enableTupperbox", "enable tupperbox"], brief="Enables Tupperbox.")
+    async def enableTupper(self,ctx):
+        async with ctx.channel.typing():
+            tupper = ctx.guild.get_member(TUPPERBOX_ID)
+            pk_down_role = ctx.guild.get_role(PK_DOWN_ROLE_ID)
+            shupperbox_role = ctx.guild.get_role(SHUPPERBOX_ROLE_ID)
+            await tupper.add_roles(pk_down_role)
+            await tupper.remove_roles(shupperbox_role)
+            await ctx.channel.send("Tupperbox enabled.")
+    
     
 def setup(client):
     client.add_cog(AdminCommands(client))

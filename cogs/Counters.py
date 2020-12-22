@@ -14,6 +14,8 @@ from modules.checks import FuckyError
 from modules import checks
 from modules.functions import confirmationMenu, strfdelta
 
+import asyncio
+resetSem = asyncio.Semaphore(1)
 
 from discord import InvalidArgument
 
@@ -26,56 +28,56 @@ class Counters(commands.Cog):
     @commands.command(aliases=['reset','update'],brief="Reset/Update a counter.")
     @checks.is_in_skys()
     async def resetCounter(self,ctx: commands.Context, *, counter=None):
-
-        if counter==None:
-            raise InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
-        
-        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = connection.cursor()
-
-        currTime = datetime.utcnow()
-
-        cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
-
-        #FIND KEYWORDS
-        cursor.execute("SELECT * FROM counters")
-        data = cursor.fetchall()
-
-        keywords = [w[0] for w in data]
-
-        words = [w for w in keywords if (counter.find(w)!= -1)]
-
-        if len(words) >= 1:
-            word = max(words, key = len).lower()
+        async with resetSem:
+            if counter==None:
+                raise InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
             
-            cursor.execute("SELECT * FROM counters WHERE name=%s",(word,))
+            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = connection.cursor()
+
+            currTime = datetime.utcnow()
+
+            cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
+
+            #FIND KEYWORDS
+            cursor.execute("SELECT * FROM counters")
             data = cursor.fetchall()
 
-            mentions = data[0][2] + 1
-            timeStamp = data[0][1]
+            keywords = [w[0] for w in data]
 
-            timeDiff = currTime - timeStamp
+            words = [w for w in keywords if (counter.find(w)!= -1)]
 
-            if timeDiff < timedelta(minutes=1):
-                await ctx.send("This timer is on cooldown! Please wait " + strfdelta((timedelta(minutes=1) - timeDiff),fmt='{S:02}s') + " to reset again.")
-            else:
-                cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,word))
+            if len(words) >= 1:
+                word = max(words, key = len).lower()
+                
+                cursor.execute("SELECT * FROM counters WHERE name=%s",(word,))
+                data = cursor.fetchall()
 
-                output = "Counter " + word + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
-                if mentions == 1:
-                    output += "."
+                mentions = data[0][2] + 1
+                timeStamp = data[0][1]
+
+                timeDiff = currTime - timeStamp
+
+                if timeDiff < timedelta(minutes=1):
+                    await ctx.send("This timer is on cooldown! Please wait " + strfdelta((timedelta(minutes=1) - timeDiff),fmt='{S:02}s') + " to reset again.")
                 else:
-                    output += "s."
-                    
-                await ctx.send(output)
+                    cursor.execute("UPDATE counters SET timestamp=%s, mentions=%s WHERE name=%s",(currTime,mentions,word))
 
-        else:
-            raise InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
-        
+                    output = "Counter " + word + " updated - it has been " + strfdelta(timeDiff) + " since this counter was last reset. This counter has been reset " + str(mentions) + " time"
+                    if mentions == 1:
+                        output += "."
+                    else:
+                        output += "s."
+                        
+                    await ctx.send(output)
 
-        connection.commit()
-        cursor.close()
-        connection.close()
+            else:
+                raise InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
+            
+
+            connection.commit()
+            cursor.close()
+            connection.close()
 
         
     @commands.command(aliases=['addCounter'],brief="Create a new counter.")

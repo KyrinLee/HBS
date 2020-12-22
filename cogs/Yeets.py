@@ -8,6 +8,7 @@ import psycopg2
 from psycopg2 import Error
 
 from modules import checks
+from modules.functions import confirmationMenu
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -92,7 +93,7 @@ class Yeets(commands.Cog):
             cursor.execute(update_q, (message,columnName))
             await ctx.send(f'{messageName} changed to `{message}`.')
         else:
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to delete the current {messageName.lower()}?')
+            result = await confirmationMenu(self.client, ctx, f'Would you like to delete the current {messageName.lower()}?')
             if result == 1:
                 cursor.execute(update_q, (message,columnName))
                 await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')

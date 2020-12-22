@@ -13,18 +13,10 @@ from discord import NotFound
 import asyncio
 
 from modules import checks
-from modules.functions import getMessage
+from modules.functions import getMessage, confirmationMenu
+from resources.constants import *
 
 reactSem = asyncio.Semaphore(1)
-
-colors = [0xa10000,0xa15000,0xa1a100, 0x658200, 0x416600, 0x008141, 0x008282, 0x005682, 0x000056, 0x2b0057, 0x6a006a, 0x77003c,0xff0000]
-
-stars = ["\U00002B50","\U0001F31F","\U00002728"]
-moodreacts = ["\U0001F91D","<:bigmood:713218567977304146>"]
-
-starboards = ["starboard","lewdboard","moodboard"]
-
-DATABASE_URL = os.environ['DATABASE_URL']
 
 class Starboards(commands.Cog):
     def __init__(self, client):
@@ -75,7 +67,7 @@ class Starboards(commands.Cog):
                 smsgid = row[0][1]
                 smsg = await self.client.get_channel(starboardID).fetch_message(row[0][1])
                 if smsgid != None and smsg == None:
-                    await self.client.get_channel(754527915290525807).send("Vriska actually needs to fix something. Please ping ASAP. A starboard record references a message that no longer exists.")
+                    await self.client.get_channel(HBS_CHANNEL_ID).send("Vriska actually needs to fix something. Please ping ASAP. A starboard record references a message that no longer exists.")
 
                 
                 if count == 0: #DELETE STARRED MESSAGE IF STAR COUNT HITS ZERO. REMOVE FROM DATABASE.
@@ -106,7 +98,7 @@ class Starboards(commands.Cog):
                 id = 0
                 
                 async for message in self.client.get_channel(starboardID).history(limit=4000):
-                    if message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
+                    if len(message.embeds) > 0 and message.embeds[0].to_dict()['footer']['text'] == str(msg.id):
                         id = message.id
                         
         #IF MESSAGE FOUND IN CHANNEL, UPDATE AND ADD TO TABLE. 
@@ -160,7 +152,7 @@ class Starboards(commands.Cog):
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
             elif str(payload.emoji) in moodreacts:
-                if msg.channel.category_id != 609118603417092099 or msg.channel.id == 613085551117074490:
+                if msg.channel.category_id != VENT_CATEGORY_ID or msg.channel.id == POSITIVE_VENT_CHANNEL_ID:
                     starboardDBname = "moodboard"
             elif payload.emoji.name == stars[0]:
                 starboardDBname = "starboard"
@@ -179,7 +171,7 @@ class Starboards(commands.Cog):
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
             elif str(payload.emoji) in moodreacts:
-                if msg.channel.category_id != 609118603417092099 or msg.channel.id == 613085551117074490:
+                if msg.channel.category_id != VENT_CATEGORY_ID or msg.channel.id == POSITIVE_VENT_CHANNEL_ID:
                     starboardDBname = "moodboard"
             elif payload.emoji.name == stars[0]:
                 starboardDBname = "starboard"
@@ -208,7 +200,7 @@ class Starboards(commands.Cog):
             raise checks.InvalidArgument("Please include message ID or link.")
         else:
             channel = self.client.get_channel(channelID)
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
+            result = await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
             if result == 1:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = conn.cursor()
@@ -264,7 +256,7 @@ class Starboards(commands.Cog):
         elif starboard not in starboards:
             raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         else:
-            result = await checks.confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await checks.confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
+            result = await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
             if result == 1:
                 conn = psycopg2.connect(DATABASE_URL, sslmode='require')
                 cursor = conn.cursor()
@@ -317,7 +309,37 @@ class Starboards(commands.Cog):
         cursor.close()
         conn.close()
         '''
+    
+    @commands.command(pass_context=True,brief="Copy starboard from one channel to another.",help="Transfers 1000 messages by default.")
+    @commands.is_owner()
+    async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
+        async with ctx.channel.typing():
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+            async for message in self.client.get_channel(int(sourceChId)).history(limit=lim, oldest_first=True):
+                try:
+                    s = message.content.split(" ")[1]
+                    smsg = await self.client.get_channel(int(targetChId)).send(content=message.content,embed=message.embeds[0])
+                    q = f'INSERT INTO test VALUES ({message.id},{smsg.id},{s},%s)'
+                    cursor.execute(q, (datetime.fromtimestamp(time.time()),))
+                    
+                except:
+                    continue
 
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+    @commands.command(brief="Scrape all starboard text content to text file.")
+    @checks.is_vriska()
+    async def scrapeStarboard(self, ctx:commands.Context, starboardId=None):
+        async with ctx.channel.typing():
+            with open('starboard_text.txt', 'w') as f:
+                async for message in self.client.get_channel(int(starboardId)).history(limit=2000, oldest_first=True):
+                    try:
+                        f.write(message.embeds[0].description + "\n")             
+                    except:
+                        continue
                     
 def setup(client):
     client.add_cog(Starboards(client))

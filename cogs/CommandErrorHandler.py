@@ -3,7 +3,12 @@ import traceback
 import sys
 from discord.ext import commands
 
+import random
+
 from modules import checks
+from resources.constants import *
+
+from modules.pk import CouldNotConnectToPKAPI
 
 class CommandErrorHandler(commands.Cog):
 
@@ -42,7 +47,33 @@ class CommandErrorHandler(commands.Cog):
             return
 
         elif isinstance(error, commands.CommandNotFound):
-            await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
+            message = ctx.message
+            message_content = message.content.lower().lstrip("hbs").lstrip(";").lstrip()
+            if message.webhook_id == None:
+                    if message_content.startswith(("do","are", "is","did")):
+                        if all([any(i in message_content for i in ["hussie","cowardbot"]), any(k in message_content for k in ["love","like","hate","kismesis","kismeses","date","dating"])]):
+                            await message.channel.send("Yes! " + str(blobspade))
+                            return
+                        else:
+                            await message.channel.send(random.choice(["Yes!","No.","Maybe!"]))
+                            return
+                        
+                    elif message_content.startswith("when"):
+                        if any(s in message_content for s in ["wedding","marry","married"]):
+                            await message.channel.send("Not soon enough! " + str(blobspade))
+                            return
+                        else:
+                            start_date = date.today()
+                            end_date = date(2500, 12, 31)
+                        
+                            random_number_of_days = random.randrange(((end_date-start_date).days))
+                            random_date = start_date + timedelta(days=random_number_of_days)
+                            await message.channel.send(random_date.strftime("%B %m, %Y").replace(' 0',' '))
+                            return
+                    else:
+                        await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
+            else:
+                await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
 
         elif isinstance(error, commands.DisabledCommand):
             await ctx.send(f'You cannot use this command! {ctx.command.capitalize()} is currently disabled.')
@@ -71,6 +102,9 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, discord.HTTPException):
             if error.code == 50035:
                 await ctx.send("I tried to send a message longer than 2000 characters! I probably shouldn't be doing that.")
+
+        elif isinstance(error, CouldNotConnectToPKAPI):
+            await self.client.get_channel(HBS_CHANNEL_ID).send("PK has been API banned! @ramblingArachnid#8781 you should make HBS turn on tupper when this happens")
             
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.

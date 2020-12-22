@@ -2,6 +2,8 @@ import re
 import sys
 from modules import checks
 
+import asyncio
+
 def splitLongMsg(txt, limit=1990,char='\n'):
     txtArr = txt.split(char)
 
@@ -116,7 +118,8 @@ def numberFormat(num):
     if len(str(num)) > 5:
         num = str(num)[0:4]
     
-    return str(num).rstrip('0').rstrip('.') + numAbbrs[power]
+    #return str(num).rstrip('0').rstrip('.') + numAbbrs[power]
+    return re.sub('\.0+','',str(num)) + numAbbrs[power]
 
 
 import time

@@ -5,11 +5,14 @@ API Endpoint functions include:
     get_pk_message -> /msg/
 Part of the Gabby Gums Discord Logger. (Amadea System)
 """
-
+from discord.ext import commands
 import logging
 from typing import Optional, Dict
 
+import modules.pluralKit as pk
+
 import aiohttp
+
 
 log = logging.getLogger(__name__)
 
@@ -17,37 +20,45 @@ log = logging.getLogger(__name__)
 class CouldNotConnectToPKAPI(Exception):
     pass
 
-
 class PkApi503Error(Exception):
     pass
-
 
 class UnknownPKError(Exception):
     pass
 
+class MemberListHidden(Exception):
+    pass
 
-async def get_pk_system_from_userid(user_id: int) -> Optional[Dict]:
-    """Gets a PK system from the PluralKit API using a Discord UserID"""
+async def prompt_for_pk_token(ctx: commands.Context):
+    user: discord.Member = ctx.author
+
+    await user.send("Due to your Plural Kit privacy settings, I am unable to get a list of your system members.\n"
+                          "As such, I require your Plural Kit system token. "
+                          "Since you are obviously concerned about your systems privacy, "
+                          "let me reassure you that all of your private information will be kept encrypted and that none of your details will **EVER** be shared with anyone else or looked at by the developer of this bot.\n"
+                          "You may retrieve your system token by DMing <@!466378653216014359> with the command: `pk;token`\n"
+                          "Once you have done so, please send that token to me via DM. And remember, never post your system token in a public channel!")
+    # TODO: Implement PK Token stuff.
+
+async def get_system_by_discord_id(discord_user_id: int) -> pk.System:
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f'https://api.pluralkit.me/v1/a/{user_id}') as r:
-                if r.status == 200:  # We received a valid response from the PK API.
-                    logging.debug(f"User has an associated PK Account linked to their Discord Account.")
+            system = await pk.System.get_by_account(session, discord_user_id)
+            return system
+    except aiohttp.ClientError as e:
+        log.warning(
+            "Could not connect to PK server without errors. \n{}".format(e))
 
-                    # Convert the JSON response to a dict
-                    pk_response = await r.json()
-                    logging.debug(f"Got system: {pk_response}")
-
-                    return pk_response
-                elif r.status == 404:
-                    # No PK Account found.
-                    log.debug("No PK Account found.")
-                    return None
-                else:
-                    raise UnknownPKError(f"Received Status Code: {r.status} ({r.reason}) for /a/{user_id}")
+async def get_system_members_by_discord_id(discord_user_id: int) -> Optional[Dict]:
+    try:
+        async with aiohttp.ClientSession() as session:
+            system = await pk.System.get_by_account(session, discord_user_id)
+            system_members = await system.members(session)
+            return system_members
 
     except aiohttp.ClientError as e:
-        raise CouldNotConnectToPKAPI  # Really not strictly necessary, but it makes the code a bit nicer I think.
+        log.warning(
+            "Could not connect to PK server without errors. \n{}".format(e))
 
 
 async def get_pk_message(message_id: int) -> Optional[Dict]:

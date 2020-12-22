@@ -17,8 +17,53 @@ import discord.utils
 
 
 from modules import checks, functions
+from resources.constants import *
 
 newline = "\n"
+
+class HelpMenu():
+    def __init__(self, bot, pages = []):
+        self.bot = bot
+        self.pages = pages
+        self.current_page = 0
+        self.max_page = len(pages) - 1
+        self.message_id = None
+        self.message = None
+
+    @classmethod
+    async def create(cls, ctx, bot, pages):
+        menu = HelpMenu(bot,pages)
+        await menu.create_help_message(ctx)
+        return menu
+
+    async def create_help_message(self,ctx):
+        embed = Embed.from_dict(self.pages[self.current_page])
+        embed.set_author(name=f'HBS Help (Page {self.current_page+1} of {self.max_page+1})')
+        msg = await ctx.send(content=" ", embed=embed)
+        await msg.add_reaction(left_arrow)
+        await msg.add_reaction(right_arrow)
+        self.message_id = msg.id
+        self.message = msg
+
+    async def next_page(self):
+        if self.current_page < self.max_page:
+            self.current_page += 1;
+        else:
+            self.current_page = 0;
+        await self.update_embed()
+        
+    async def previous_page(self):
+        if self.current_page > 0:
+            self.current_page -= 1;
+        else:
+            self.current_page = self.max_page;
+        await self.update_embed()
+
+    async def update_embed(self):
+        embed = Embed.from_dict(self.pages[self.current_page])
+        embed.set_author(name=f'HBS Help (Page {self.current_page+1} of {self.max_page+1})')
+        await self.message.edit(embed=embed)
+    
 
 class HBSHelpCommand(commands.DefaultHelpCommand):
     def __init__(self, **options):
@@ -29,15 +74,16 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
 
         super().__init__(**options)
 
-
     async def send_bot_help(self, mapping):
+        pages = []
+        
         ctx = self.context
         bot = ctx.bot
 
         no_category = "\u200bMiscellaneous:"
         def get_category(command, *, no_category=no_category):
             cog = command.cog
-            return "" + cog.qualified_name + ':' if cog is not None else no_category
+            return cog.qualified_name if cog is not None else no_category
 
         filtered = await self.filter_commands(bot.commands, sort=True, key=get_category)
         max_size = self.get_max_size(filtered)
@@ -46,29 +92,47 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         # Now we can add the commands to the page.
         for category, commands in to_iterate:
             commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
-            self.add_indented_commands(commands, heading=category, max_size=max_size)
+            pages.append(self.format_page(commands, heading=category, max_size=max_size))
 
-        note = self.get_ending_note()
-        if note:
-            self.paginator.add_line()
-            self.paginator.add_line(note)
+        #sys.stdout.write(str(pages))
 
-        await self.send_pages()
+        menu = await HelpMenu.create(ctx, bot, pages)
 
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) in [left_arrow,right_arrow]
 
-    def add_indented_commands(self, commands, *, heading, max_size=None):
+        timeout = False
+        while timeout == False:
+            try:
+                reaction, user = await bot.wait_for('reaction_add', timeout=300.0, check=check)
+            except asyncio.TimeoutError:
+                await self.client.get_message(menu.message_id).clear_reactions()
+                timeout = True
+            else:
+                if str(reaction.emoji) == left_arrow:
+                    await menu.previous_page()
+                elif str(reaction.emoji) == right_arrow:
+                    await menu.next_page()
+        
+        
+    def format_page(self, commands, *, heading, max_size=None):
         
         if not commands:
             return
 
-        self.paginator.add_line(heading)
-        max_size = max_size or self.get_max_size(commands)
+        page = {}
+        page['title'] = heading
+        page['description'] = ""
+        page['color']= 0x005682
+        page['type'] = "rich"
+        page['fields'] = []
 
         get_width = discord.utils._string_width
         for command in commands:
-            name = command.name
-            entry = '{0}{1: <24} {2}'.format(self.indent * ' ', name, command.short_doc)
-            self.paginator.add_line(self.shorten_text(entry))
+            command_help = "\u200b" if command.short_doc in [None,""] else command.short_doc
+            page['fields'].append({'name':command.name,'value':command_help})
+
+        return page
 
 
     async def send_cog_help(self, cog):
@@ -177,6 +241,42 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         
 
     
+    '''async def send_bot_help(self, mapping):
+        ctx = self.context
+        bot = ctx.bot
 
+
+        no_category = "\u200bMiscellaneous:"
+        def get_category(command, *, no_category=no_category):
+            cog = command.cog
+            return "" + cog.qualified_name + ':' if cog is not None else no_category
+
+        filtered = await self.filter_commands(bot.commands, sort=True, key=get_category)
+        max_size = self.get_max_size(filtered)
+        to_iterate = itertools.groupby(filtered, key=get_category)
+
+        # Now we can add the commands to the page.
+        for category, commands in to_iterate:
+            commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
+            self.add_indented_commands(commands, heading=category, max_size=max_size)
+
+        note = self.get_ending_note()
+        if note:
+            self.paginator.add_line()
+            self.paginator.add_line(note)
+
+        await self.send_pages()
+    
+        self.paginator.add_line(heading)
+        max_size = max_size or self.get_max_size(commands)
+
+        get_width = discord.utils._string_width
+        for command in commands:
+            name = command.name
+            #entry = '{0}{1: <18} {2}'.format(self.indent * ' ', name, command.short_doc)
+            entry = '{0}{1}: {2}'.format(self.indent * ' ', name, command.short_doc)
+            #self.paginator.add_line(self.shorten_text(entry))
+
+        return entry'''
 
     
