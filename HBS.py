@@ -121,11 +121,12 @@ async def on_message(message: discord.Message):
     try:
         #IF NOT IN VENT, AUTHOR NOT HBS, AND NOT COMMAND
         if message.channel.category_id != VENT_CATEGORY_ID and message.author.id != client.user.id and not any(message.content.startswith(s) for s in client.command_prefix):
+            message_content = message.clean_content.strip().lower()
+
             expire_time = blacklisted_channels.get(message.channel.id)
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
-                
-                message_content = message.clean_content.strip().lower()
+
                 if message.webhook_id == None and message_content.find('vriska') != -1:
                     if (message_content == "vriska serket"):
                         await asyncio.sleep(1)
@@ -160,9 +161,9 @@ async def on_message(message: discord.Message):
                 if message.webhook_id == None:
                     not_banned = True
                     for phrase in bannedPhrases:
-                        if message.content.find(phrase) != -1:
+                        if message_content.find(phrase) != -1:
                             not_banned = False
-                    if (not_banned):
+                    if (not_banned) and message_content[0:4] != "pk;m":
                         if (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
