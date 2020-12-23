@@ -111,6 +111,7 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send("I did a fucky.")
             print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            print(str(ctx))
 
 
 def setup(client):

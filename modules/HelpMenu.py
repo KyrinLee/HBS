@@ -42,7 +42,6 @@ class HelpMenu():
         msg = await ctx.send(content=" ", embed=embed)
         await msg.add_reaction(left_arrow)
         await msg.add_reaction(right_arrow)
-        self.message_id = msg.id
         self.message = msg
 
     async def next_page(self):
@@ -76,11 +75,12 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
 
     async def send_bot_help(self, mapping):
         pages = []
-        
+        categories = []
+
         ctx = self.context
         bot = ctx.bot
 
-        no_category = "\u200bMiscellaneous:"
+        no_category = "\u200bMiscellaneous"
         def get_category(command, *, no_category=no_category):
             cog = command.cog
             return cog.qualified_name if cog is not None else no_category
@@ -92,7 +92,10 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
         # Now we can add the commands to the page.
         for category, commands in to_iterate:
             commands = sorted(commands, key=lambda c: c.name) if self.sort_commands else list(commands)
+            categories.append(category)
             pages.append(self.format_page(commands, heading=category, max_size=max_size))
+
+        pages.insert(0, self.format_menu_page(categories))
 
         #sys.stdout.write(str(pages))
 
@@ -106,14 +109,34 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
             try:
                 reaction, user = await bot.wait_for('reaction_add', timeout=300.0, check=check)
             except asyncio.TimeoutError:
-                await self.client.get_message(menu.message_id).clear_reactions()
+                await menu.message.clear_reactions()
                 timeout = True
             else:
                 if str(reaction.emoji) == left_arrow:
                     await menu.previous_page()
                 elif str(reaction.emoji) == right_arrow:
                     await menu.next_page()
+
+    def format_menu_page(self, categories, *, max_size=None):
         
+        if not categories:
+            return
+        output = ""
+
+        page = {}
+        #page['title'] = "Categories"
+        page['description'] = ""
+        page['color']= 0x005682
+        page['type'] = "rich"
+        page['fields'] = []
+
+        for category in categories:
+            output += category + "\n"
+
+        page['fields'].append({'name':'Categories','value':output})
+
+        return page
+      
         
     def format_page(self, commands, *, heading, max_size=None):
         
