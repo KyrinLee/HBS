@@ -8,3 +8,4 @@ sigfig
 pygithub
 python-dateutil
 pytz
+syllables
