@@ -52,17 +52,21 @@ class CommandErrorHandler(commands.Cog):
             if message.webhook_id == None:
                     if message_content.startswith(("do","are", "is","did")):
                         if all([any(i in message_content for i in ["hussie","cowardbot"]), any(k in message_content for k in ["love","like","hate","kismesis","kismeses","date","dating"])]):
+                            await asyncio.sleep(1)
                             await message.channel.send("Yes! " + str(blobspade))
                             return
                         else:
+                            await asyncio.sleep(1)
                             await message.channel.send(random.choice(["Yes!","No.","Maybe!"]))
                             return
                         
                     elif message_content.startswith("when"):
                         if any(s in message_content for s in ["wedding","marry","married"]):
+                            await asyncio.sleep(1)
                             await message.channel.send("Not soon enough! " + str(blobspade))
                             return
                         else:
+                            await asyncio.sleep(1)
                             start_date = date.today()
                             end_date = date(2500, 12, 31)
                         

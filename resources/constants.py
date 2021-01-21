@@ -1,4 +1,6 @@
 import os
+from nltk.corpus import cmudict
+dictionary = cmudict.dict()
 
 SKYS_SERVER_ID = 609112858214793217
 
@@ -33,6 +35,8 @@ looking = "<:looking:772588405904375819>"
 newspaper2 = "\U0001F5DE\U0000FE0F"
 left_arrow = "\u2b05"
 right_arrow = "\u27a1"
+x = "\u274c"
+check = "\u2705"
 
 colors = [0xa10000,0xa15000,0xa1a100, 0x658200, 0x416600, 0x008141, 0x008282, 0x005682, 0x000056, 0x2b0057, 0x6a006a, 0x77003c,0xff0000]
 colors = [0x005682,0x005682,0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682,0x005682]

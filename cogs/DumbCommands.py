@@ -8,6 +8,9 @@ import random as rd
 from math import trunc, floor
 
 from modules import checks
+from modules.functions import nsyl
+
+from resources.constants import *
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -17,7 +20,7 @@ class DumbCommands(commands.Cog):
 
 
     @commands.command(pass_context=True,brief="Get your bounty.")
-    async def bounty(self, ctx: commands.Context, user:commands.clean_content=""):
+    async def bounty(self, ctx: commands.Context, *, user:commands.clean_content=""):
         if user=="":
             user = ctx.author.display_name
         elif user[0] == '@':
@@ -53,7 +56,26 @@ class DumbCommands(commands.Cog):
         
         
         await ctx.send(f'{user}\'s bounty: {val}')
-                 
+
+    @commands.command(pass_context=True,brief="Get a random classpect.")
+    async def classpect(self, ctx, *, user:commands.clean_content=""):
+        async with ctx.channel.typing():
+            if user=="":
+                user = ctx.author.display_name
+            elif user[0] == '@':
+                user = user[1:]
+                
+            def get_word_with_syllable_count(count):
+                word = ""
+                while (nsyl(word) != [count]):
+                    word = rd.choice(list(dictionary.keys()))
+                return word
+
+            word1 = get_word_with_syllable_count(1)
+            word2 = get_word_with_syllable_count(1)
             
+        await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
+            
+         
 def setup(client):
     client.add_cog(DumbCommands(client))

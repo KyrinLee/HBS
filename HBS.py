@@ -21,11 +21,12 @@ import requests
 import io
 from contextlib import redirect_stderr
 
-import random 
+import random
+import syllables
 
 from modules import checks, pk, pluralKit
 from modules.HelpMenu import HBSHelpCommand
-from modules.functions import splitLongMsg, formatTriggerDoc, strfdelta
+from modules.functions import splitLongMsg, formatTriggerDoc, strfdelta, nsyl
 from resources.constants import *
 
 intents = discord.Intents.default()
@@ -59,7 +60,7 @@ async def on_ready():
 
     sys.stdout.write('Servers connected to: \n')
     for g in client.guilds:
-        sys.stdout.write(g.name + ", Owner ID: " + str(g.owner_id) + "\n");
+        sys.stdout.write(str(g.name) + ", Owner ID: " + str(g.owner_id) + "\n");
 
     sys.stdout.flush()
 
@@ -142,6 +143,15 @@ async def on_message(message: discord.Message):
                     if (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
                         await asyncio.sleep(1)
                         await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
+
+                    match = re.match("(\w+) of (\w+)$", message_content)
+                    if match:
+                        if (nsyl(match.group(1)) == [1]) and (nsyl(match.group(2)) == [1]):
+                            await asyncio.sleep(1)
+                            await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
+                        elif (nsyl(match.group(1) == -1)) or (nsyl(match.group(2) == -1)):
+                            if (syllables.estimate(match.group(1)) == 1 and syllables.estimate(match.group(2))):
+                                await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
                         
                 if any(i in message_content for i in ["hussie","cowardbot"]):
                     if message_content.count("hussie") > message_content.count("suppressor") or message_content.count("hussie") > message_content.count("oppressor"):
@@ -184,37 +194,18 @@ async def on_raw_reaction_add(payload):
         return
 
     #HANDLE DELETION
-    if payload.emoji.name == "❌":
+    if payload.emoji.name == x:
         #GET CHANNEL AND MESSAGE
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
-        
+
         #REMOVE UNWANTED MESSAGES FROM BOTS
-        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, YAGBOT_ID, TUPPERBOX_ID, client.user.id]):
+        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, YAGBOT_ID, TUPPERBOX_ID]):
+            await msg.delete()
+
+        if (msg.author.id == client.user.id) and (payload.user_id != client.user.id):
             await msg.delete()
         
-        #REMOVE PK MESSAGES
-        if payload.user_id != PLURALKIT_ID:
-            try:
-                system = await pk.get_system_by_discord_id(payload.user_id)
-                if system != None:
-                
-                    system_id = system.hid
-
-                    reacts = msg.reactions
-                    users = [await react.users().flatten() for react in reacts if react.emoji == "✅"]
-                    pk_check_reacts = [user for user in users if user.id == PLURALKIT_ID]
-
-                    if not len(pk_check_reacts) > 0:
-                        for embed in msg.embeds:
-                            emb = json.dumps(embed.to_dict())
-                            if (emb.find(system_id) != -1): #IF SYSTEM ID FOUND IN EMBED
-                                await msg.edit(suppress=True)
-                                await msg.clear_reactions()
-                                msgDel = client.get_emoji(767960168444723210)
-                                await msg.add_reaction(msgDel)
-            except pluralKit.NotFound:
-                pass
 
     if payload.emoji.name == "hussiebap" or payload.emoji.name == newspaper2:
         #GET CHANNEL AND MESSAGE
@@ -244,7 +235,7 @@ async def on_member_update(before, after):
             if str(before.status) == "online" and str(after.status) == "offline":
                 await client.get_channel(HBS_CHANNEL_ID).send("Dumb bitch Hussie just went offline. :pensive:")
 
-@client.command(pass_context=True,brief="Spoil an image.")
+@client.command(pass_context=True,brief="Spoil an image.", aliases=['spoiler'])
 async def spoil(ctx, *, text=""):
     
     files = []

@@ -2,7 +2,16 @@ import re
 import sys
 from modules import checks
 
+from resources.constants import *
+
 import asyncio
+
+def nsyl(word):
+  try:
+      return [len(list(y for y in x if y[-1].isdigit())) for x in dictionary[word.lower()]] 
+  except:
+      return [-1]
+    
 
 def splitLongMsg(txt, limit=1990,char='\n'):
     txtArr = txt.split(char)
