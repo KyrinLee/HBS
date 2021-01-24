@@ -134,6 +134,25 @@ class EmojiTracking(commands.Cog):
                 output+="\n(static emojis excluded.)"
                 
             await ctx.send(output)
+            
+            connection.commit()
+            cursor.close()
+            connection.close()
+
+    @commands.command(pass_context=True, brief="Get usage data for specified emoji.")
+    @checks.is_in_skys()
+    async def getEmojiUsageCount(self, ctx, emoji:discord.Emoji=None):
+        connection = psycopg2.connect(DATABASE_URL, sslmode='require')
+        cursor = connection.cursor()
+
+        cursor.execute(f'SELECT * FROM emoji WHERE name = \'{emoji.name}\'')
+        data = cursor.fetchall()
+
+        await ctx.send(str(data[0][3]))
+
+        connection.commit()
+        cursor.close()
+        connection.close()
 
 # ----- GET FULL EMOJI USAGE ----- #
 
@@ -145,12 +164,12 @@ class EmojiTracking(commands.Cog):
             
             connection = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = connection.cursor()
-            
+
             if animated == None:
                 where_statement = ""
-            elif animated[0] == "s":
+            elif animated[0] == "s" or animated[0:2] == "-s":
                 where_statement = "WHERE animated = FALSE"
-            elif animated[0] == "a":
+            elif animated[0] == "a" or animated[0:2] == "-a":
                 where_statement = "WHERE animated = TRUE"
             else:
                 where_statement = ""
@@ -166,8 +185,6 @@ class EmojiTracking(commands.Cog):
             count = 0
             maxDigits = 5
 
-            letters = ["","k","m","b"]
-            
             for i in data:
                 num = functions.numberFormat(i[3])
 
@@ -207,8 +224,8 @@ class EmojiTracking(commands.Cog):
 
         i = 0
         for emoji in emojis:
-                        newEmojis.append(str(emoji.id))
-                        i+=1
+            newEmojis.append(str(emoji.id))
+            i+=1
 
         postgreSQL_select_Query = "SELECT * FROM emoji"
 
@@ -235,7 +252,15 @@ class EmojiTracking(commands.Cog):
         connection.commit()
         cursor.close()
         connection.close()
-            
+
+    @commands.command(pass_context=True,brief="test number")
+    @commands.is_owner()
+    async def testNumber(self,ctx,num):
+        numOutput = functions.numberFormat(int(num))
+
+        await ctx.send(str(numOutput))
+
+    
     @commands.command(pass_context=True,brief="Update emoji list.")
     @commands.is_owner()
     @checks.is_in_skys()

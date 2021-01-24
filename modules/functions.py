@@ -108,27 +108,39 @@ async def getMessage(client, ctx,id=None, channelId=None):
 
 def numberFormat(num):
     numAbbrs = ["k","m","b","t"]
+    count = 0
     
-    if num < 1000:
+    if num < 100000:
         return num
+      
     power = 0
-    while num > 1:
+    while num >= 1:
         num = num / 10
         power = power + 1
     num = round(num, 3)
+    sys.stdout.write(str(num) + "\n")
     
     while True:
         num = num * 10
         power = power - 1
         if power % 3 == 0:
             break
+          
+    sys.stdout.write(str(num) + "\n")
 
     power = power // 3 - 1
     if len(str(num)) > 5:
         num = str(num)[0:4]
+
+    num_string = str(num)
     
-    #return str(num).rstrip('0').rstrip('.') + numAbbrs[power]
-    return re.sub('\.0+','',str(num)) + numAbbrs[power]
+    if '.' not in num_string:
+      num_string = num_string + "."
+
+    output = num_string + "0000"
+    return output[0:4].rstrip('.') + numAbbrs[power]
+    
+    #return re.sub('\.0+$','',str(num)) + numAbbrs[power]
 
 
 import time

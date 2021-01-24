@@ -146,12 +146,11 @@ async def on_message(message: discord.Message):
 
                     match = re.match("(\w+) of (\w+)$", message_content)
                     if match:
-                        if (nsyl(match.group(1)) == [1]) and (nsyl(match.group(2)) == [1]):
+                        first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
+                        second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
+                        if (first_word_is_one_syllable and second_word_is_one_syllable):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
-                        elif (nsyl(match.group(1) == -1)) or (nsyl(match.group(2) == -1)):
-                            if (syllables.estimate(match.group(1)) == 1 and syllables.estimate(match.group(2))):
-                                await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
                         
                 if any(i in message_content for i in ["hussie","cowardbot"]):
                     if message_content.count("hussie") > message_content.count("suppressor") or message_content.count("hussie") > message_content.count("oppressor"):

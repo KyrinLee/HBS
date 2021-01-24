@@ -34,6 +34,8 @@ class Starboards(commands.Cog):
                 emojis = [stars[1]]
             elif starboardDBname == "moodboard":
                 emojis = moodreacts
+            elif starboardDBname == "cursedboard":
+                emojis = cursedreacts
     
             for r in reacts:
                 for e in emojis:
@@ -151,6 +153,8 @@ class Starboards(commands.Cog):
             
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
+            elif str(payload.emoji) in cursedreacts:
+                starboardDBname = "cursedboard"
             elif str(payload.emoji) in moodreacts:
                 if msg.channel.category_id != VENT_CATEGORY_ID or msg.channel.id == POSITIVE_VENT_CHANNEL_ID:
                     starboardDBname = "moodboard"
@@ -170,6 +174,8 @@ class Starboards(commands.Cog):
             
             if msg.channel.is_nsfw() or payload.emoji.name == stars[1]:
                 starboardDBname = "lewdboard"
+            elif str(payload.emoji) in cursedreacts:
+                starboardDBname = "cursedboard"
             elif str(payload.emoji) in moodreacts:
                 if msg.channel.category_id != VENT_CATEGORY_ID or msg.channel.id == POSITIVE_VENT_CHANNEL_ID:
                     starboardDBname = "moodboard"
@@ -185,10 +191,10 @@ class Starboards(commands.Cog):
     async def star(self,ctx, messageIDorLink=None, starboard="starboard"):
         msg = await getMessage(self.client, ctx, messageIDorLink)
 
-        if board not in starboards:
+        if starboard not in starboards:
             raise checks.InvalidArgument("That starboard does not exist.")
 
-        await self.addToStarboard(msg,forceStar=True,board=starboard)
+        await self.addToStarboard(msg,forceStar=True,starboardDBname=starboard)
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardChannel'], brief="Change a starboard channel.",help="Starboard defaults to 'starboard'.")
     @checks.is_in_skys()

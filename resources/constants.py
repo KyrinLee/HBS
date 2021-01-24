@@ -28,7 +28,10 @@ VENT_CATEGORY_ID = 609118603417092099
 
 stars = ["\U00002B50","\U0001F31F","\U00002728"]
 moodreacts = ["\U0001F91D","<:bigmood:713218567977304146>"]
-starboards = ["starboard","lewdboard","moodboard"]
+cursedreacts = ["\U0001F6BD"]
+
+starboards = ["starboard","lewdboard","moodboard","cursedboard"]
+
 blobspade = "<:blobspade:760161813312307220>"
 spaghetti = "\U0001F35D"
 looking = "<:looking:772588405904375819>"
