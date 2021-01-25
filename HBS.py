@@ -199,8 +199,21 @@ async def on_raw_reaction_add(payload):
         msg = await channel.fetch_message(payload.message_id)
 
         #REMOVE UNWANTED MESSAGES FROM BOTS
-        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, YAGBOT_ID, TUPPERBOX_ID]):
+        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, TUPPERBOX_ID]):
             await msg.delete()
+        if (msg.author.id in [YAGBOT_ID]:
+            is_menu_react = False
+            reacts = msg.reactions
+            count = 0
+            for r in reacts:
+                if r.emoji.name == x:
+                    users = await r.users().flatten()
+                    for u in users:
+                        if u.id == YAGBOT_ID:
+                            is_menu_react == True
+            
+            if is_menu_react == False:
+                await msg.delete()
 
         if (msg.author.id == client.user.id) and (payload.user_id != client.user.id):
             await msg.delete()
