@@ -76,6 +76,7 @@ class CommandErrorHandler(commands.Cog):
                             random_date = start_date + timedelta(days=random_number_of_days)
                             await message.channel.send(random_date.strftime("%B %m, %Y").replace(' 0',' '))
                             return
+                        
                     elif message_content.startswith("why"):
                         await asyncio.sleep(1)
                         choices = ["Because.", "Because I can.", "Why do you think?", "Why?", "I'll think about it.", "Why not?"]
@@ -84,6 +85,7 @@ class CommandErrorHandler(commands.Cog):
                                 message_content = message_content + "?"
                         choices.append(message_content.replace('you', '*you*').replace('does','*does*')
                         await message.channel.send(random.choice(choices))
+                                       
                     elif message_content.startswith("who"):
                         await asyncio.sleep(1)
                         choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto","Hatsune Miku"]
@@ -92,9 +94,11 @@ class CommandErrorHandler(commands.Cog):
                             await message.channel.send(random.choice(choices))
                         else:
                             await message.channel.send(random.choice(homestuck_characters))
+                            
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
+                        
                     elif not message.content.startswith("hbs "):
                         await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
             else:
