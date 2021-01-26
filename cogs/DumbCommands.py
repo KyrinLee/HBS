@@ -96,6 +96,7 @@ class DumbCommands(commands.Cog):
     async def ship(self, ctx):
         name1 = rd.choice(homestuck_characters)
         name2 = rd.choice(homestuck_characters)
+        sys.stdout.write(name1 + " " + name2)
         quadrant = rd.choice(["\U00002660","\U00002665","\U00002666","\U00002663"])
         await ctx.send(f'{name1.split(" ")[0]}{quadrant}{name2.split(" ")[0]}')
             
