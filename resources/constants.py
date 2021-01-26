@@ -43,6 +43,12 @@ check = "\u2705"
 
 colors = [0xa10000,0xa15000,0xa1a100, 0x658200, 0x416600, 0x008141, 0x008282, 0x005682, 0x000056, 0x2b0057, 0x6a006a, 0x77003c,0xff0000]
 colors = [0x005682,0x005682,0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682,0x005682]
+homestuck_characters = ["John Egbert","Rose Lalonde","Jade Harley","Dave Strider","Jane Crocker","Roxy Lalonde","Dirk Strider","Jake English",
+                        "Karkat Vantas","Aradia Megido","Tavros Nitram","Sollux Captor","Nepeta Leijon","Kanaya Maryam",
+                        "Terezi Pyrope","Vriska Serket","Equius Zahhak","Gamzee Makara","Eridan Ampora","Feferi Peixes",
+                        "Kankri Vantas","Damara Megido","Rufioh Nitram","Mituna Captor","Meulin Leijon","Porrim Maryam",
+                        "Latula Pyrope","Aranea Serket","Horuss Zahhak"," Kurloz Makara","Cronus Ampora","Meenah Peixes"]
+
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']

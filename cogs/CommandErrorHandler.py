@@ -84,6 +84,14 @@ class CommandErrorHandler(commands.Cog):
                                 message_content = message_content + "?"
                             choices.append(message_content.replace('you', '*you*').replace('does','*does*')
                         await message.channel.send(random.choice(choices))
+                    elif message_content.startswith("who"):
+                        await asyncio.sleep(1)
+                        choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto"]
+                        num = rd.random()
+                        if num < .6:
+                            await message.channel.send(random.choice(choices))
+                        else:
+                            await message.channel.send(random.choice(homestuck_characters))
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
