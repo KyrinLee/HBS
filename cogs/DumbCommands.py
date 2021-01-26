@@ -92,6 +92,12 @@ class DumbCommands(commands.Cog):
                 word2 = get_word_with_syllable_count(1)
             
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
+    @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
+    async def ship(self, ctx):
+        name1 = rd.choice(homestuck_characters)
+        name2 = rd.choice(homestuck_characters)
+        quadrant = rd.choice("U\00002660","U\00002665","U\00002666","U\00002663")
+        await ctx.send(f'{name1.split(" ")[0]} {quadrant} {name2.split(" ")[0]}')
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
     async def bubblewrap(self, ctx, size="5x5"):
