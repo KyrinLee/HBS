@@ -82,7 +82,7 @@ class CommandErrorHandler(commands.Cog):
                         if "you" in message_content:
                             if not message_content.endswith("?"):
                                 message_content = message_content + "?"
-                            choices.append(message_content.replace('you', '*you*'))
+                            choices.append(message_content.replace('you', '*you*').replace('does','*does*')
                         await message.channel.send(random.choice(choices))
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
