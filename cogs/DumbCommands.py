@@ -96,7 +96,7 @@ class DumbCommands(commands.Cog):
     async def ship(self, ctx):
         name1 = rd.choice(homestuck_characters)
         name2 = rd.choice(homestuck_characters)
-        quadrant = rd.choice("U\00002660","U\00002665","U\00002666","U\00002663")
+        quadrant = rd.choice(["U\00002660","U\00002665","U\00002666","U\00002663"])
         await ctx.send(f'{name1.split(" ")[0]} {quadrant} {name2.split(" ")[0]}')
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
