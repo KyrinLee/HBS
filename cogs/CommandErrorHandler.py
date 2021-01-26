@@ -89,7 +89,7 @@ class CommandErrorHandler(commands.Cog):
                     elif message_content.startswith("who"):
                         await asyncio.sleep(1)
                         choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto","Hatsune Miku"]
-                        num = rd.random()
+                        num = random.random()
                         if num < .6:
                             await message.channel.send(random.choice(choices))
                         else:
