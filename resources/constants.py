@@ -47,7 +47,7 @@ homestuck_characters = ["John Egbert","Rose Lalonde","Jade Harley","Dave Strider
                         "Karkat Vantas","Aradia Megido","Tavros Nitram","Sollux Captor","Nepeta Leijon","Kanaya Maryam",
                         "Terezi Pyrope","Vriska Serket","Equius Zahhak","Gamzee Makara","Eridan Ampora","Feferi Peixes",
                         "Kankri Vantas","Damara Megido","Rufioh Nitram","Mituna Captor","Meulin Leijon","Porrim Maryam",
-                        "Latula Pyrope","Aranea Serket","Horuss Zahhak"," Kurloz Makara","Cronus Ampora","Meenah Peixes"]
+                        "Latula Pyrope","Aranea Serket","Horuss Zahhak","Kurloz Makara","Cronus Ampora","Meenah Peixes"]
 
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
