@@ -76,7 +76,10 @@ class CommandErrorHandler(commands.Cog):
                             return
                     elif message_content.startswith("why"):
                         await asyncio.sleep(1)
-                        await message.channel.send(random.choice(["Because.", "Because I can.", "Why do you think?", "Why?", "I'll think about it.", "Why not?"])
+                        choices = ["Because.", "Because I can.", "Why do you think?", "Why?", "I'll think about it.", "Why not?"]
+                        if "you" in message_content:
+                            choices.append(message_content.replace('you', '*you*'))
+                        await message.channel.send(random.choice(choices))
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
