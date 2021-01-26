@@ -50,7 +50,7 @@ class CommandErrorHandler(commands.Cog):
 
         elif isinstance(error, commands.CommandNotFound):
             message = ctx.message
-            message_content = message.content.lower().lstrip("hbs").lstrip(";").lstrip()
+            message_content = message.content.lower().lstrip("hbs").lstrip(";").lstrip().rstrip()
             if message.webhook_id == None:
                     if message_content.startswith(("do","are", "is","did")):
                         if all([any(i in message_content for i in ["hussie","cowardbot"]), any(k in message_content for k in ["love","like","hate","kismesis","kismeses","date","dating"])]):
@@ -80,6 +80,8 @@ class CommandErrorHandler(commands.Cog):
                         await asyncio.sleep(1)
                         choices = ["Because.", "Because I can.", "Why do you think?", "Why?", "I'll think about it.", "Why not?"]
                         if "you" in message_content:
+                            if not message_content.endswith("?"):
+                                message_content = message_content + "?"
                             choices.append(message_content.replace('you', '*you*'))
                         await message.channel.send(random.choice(choices))
                     elif message_content.startswith("please"):
