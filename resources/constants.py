@@ -48,7 +48,9 @@ homestuck_characters = ["John Egbert","Rose Lalonde","Jade Harley","Dave Strider
                         "Terezi Pyrope","Vriska Serket","Equius Zahhak","Gamzee Makara","Eridan Ampora","Feferi Peixes",
                         "Kankri Vantas","Damara Megido","Rufioh Nitram","Mituna Captor","Meulin Leijon","Porrim Maryam",
                         "Latula Pyrope","Aranea Serket","Horuss Zahhak","Kurloz Makara","Cronus Ampora","Meenah Peixes"]
-
+hearts = ["<:Heart_Mutant:800514364545171457>","<:Heart_Burgundy:800513857776254986>","<:Heart_Bronze:800513899204050965>","<:Heart_Gold:800513954237120532>",
+          "<:Heart_Lime:800514004350271499>","<:Heart_Jade:800514096716840991>","<:Heart_Teal:800514166187753493>","<:Heart_Cerulean:800514183250575381>",
+          "<:Heart_Indigo:800517410447949855>","<:Heart_Purple:800514229740109864>","<:Heart_Violet:800514277843664937","<:Heart_Fuchsia:800514328448466986>"]
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
