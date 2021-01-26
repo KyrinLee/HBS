@@ -93,12 +93,22 @@ class DumbCommands(commands.Cog):
             
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
     @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
-    async def ship(self, ctx):
-        name1 = rd.choice(homestuck_characters)
-        name2 = rd.choice(homestuck_characters)
-        sys.stdout.write(name1 + " " + name2)
-        quadrant = rd.choice(["\U00002660","\U00002665","\U00002666","\U00002663"])
-        await ctx.send(f'{name1.split(" ")[0]}{quadrant}{name2.split(" ")[0]}')
+    async def ship(self, ctx, user=""):
+        if user=="":
+            user = rd.choice(homestuck_characters).split(" ")[0]
+        elif user in ["me","Me","ME"]:
+            user = ctx.author.display_name
+        elif user[0] == '@':
+            user = user[1:]
+
+        if user == "<@!480855402289037312>":
+            await ctx.send("He and I are in a vacillating \U00002665/\U00002660 relationship! Obviously.")
+        elif user == "<@!753345733377261650>":
+            await ctx.send("My quadrants are reserved solely for <@!480855402289037312>.")
+        else:
+            name = rd.choice(homestuck_characters)
+            quadrant = rd.choice(["\U00002660","\U00002665","\U00002666","\U00002663"])
+            await ctx.send(f'{user}{quadrant}{name.split(" ")[0]}')
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
     async def bubblewrap(self, ctx, size="5x5"):
