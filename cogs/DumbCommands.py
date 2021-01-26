@@ -26,6 +26,7 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Get your bounty.")
     async def bounty(self, ctx: commands.Context, *, user:commands.clean_content=""):
+        await asyncio.sleep(1)
         if user=="":
             user = ctx.author.display_name
         elif user[0] == '@':
@@ -64,6 +65,7 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Get a random classpect.")
     async def classpect(self, ctx, *, user:commands.clean_content=""):
+        await asyncio.sleep(1)
         async with ctx.channel.typing():
             if user=="":
                 user = ctx.author.display_name
@@ -94,6 +96,7 @@ class DumbCommands(commands.Cog):
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
     @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
     async def ship(self, ctx, user=""):
+        await asyncio.sleep(1)
         if user=="":
             user = rd.choice(homestuck_characters).split(" ")[0]
         elif user in ["me","Me","ME"]:
@@ -112,6 +115,7 @@ class DumbCommands(commands.Cog):
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
     async def bubblewrap(self, ctx, size="5x5"):
+        await asyncio.sleep(1)
         dimensions = re.split('x| ',size)
         try:
             width = int(dimensions[0])
@@ -128,6 +132,7 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Sends list of HussieBot's currently blacklisted phrases.")
     async def hussieBlacklist(self, ctx):
+        await asyncio.sleep(1)
         output = "Currently Blacklisted Phrases: \n"
         for phrase in bannedPhrases:
             output += phrase + "\n"
@@ -139,6 +144,7 @@ class DumbCommands(commands.Cog):
     @commands.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
     @commands.cooldown(1, 300, commands.BucketType.user)
     async def whitespace(self, ctx, delete_after=8):
+        await asyncio.sleep(1)
         try:
             int(delete_after.rstrip('h'))
         except ValueError:
