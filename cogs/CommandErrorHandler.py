@@ -75,6 +75,7 @@ class CommandErrorHandler(commands.Cog):
                             await message.channel.send(random_date.strftime("%B %m, %Y").replace(' 0',' '))
                             return
                     elif message_content.startswith("please"):
+                        await asyncio.sleep(1)
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
                     elif not message.content.startswith("hbs "):
                         await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
