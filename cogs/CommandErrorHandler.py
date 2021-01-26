@@ -3,6 +3,8 @@ import traceback
 import sys
 from discord.ext import commands
 
+import asyncio
+
 import random
 
 from modules import checks
