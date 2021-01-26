@@ -76,7 +76,7 @@ class CommandErrorHandler(commands.Cog):
                             return
                     elif message_content.startswith("please"):
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
-                    elif message.content.startswith("hbs "):
+                    elif not message.content.startswith("hbs "):
                         await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
             else:
                 await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
