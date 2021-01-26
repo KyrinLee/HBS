@@ -262,12 +262,6 @@ async def spoil(ctx, *, text=""):
         ping = ping + "**" + text + "**"
     await ctx.send(content=ping, files=files)
 
-
-@client.command(pass_context=True,brief="Vriska.")
-async def vriska(ctx):
-    await ctx.send("<:vriska:776019724956860417>")
-    await ctx.message.delete()
-
 @client.command(pass_context=True,brief="Sends trigger document in simple text form.")
 @commands.check_any(checks.is_in_skys(), checks.is_in_DMs())
 async def triggerList(ctx):
@@ -286,50 +280,6 @@ async def triggerList(ctx):
 
         for o in output:
             await ctx.send(o)
-
-
-@client.command(pass_context=True,brief="Sends list of HussieBot's currently blacklisted phrases.")
-async def hussieBlacklist(ctx):
-    output = "Currently Blacklisted Phrases: \n"
-    for phrase in bannedPhrases:
-        output += phrase + "\n"
-
-    output = output.rstrip("\n")
-    await ctx.send(output)
-
-
-@client.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
-@commands.cooldown(1, 300, commands.BucketType.user)
-async def whitespace(ctx,delete_after=8):
-    try:
-        int(delete_after.rstrip('h'))
-    except ValueError:
-        if delete_after[0] in ["p", "s"]:
-            delete_after = -1
-        else:
-            delete_after = 8
-        
-    output = "```"
-    output += (' '.join(random.choices(starsList + spaces, k=900)))
-
-    hours = None if delete_after == -1 else int(delete_after) * 3600
-    await ctx.send(output + "```",delete_after=hours)
-
-@client.command(pass_context=True,brief="Sends bubblewrap message.")
-async def bubblewrap(ctx,size="5x5"):
-    dimensions = re.split('x| ',size)
-    try:
-        width = int(dimensions[0])
-        height = int(dimensions[1])
-    except:
-        raise checks.InvalidArgument("Invalid size! Run hbs;bubblewrap for a 5x5 grid, or specify a grid size like this: hbs;bubblewrap 9x9")
-    output = "Bubble Wrap!\n\n" + (("||pop||" * width + "\n") * height)
-    output = output.rstrip("\n")
-    if len(output) > 2000:
-        await ctx.send("Unfortunately discord's message character limit doesn't support bubble wrap that size :( \nHere's what I could fit!") 
-        outputArr = splitLongMsg(output, 2000)
-        output = outputArr[0]
-    await ctx.send(output)
 
 @client.command(pass_context=True, aliases=["mute"], brief="Tells HBS to shut up in a certain channel for a while.")
 async def shutup(ctx, time="1h"):
