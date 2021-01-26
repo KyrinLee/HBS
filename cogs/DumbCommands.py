@@ -123,8 +123,7 @@ class DumbCommands(commands.Cog):
             user = user[1:]
 
         color = rd.choice(hearts)
-        sys.stdout.write(f'{user}\'s blood color is {color} ({color.lstrip("<:Heart_").split(":")[0]}')
-        await ctx.send(f'{user}\'s blood color is {color} ({color.lstrip("<:Heart_").split(":")[0]}')
+        await ctx.send(f'{user}\'s blood color is {color} ({color.split("_")[2].split(":")[0]})')
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
     async def bubblewrap(self, ctx, size="5x5"):

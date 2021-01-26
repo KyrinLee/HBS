@@ -48,9 +48,10 @@ homestuck_characters = ["John Egbert","Rose Lalonde","Jade Harley","Dave Strider
                         "Terezi Pyrope","Vriska Serket","Equius Zahhak","Gamzee Makara","Eridan Ampora","Feferi Peixes",
                         "Kankri Vantas","Damara Megido","Rufioh Nitram","Mituna Captor","Meulin Leijon","Porrim Maryam",
                         "Latula Pyrope","Aranea Serket","Horuss Zahhak","Kurloz Makara","Cronus Ampora","Meenah Peixes"]
-hearts = ["<:Heart_Mutant:800514364545171457>","<:Heart_Burgundy:800513857776254986>","<:Heart_Bronze:800513899204050965>","<:Heart_Gold:800513954237120532>",
-          "<:Heart_Lime:800514004350271499>","<:Heart_Jade:800514096716840991>","<:Heart_Teal:800514166187753493>","<:Heart_Cerulean:800514183250575381>",
-          "<:Heart_Indigo:800517410447949855>","<:Heart_Purple:800514229740109864>","<:Heart_Violet:800514277843664937","<:Heart_Fuchsia:800514328448466986>"]
+hearts = ["<:Heart_00_Mutant:803731091532808212>","<:Heart_12_Rust:803726732649037866>","<:Heart_12_Bronze:803726787271065600>","<:Heart_10_Gold:803726831378235433>",
+          "<:Heart_09_Lime:803726872575737866>","<:Heart_09_Olive:803726913810071592>","<:Heart_07_Jade:803727129191514123>","<:Heart_06_Teal:803727045866553344>",
+          "<:Heart_05_Cerulean:803727290102054922>","<:Heart_04_Indigo:803727390835605516>","<:Heart_03_Purple:803727487577096202>","<:Heart_02_Violet:803731014987415612>",
+          "<:Heart_01_Fuchsia:803731057002283038>"]
 
 bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "Fair Enough", "Cool Thanks", "Mornin Fellas", "Evenin Fellas"]
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
