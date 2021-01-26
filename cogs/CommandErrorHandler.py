@@ -74,7 +74,9 @@ class CommandErrorHandler(commands.Cog):
                             random_date = start_date + timedelta(days=random_number_of_days)
                             await message.channel.send(random_date.strftime("%B %m, %Y").replace(' 0',' '))
                             return
-                    else:
+                    elif message_content.startswith("please"):
+                        await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
+                    elif message.content.startswith("hbs "):
                         await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
             else:
                 await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
