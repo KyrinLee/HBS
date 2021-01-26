@@ -12,6 +12,11 @@ from modules.functions import nsyl
 
 from resources.constants import *
 
+import inflect
+
+p = inflect.engine()
+
+
 DATABASE_URL = os.environ['DATABASE_URL']
 
 class DumbCommands(commands.Cog):
@@ -64,15 +69,27 @@ class DumbCommands(commands.Cog):
                 user = ctx.author.display_name
             elif user[0] == '@':
                 user = user[1:]
-                
-            def get_word_with_syllable_count(count):
-                word = ""
-                while (nsyl(word) != [count]):
-                    word = rd.choice(list(dictionary.keys()))
-                return word
 
-            word1 = get_word_with_syllable_count(1)
-            word2 = get_word_with_syllable_count(1)
+            with open("resources/nouns.txt") as f:
+                nouns = [line.rstrip('\n') for line in f]
+
+                def get_word_with_syllable_count(count):
+                    word = ""
+                    while nsyl(word) != [count]:
+                        word = rd.choice(nouns)
+                    if p.singular_noun(word) == False:
+                        return word
+                    return p.singular_noun(word)
+                    
+                '''def get_word_with_syllable_count(count):
+                    word = ""
+                    while (nsyl(word) != [count]):
+                        word = rd.choice(list(dictionary.keys()))
+                    return word
+                '''
+                
+                word1 = get_word_with_syllable_count(1)
+                word2 = get_word_with_syllable_count(1)
             
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
             
