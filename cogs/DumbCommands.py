@@ -97,7 +97,7 @@ class DumbCommands(commands.Cog):
             
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
     @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
-    async def ship(self, ctx, user=""):
+    async def ship(self, ctx, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
         if user=="":
             user = rd.choice(homestuck_characters).split(" ")[0]
@@ -114,6 +114,15 @@ class DumbCommands(commands.Cog):
             name = rd.choice(homestuck_characters)
             quadrant = rd.choice(["\U00002660","\U00002665","\U00002666","\U00002663"])
             await ctx.send(f'{user}{quadrant}{name.split(" ")[0]}')
+
+    @commands.command(pass_context=True, brief="Get your blood color!", aliases=["hemospec","bloodcolor","blood"])
+    async def hemospectrum(self, ctx, user:commands.clean_content=""):
+        if user=="":
+            user = ctx.author.display_name
+        elif user[0] == '@':
+            user = user[1:]
+
+        
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
     async def bubblewrap(self, ctx, size="5x5"):
