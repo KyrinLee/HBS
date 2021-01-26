@@ -201,7 +201,7 @@ async def on_raw_reaction_add(payload):
         #REMOVE UNWANTED MESSAGES FROM BOTS
         if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, TUPPERBOX_ID]):
             await msg.delete()
-        if (msg.author.id in [YAGBOT_ID]:
+        if (msg.author.id in [YAGBOT_ID]):
             is_menu_react = False
             reacts = msg.reactions
             count = 0
