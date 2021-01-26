@@ -117,7 +117,7 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True, brief="Get your blood color!", aliases=["hemospec","bloodcolor","blood"])
     async def hemospectrum(self, ctx, user:commands.clean_content=""):
-        if user=="":
+        if user in ["", "me", "Me", "ME"]:
             user = ctx.author.display_name
         elif user[0] == '@':
             user = user[1:]
