@@ -26,7 +26,7 @@ import syllables
 
 from modules import checks, pk, pluralKit
 from modules.HelpMenu import HBSHelpCommand
-from modules.functions import splitLongMsg, formatTriggerDoc, strfdelta, nsyl
+from modules.functions import *
 from resources.constants import *
 
 intents = discord.Intents.default()
@@ -101,6 +101,7 @@ async def timeout_reaction_check(reaction_name, time=10):
     start_time = datetime.utcnow()
 
     reaction_timeouts.update({reaction_name: [start_time,expire_time]})
+    sys.stdout.write(str(reaction_timeouts))
 
     return True
 
@@ -128,7 +129,7 @@ async def on_message(message: discord.Message):
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
 
-                if message.webhook_id == None and message_content.find('vriska') != -1:
+                if message.webhook_id == None and message_content.find('vriska') != -1 and not message_content.startswith("pk;"):
                     if (message_content == "vriska serket"):
                         await asyncio.sleep(1)
                         await message.channel.send("Vriska Serket is a valid troll ::::)")
@@ -153,10 +154,10 @@ async def on_message(message: discord.Message):
                             await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
                         
                 if any(i in message_content for i in ["hussie","cowardbot"]):
-                    if message_content.count("hussie") > message_content.count("suppressor") or message_content.count("hussie") > message_content.count("oppressor"):
+                    if message_content.count("hussie") > message_content.count("suppressor") and message_content.count("hussie") > message_content.count("oppressor"):
                         if await timeout_reaction_check("hussie") or message.channel.id == HBS_CHANNEL_ID:
                             await message.add_reaction(blobspade)
-                if message.channel.id != FOOD_CHANNEL_ID and any(i in message_content for i in ["spag","spah"]):
+                if any(i in message_content for i in ["spag","spah"]):  #message.channel.id != FOOD_CHANNEL_ID to ban from food 
                     if await timeout_reaction_check("spaghetti") or message.channel.id == HBS_CHANNEL_ID:
                         await message.add_reaction(spaghetti)
                 if "hbs" in message_content:
@@ -199,25 +200,27 @@ async def on_raw_reaction_add(payload):
         msg = await channel.fetch_message(payload.message_id)
 
         #REMOVE UNWANTED MESSAGES FROM BOTS
-        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID, TUPPERBOX_ID]):
+        if (msg.author.id in [HUSSIEBOT_ID, TODDBOT_ID]):
             await msg.delete()
-        if (msg.author.id in [YAGBOT_ID]):
-            is_menu_react = False
-            reacts = msg.reactions
-            count = 0
-            for r in reacts:
-                if r.emoji.name == x:
-                    users = await r.users().flatten()
-                    for u in users:
-                        if u.id == YAGBOT_ID:
-                            is_menu_react == True
-            
-            if is_menu_react == False:
+
+        #YAG AND TUPPERBOX DELETION, IF NOT MENU
+        if (msg.author.id in [YAGBOT_ID, TUPPERBOX_ID]):
+            if not await check_for_react(msg, x, msg.author.id):
                 await msg.delete()
 
+        #PLURALKIT DELETION
+        if (msg.author.id == PLURALKIT_ID):
+            system = await pk.get_system_by_discord_id(payload.user_id)
+            system_id = system.hid
+            message_text = ""
+            for e in msg.embeds:
+                message_text = message_text + str(e.to_dict())
+            if system_id in message_text:
+                await msg.delete()
+
+        #HBS DELETION
         if (msg.author.id == client.user.id) and (payload.user_id != client.user.id):
             await msg.delete()
-        
 
     if payload.emoji.name == "hussiebap" or payload.emoji.name == newspaper2:
         #GET CHANNEL AND MESSAGE
@@ -245,7 +248,8 @@ async def on_member_update(before, after):
     if before.guild.id ==SKYS_SERVER_ID:
         if before.id == HUSSIEBOT_ID:
             if str(before.status) == "online" and str(after.status) == "offline":
-                await client.get_channel(HBS_CHANNEL_ID).send("Dumb bitch Hussie just went offline. :pensive:")
+                hussie_phrase = random.choice(["The one and only Andrew", "My boyfriend", "My precious kismesis", "My love", "My fiance", "My matesprit", "Dumb bitch", "Goddamn coward", "Goddamn little fruit"])
+                await client.get_channel(HBS_CHANNEL_ID).send(hussie_phrase + " Hussie just went offline. :pensive:")
 
 @client.command(pass_context=True,brief="Spoil an image.", aliases=['spoiler'])
 async def spoil(ctx, *, text=""):

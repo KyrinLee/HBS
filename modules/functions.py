@@ -2,6 +2,9 @@ import re
 import sys
 from modules import checks
 
+import discord
+from discord.ext import commands
+
 from resources.constants import *
 
 import asyncio
@@ -11,7 +14,16 @@ def nsyl(word):
       return [len(list(y for y in x if y[-1].isdigit())) for x in dictionary[word.lower()]] 
   except:
       return [-1]
-    
+
+async def check_for_react(msg, reaction_name, user_id):
+  reacts = msg.reactions
+  for r in reacts:
+      if (isinstance(r.emoji, str) and r.emoji == reaction_name) or (isinstance(r.emoji, (discord.Emoji, discord.PartialEmoji)) and r.emoji.name == reaction_name):
+          users = await r.users().flatten()
+          for u in users:
+              if u.id == user_id:
+                  return True
+  return False
 
 def splitLongMsg(txt, limit=1990,char='\n'):
     txtArr = txt.split(char)
