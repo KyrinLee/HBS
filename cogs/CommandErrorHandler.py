@@ -4,6 +4,10 @@ import sys
 from discord.ext import commands
 
 import asyncio
+import datetime
+from datetime import date
+
+import re
 
 import random
 
@@ -52,7 +56,11 @@ class CommandErrorHandler(commands.Cog):
             message = ctx.message
             message_content = message.content.lower().lstrip("hbs").lstrip(";").lstrip().rstrip()
             if message.webhook_id == None:
-                    if message_content.startswith(("do","are", "is","did")):
+                    match = re.match("(\w+) of (\w+)$", message_content)
+                    if match:
+                        await message.channel.send(random.choice([match.group(1),match.group(2)] + "."))
+                        
+                    elif message_content.startswith(("do","are", "is","did","will")):
                         if all([any(i in message_content for i in ["hussie","cowardbot"]), any(k in message_content for k in ["love","like","hate","kismesis","kismeses","date","dating"])]):
                             await asyncio.sleep(1)
                             await message.channel.send("Yes! " + str(blobspade))
@@ -73,7 +81,7 @@ class CommandErrorHandler(commands.Cog):
                             end_date = date(2500, 12, 31)
                         
                             random_number_of_days = random.randrange(((end_date-start_date).days))
-                            random_date = start_date + timedelta(days=random_number_of_days)
+                            random_date = start_date + datetime.timedelta(days=random_number_of_days)
                             await message.channel.send(random_date.strftime("%B %m, %Y").replace(' 0',' '))
                             return
                         
@@ -88,18 +96,22 @@ class CommandErrorHandler(commands.Cog):
                                        
                     elif message_content.startswith("who"):
                         await asyncio.sleep(1)
-                        choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto","Hatsune Miku"]
+                        choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto.","Hatsune Miku.","Vriska.","Milk Boy.","Hussiebot" + blobspade,"Nox.","David Elizabeth Strider.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
                         num = random.random()
                         if num < .6:
                             await message.channel.send(random.choice(choices))
                         else:
-                            await message.channel.send(random.choice(homestuck_characters))
+                            await message.channel.send(random.choice(homestuck_characters) + ".")
                             
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
                         await message.channel.send(random.choice(["No.","im sowwy <:powerplead:771499084577505351>","Blame Vriska."]))
+
+                    elif message_content.startswith("really"):
+                        await asyncio.sleep(1)
+                        await message.channel.send("Yes.")
                         
-                    elif not (message.content.startswith("hbs ") or message.content.startswith("\hbs ")):
+                    elif not (message.content.lower().startswith(i) for i in ["hbs ","\hbs "]):
                         await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")
             else:
                 await ctx.send("I don't think that's a real command. Try `hbs;help` for a list of commands.")

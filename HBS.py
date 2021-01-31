@@ -101,7 +101,6 @@ async def timeout_reaction_check(reaction_name, time=10):
     start_time = datetime.utcnow()
 
     reaction_timeouts.update({reaction_name: [start_time,expire_time]})
-    sys.stdout.write(str(reaction_timeouts))
 
     return True
 
@@ -114,7 +113,10 @@ async def on_message(message: discord.Message):
     #HANDLE HUSSIEBOT VRISKA REACTS
     if message.author.id == HUSSIEBOT_ID: #if hussiebot
         if (message.content in ["<:vriska:480855644388458497>",":vriska:",":eye:"]): 
-                await message.delete()
+            await message.delete()
+        if message.content == "Andrew Hussie is a valid troll name.":
+            await message.delete()
+            await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
         for phrase in bannedPhrases:
             if message.content.find(phrase) != -1:
                 await message.delete()
@@ -129,22 +131,32 @@ async def on_message(message: discord.Message):
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
 
-                if message.webhook_id == None and message_content.find('vriska') != -1 and not message_content.startswith("pk;"):
-                    if (message_content == "vriska serket"):
-                        await asyncio.sleep(1)
-                        await message.channel.send("Vriska Serket is a valid troll ::::)")
-                    elif (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
-                        await asyncio.sleep(1)
-                        await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
-                    elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
-                        await asyncio.sleep(1)
-                        await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')
+                if message_content.find('vriska') != -1 or str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline":             
+                    if message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
+                        #VRISKA SERKET
+                        if (message_content == "vriska serket"):
+                            await asyncio.sleep(1)
+                            await message.channel.send("Vriska Serket is a valid troll ::::)")
+                        #ANDREW HUSSIE
+                        if (message_content == "andrew hussie"):
+                            await asyncio.sleep(1)
+                            await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
+                        #VALID KID NAME
+                        elif (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
+                            await asyncio.sleep(1)
+                            await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
+                        #VALID TROLL NAME
+                        elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
+                            await asyncio.sleep(1)
+                            await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')
 
                 elif message.webhook_id == None:
+                    #VALID ANCESTOR
                     if (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
                         await asyncio.sleep(1)
                         await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
 
+                    #VALID CLASSPECT
                     match = re.match("(\w+) of (\w+)$", message_content)
                     if match:
                         first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
@@ -152,22 +164,38 @@ async def on_message(message: discord.Message):
                         if (first_word_is_one_syllable and second_word_is_one_syllable):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
-                        
-                if any(i in message_content for i in ["hussie","cowardbot"]):
+
+                #HUSSIE
+                if any(i in message_content for i in ["hussie"]):
                     if message_content.count("hussie") > message_content.count("suppressor") and message_content.count("hussie") > message_content.count("oppressor"):
-                        if await timeout_reaction_check("hussie") or message.channel.id == HBS_CHANNEL_ID:
+                        if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("hussie"):
                             await message.add_reaction(blobspade)
+                #COWARDBOT
+                if any(i in message_content for i in ["cowardbot"]):
+                    if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("hussie"):
+                        await message.add_reaction(blobspade)
+                       
+                #SPAGHETTI    
                 if any(i in message_content for i in ["spag","spah"]):  #message.channel.id != FOOD_CHANNEL_ID to ban from food 
-                    if await timeout_reaction_check("spaghetti") or message.channel.id == HBS_CHANNEL_ID:
+                    if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("spaghetti"):
                         await message.add_reaction(spaghetti)
-                if "hbs" in message_content:
-                    if await timeout_reaction_check("hbs") or message.channel.id == HBS_CHANNEL_ID:
-                        await message.add_reaction(looking)
+                #HBS
+                if any(i in message_content for i in ["hbs", "hussiebotsuppressor", "hussiebotoppressor"]):
+                    if message_content == "hbs":
+                        await message.channel.send("owo?")
+                    else:
+                        if message.channel.id != HBS_CHANNEL_ID: #and await timeout_reaction_check("hbs")
+                            await message.add_reaction(looking)
+                        num = random.random()
+                        if num < .1:
+                            await message.channel.send(random.choice(["owo","owo?","uwu","OwO"]))
+                       
+                #HOMESTUCK
                 if message.channel.id != HOMESTUCK_CHANNEL_ID and message.author.id != PLURALKIT_ID and any(i in message_content for i in ["homestuck"]):
-                    if await timeout_reaction_check("homestuck") or message.channel.id == HBS_CHANNEL_ID:
+                    if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("homestuck"):
                         await message.add_reaction(looking)
 
-            if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline":
+            '''if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline":
                 if message.webhook_id == None:
                     not_banned = True
                     for phrase in bannedPhrases:
@@ -179,7 +207,7 @@ async def on_message(message: discord.Message):
                             await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
                         elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
                             await asyncio.sleep(1)
-                            await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')
+                            await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')'''
     except:
         raise
     
