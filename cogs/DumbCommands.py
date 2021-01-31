@@ -106,9 +106,9 @@ class DumbCommands(commands.Cog):
         elif user[0] == '@':
             user = user[1:]
 
-        if user == "<@!480855402289037312>":
+        if user.lower() in ["<@!480855402289037312>","hussie","hussiebot","cowardbot"]:
             await ctx.send("He and I are in a vacillating \U00002665/\U00002660 relationship! Obviously.")
-        elif user == "<@!753345733377261650>":
+        elif user.lower() in ["<@!753345733377261650>","hbs","hussiebotsuppressor","hussiebotoppressor"]:
             await ctx.send("My quadrants are reserved solely for <@!480855402289037312>.")
         else:
             name = rd.choice(homestuck_characters)
