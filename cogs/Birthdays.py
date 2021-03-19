@@ -67,16 +67,17 @@ class Birthdays(commands.Cog):
 
         if today.date() != last_birthday:
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
-            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n'
             birthdays = self.get_todays_birthdays(today.date())
-            
-            for birthday in birthdays:
-                member = self.client.get_guild(SKYS_SERVER_ID).get_member(birthday.id)
-                name = f'{member.nick} | str(member)' if member.nick is not None else str(member)
-                #sys.stdout.write(str(birthday))
-                year_text = f': {today.date().year - birthday.year} years old' if birthday.year != -1 else ""
-                output += birthday.name + "(" + name + ")" + year_text + "\n" 
-            await self.client.get_channel(754527915290525807).send(output)
+
+            if len(birthdays) > 0:
+                output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n'
+                for birthday in birthdays:
+                    member = self.client.get_guild(SKYS_SERVER_ID).get_member(birthday.id)
+                    name = f'{member.nick} | str(member)' if member.nick is not None else str(member)
+                    #sys.stdout.write(str(birthday))
+                    year_text = f': {today.date().year - birthday.year} years old' if birthday.year != -1 else ""
+                    output += birthday.name + "(" + name + ")" + year_text + "\n" 
+                await self.client.get_channel(754527915290525807).send(output)
 
         conn.commit()
         cursor.close()
