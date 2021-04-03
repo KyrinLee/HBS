@@ -74,13 +74,13 @@ class Birthdays(commands.Cog):
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
             birthdays = self.get_todays_birthdays(today.date())
 
-            if len(birthdays) > 0:
+            '''if len(birthdays) > 0:
                 for birthday in birthdays:
                     member = self.client.get_guild(SKYS_SERVER_ID).get_member(birthday.id)
                     name = f'{member.nick} | str(member)' if member.nick is not None else str(member)
                     sys.stdout.write(str(birthday))
                     year_text = f': {today.date().year - birthday.year} years old' if birthday.year != -1 else ""
-                    output += birthday.name + "(" + name + ")" + year_text + "\n"
+                    output += birthday.name + "(" + name + ")" + year_text + "\n"'''
             
             cursor.execute("SELECT * FROM pkinfo")
             data = cursor.fetchall()
