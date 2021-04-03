@@ -132,7 +132,10 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(output)
 
         elif isinstance(error, checks.FuckyError):
-            await ctx.send("Something went fucky here! Ping Vriska, she won't know what the problem is either but it'll at least be funny." + str(error))
+            await ctx.send("Something went fucky here! Ping Vriska, she won't know what the problem is either but it'll at least be funny.\n" + str(error))
+
+        elif isinstance(error, checks.OtherError):
+            await ctx.send(str(error))
 
         elif isinstance(error, discord.InvalidArgument):
             await ctx.send(error)

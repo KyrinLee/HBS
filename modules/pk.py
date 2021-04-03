@@ -5,6 +5,7 @@ API Endpoint functions include:
     get_pk_message -> /msg/
 Part of the Gabby Gums Discord Logger. (Amadea System)
 """
+import discord
 from discord.ext import commands
 import logging
 from typing import Optional, Dict
@@ -28,17 +29,33 @@ class UnknownPKError(Exception):
 
 class MemberListHidden(Exception):
     pass
-
-async def prompt_for_pk_token(ctx: commands.Context):
+    
+async def prompt_for_pk_token(client, ctx: commands.Context):
     user: discord.Member = ctx.author
 
     await user.send("Due to your Plural Kit privacy settings, I am unable to get a list of your system members.\n"
                           "As such, I require your Plural Kit system token. "
                           "Since you are obviously concerned about your systems privacy, "
-                          "let me reassure you that all of your private information will be kept encrypted and that none of your details will **EVER** be shared with anyone else or looked at by the developer of this bot.\n"
+                          "let me reassure you that all of your private information will be kept private and that none of your details will ever be shared with anyone else or looked at by the developer of this bot.\n"
                           "You may retrieve your system token by DMing <@!466378653216014359> with the command: `pk;token`\n"
                           "Once you have done so, please send that token to me via DM. And remember, never post your system token in a public channel!")
-    # TODO: Implement PK Token stuff.
+
+    def check(message):
+        return message.channel.type == discord.ChannelType.private and message.author == ctx.author
+    
+
+    msg = ""
+    while len(msg) != 64:
+        try:
+            msg = await client.wait_for('message', timeout = 300, check=check)
+        except asyncio.TimeoutError:
+            await ctx.send("Command has timed out. Please retry the original command")
+            return 
+        msg = msg.content
+        if len(msg) != 64:
+            await user.send("Invalid token. Please try again.")
+
+    return msg
 
 async def get_system_by_discord_id(discord_user_id: int) -> pk.System:
     try:
@@ -59,7 +76,6 @@ async def get_system_members_by_discord_id(discord_user_id: int) -> Optional[Dic
     except aiohttp.ClientError as e:
         log.warning(
             "Could not connect to PK server without errors. \n{}".format(e))
-
 
 async def get_pk_message(message_id: int) -> Optional[Dict]:
     """Attempts to retrieve details on a proxied/pre-proxied message"""

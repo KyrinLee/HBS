@@ -115,7 +115,7 @@ class System:
     front_history_privacy: Optional[str]
 
 
-    def __init__(self, id, created, name=None, description=None, tag=None, avatar_url=None, tz=None, 
+    def __init__(self, id, created, name=None, description=None, tag=None, avatar_url=None, tz=None, api_token=None,
                  description_privacy=None, member_list_privacy=None, front_privacy=None, front_history_privacy=None):
         self.hid = id
         self.created = created
@@ -124,7 +124,7 @@ class System:
         self.tag = tag
         self.avatar_url = avatar_url
         self.tz = tz
-        self.api_token = None
+        self.api_token = api_token
         self.description_privacy = description_privacy
         self.member_list_privacy = member_list_privacy
         self.front_privacy = front_privacy
@@ -158,7 +158,7 @@ class System:
     async def get_by_hid(session: aiohttp.ClientSession, hid, authorization=None):
         json = await api_get(session, f"/s/{hid}", authorization)
         sys = json
-        return System(**sys)
+        return System(api_token = authorization, **sys)
 
 
     @staticmethod

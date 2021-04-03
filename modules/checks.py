@@ -12,6 +12,8 @@ class WrongServer(commands.CheckFailure):
     pass
 class NotVriska(commands.CheckFailure):
     pass
+class OtherError(commands.CheckFailure):
+    pass
 
 class FuckyError(commands.CommandError):
     def __init__(self, *args, **kwargs):
