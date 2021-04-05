@@ -120,14 +120,16 @@ class Birthdays(commands.Cog):
 
     @commands.command(pass_context=True)
     async def todaysBirthdays(self, ctx):
-        output = self.get_days_birthdays()
+        output = await self.get_days_birthdays()
+        output = splitLongMsg(output)
         for o in output:
             await ctx.send(o)
 
     @commands.command(pass_context=True)
     async def birthdays(self, ctx, *, day):
         day = parser.parse(day)
-        output = self.get_days_birthdays(search_day=day)
+        output = await self.get_days_birthdays(search_day=day)
+        output = splitLongMsg(output)
         for o in output:
             await ctx.send(o)
 
@@ -214,13 +216,12 @@ class Birthdays(commands.Cog):
                             output += f'{name} {system.tag} {year_text}\n'
 
             output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-            output = splitLongMsg(output)
-
-            return output
 
             conn.commit()
             cursor.close()
             conn.close()
+
+            return output
             
     def get_todays_birthdays(self, day):
         birthday_list = []
