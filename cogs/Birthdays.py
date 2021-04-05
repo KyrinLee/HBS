@@ -74,6 +74,9 @@ class Birthdays(commands.Cog):
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
             birthdays = self.get_todays_birthdays(today.date())
 
+            output = get_days_birthdays()
+            for o in output:
+                await self.client.get_channel(754527915290525807).send(o)
             '''if len(birthdays) > 0:
                 for birthday in birthdays:
                     member = self.client.get_guild(SKYS_SERVER_ID).get_member(birthday.id)
@@ -82,7 +85,7 @@ class Birthdays(commands.Cog):
                     year_text = f': {today.date().year - birthday.year} years old' if birthday.year != -1 else ""
                     output += birthday.name + "(" + name + ")" + year_text + "\n"'''
             
-            cursor.execute("SELECT * FROM pkinfo")
+            '''cursor.execute("SELECT * FROM pkinfo")
             data = cursor.fetchall()
 
             for i in data:
@@ -109,13 +112,26 @@ class Birthdays(commands.Cog):
                             output += f'{name} {system.tag} {year_text}\n'
 
             output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-            await self.client.get_channel(754527915290525807).send(output)
+            await self.client.get_channel(754527915290525807).send(output)'''
 
         conn.commit()
         cursor.close()
         conn.close()
 
     @commands.command(pass_context=True)
+    async def todaysBirthdays(self, ctx):
+        output = get_days_birthdays()
+        for o in output:
+            await ctx.send(o)
+
+    @commands.command(pass_context=True)
+    async def birthdays(self, ctx, *, day):
+        day = parser.parse(day)
+        output = get_days_birthdays(search_day=day)
+        for o in output:
+            await ctx.send(o)
+
+    '''@commands.command(pass_context=True)
     async def todaysBirthdays(self, ctx):
         async with ctx.channel.typing():
             output = ""
@@ -151,17 +167,60 @@ class Birthdays(commands.Cog):
 
                             output += f'{name} {system.tag} {year_text}\n'
 
-            if len(output) > 0:
-                output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-                output = splitLongMsg(output)
+            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
+            output = splitLongMsg(output)
 
-                for o in output:
-                    await self.client.get_channel(754527915290525807).send(o)
+            for o in output:
+                await self.client.get_channel(754527915290525807).send(o)
+
+            conn.commit()
+            cursor.close()
+            conn.close()'''
+
+    def get_days_birthdays(search_day=None):
+        if search_day == None:
+            today_utc = datetime.now(tz=pytz.utc)
+            search_day = today_utc.astimezone(timezone('US/Pacific'))
+            
+        async with ctx.channel.typing():
+            output = ""
+            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            cursor = conn.cursor()
+            
+            cursor.execute("SELECT * FROM pkinfo")
+            data = cursor.fetchall()
+
+            for i in data:
+                try:
+                    async with aiohttp.ClientSession() as session:
+                        system = await pluralKit.System.get_by_hid(session,i[0],i[1])
+                        members = await system.members(session)
+                except:
+                    pass
+                for member in members:
+                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
+                        birthday = parser.isoparse(member.birthday)
+                        if birthday.day == search_day.day and birthday.month == search_day.month:
+                            if member.name_privacy == "private":
+                                name = member.display_name
+                            else:
+                                name = member.name
+
+                            year_text = ""
+                            if birthday.year != 1 and birthday.year != 4:
+                                if search_day.year - birthday.year > 0:
+                                    year_text = f': {today.year - birthday.year} years old'
+
+                            output += f'{name} {system.tag} {year_text}\n'
+
+            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
+            output = splitLongMsg(output)
+
+            return output
 
             conn.commit()
             cursor.close()
             conn.close()
-        
             
     def get_todays_birthdays(self, day):
         birthday_list = []
