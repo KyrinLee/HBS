@@ -106,11 +106,10 @@ class Birthdays(commands.Cog):
                                 if today.year - birthday.year > 0:
                                     year_text = f': {today.year - birthday.year} years old'
 
-                            output += f'{name} {system.tag} {year_text}'
+                            output += f'{name} {system.tag} {year_text}\n'
 
-            if len(output) > 0:
-                output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-                await self.client.get_channel(754527915290525807).send(output)
+            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
+            await self.client.get_channel(754527915290525807).send(output)
 
         conn.commit()
         cursor.close()
