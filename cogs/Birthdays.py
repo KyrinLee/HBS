@@ -177,7 +177,7 @@ class Birthdays(commands.Cog):
             cursor.close()
             conn.close()'''
 
-    def get_days_birthdays(search_day=None):
+    async def get_days_birthdays(search_day=None):
         if search_day == None:
             today_utc = datetime.now(tz=pytz.utc)
             search_day = today_utc.astimezone(timezone('US/Pacific'))
