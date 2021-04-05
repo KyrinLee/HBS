@@ -120,7 +120,7 @@ class Birthdays(commands.Cog):
 
     @commands.command(pass_context=True)
     async def todaysBirthdays(self, ctx):
-        output = get_days_birthdays()
+        output = self.get_days_birthdays()
         for o in output:
             await ctx.send(o)
 
