@@ -127,7 +127,7 @@ class Birthdays(commands.Cog):
     @commands.command(pass_context=True)
     async def birthdays(self, ctx, *, day):
         day = parser.parse(day)
-        output = get_days_birthdays(search_day=day)
+        output = self.get_days_birthdays(search_day=day)
         for o in output:
             await ctx.send(o)
 
