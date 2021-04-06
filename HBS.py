@@ -194,20 +194,6 @@ async def on_message(message: discord.Message):
                 if message.channel.id != HOMESTUCK_CHANNEL_ID and message.author.id != PLURALKIT_ID and any(i in message_content for i in ["homestuck"]):
                     if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("homestuck"):
                         await message.add_reaction(looking)
-
-            '''if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline":
-                if message.webhook_id == None:
-                    not_banned = True
-                    for phrase in bannedPhrases:
-                        if message_content.find(phrase) != -1:
-                            not_banned = False
-                    if (not_banned) and message_content[0:4] != "pk;m":
-                        if (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
-                            await asyncio.sleep(1)
-                            await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
-                        elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
-                            await asyncio.sleep(1)
-                            await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')'''
     except:
         raise
     

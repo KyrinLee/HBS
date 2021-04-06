@@ -13,7 +13,7 @@ from modules import checks, pk, pluralKit
 from modules.Birthday import Birthday
 from modules import pluralKit
 
-from modules.functions import splitLongMsg, confirmationMenu
+from modules.functions import splitLongMsg, confirmationMenu, escapeCharacters
 from resources.constants import *
 
 import psycopg2
@@ -33,6 +33,34 @@ g = Github(os.environ['GIST_TOKEN'])
 gist = g.get_gist(os.environ['BIRTHDAYS_GIST_ID'])
 
 gistSem = asyncio.Semaphore(1)
+
+def format_birthdays_year(birthdays):
+    output = ""
+    if len(birthdays) > 0:
+        birthdays.sort(key = lambda d: (d.birthday.month, d.birthday.day, d.name))
+        for i in range(1,13):
+            new_birthdays = [b for b in birthdays if b.birthday.month == i]
+            if len(new_birthdays) > 0:
+                month = date(1900, i, 1).strftime('%B')
+                output += f'__{month}__\n'
+                for j in range(1,32):
+                    new_new_birthdays = [b for b in new_birthdays if b.birthday.day == j]
+                    if len(new_new_birthdays) > 0:
+                        day = date(1900, 1, j).strftime('%d').lstrip('0')
+                        output += f'{day}: '
+                        
+                        for member in new_new_birthdays:
+                            birthday = member.birthday
+
+                            year_text = ""
+                            if birthday.year != 1 and birthday.year != 4:
+                                year_text = f' ({birthday.strftime("%Y")})'
+                        
+                            output += (f'{member.name}{year_text}, ')
+                            
+                        output = output.rstrip(", ")
+                        output += "\n"
+    return output
 
 def calculate_age(born):
     today = date.today()
@@ -67,124 +95,53 @@ class Birthdays(commands.Cog):
             last_birthday_string = data[0][1]
 
         last_birthday = parser.parse(last_birthday_string).date()
-        
-        #await self.client.get_channel(754527915290525807).send(str(today.date())+str(last_birthday))
 
         if today.date() != last_birthday:
+            channel = self.client.get_channel(754527915290525807)
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
             birthdays = self.get_todays_birthdays(today.date())
 
-            output = get_days_birthdays()
+            output = get_days_birthdays(channel)
             for o in output:
-                await self.client.get_channel(754527915290525807).send(o)
-            '''if len(birthdays) > 0:
-                for birthday in birthdays:
-                    member = self.client.get_guild(SKYS_SERVER_ID).get_member(birthday.id)
-                    name = f'{member.nick} | str(member)' if member.nick is not None else str(member)
-                    sys.stdout.write(str(birthday))
-                    year_text = f': {today.date().year - birthday.year} years old' if birthday.year != -1 else ""
-                    output += birthday.name + "(" + name + ")" + year_text + "\n"'''
+                await channel.send(o)
             
-            '''cursor.execute("SELECT * FROM pkinfo")
-            data = cursor.fetchall()
-
-            for i in data:
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                        members = await system.members(session)
-                except:
-                    pass
-                for member in members:
-                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                        birthday = parser.isoparse(member.birthday)
-                        if birthday.day == today.day and birthday.month == today.month:
-                            if member.name_privacy == "private":
-                                name = member.display_name
-                            else:
-                                name = member.name
-
-                            year_text = ""
-                            if birthday.year != 1 and birthday.year != 4:
-                                if today.year - birthday.year > 0:
-                                    year_text = f': {today.year - birthday.year} years old'
-
-                            output += f'{name} {system.tag} {year_text}\n'
-
-            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-            await self.client.get_channel(754527915290525807).send(output)'''
-
         conn.commit()
         cursor.close()
         conn.close()
 
+    ''' ------------------------------
+            GETTING BIRTHDAYS
+        ------------------------------'''
+        
     @commands.command(pass_context=True)
     async def todaysBirthdays(self, ctx):
-        output = await self.get_days_birthdays()
+        today = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
+        
+        output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**\n'
+        output += await self.get_days_birthdays(ctx.channel, search_day=today)
         output = splitLongMsg(output)
         for o in output:
             await ctx.send(o)
 
     @commands.command(pass_context=True)
-    async def birthdays(self, ctx, *, day):
-        day = parser.parse(day)
-        output = await self.get_days_birthdays(search_day=day)
-        output = splitLongMsg(output)
-        for o in output:
-            await ctx.send(o)
-
-    '''@commands.command(pass_context=True)
-    async def todaysBirthdays(self, ctx):
-        async with ctx.channel.typing():
-            output = ""
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-
-            today_utc = datetime.now(tz=pytz.utc)
-            today = today_utc.astimezone(timezone('US/Pacific'))
+    async def birthdays(self, ctx, *, day=None):
+        if day == "today":
+            day = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')) 
+        else:
+            day = parser.parse(day)
             
-            cursor.execute("SELECT * FROM pkinfo")
-            data = cursor.fetchall()
+        output = f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Birthdays:**\n'
+        output += await self.get_days_birthdays(ctx.channel, search_day=day)
+        output = splitLongMsg(output)
+        for o in output:
+            await ctx.send(o)
 
-            for i in data:
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                        members = await system.members(session)
-                except:
-                    pass
-                for member in members:
-                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                        birthday = parser.isoparse(member.birthday)
-                        if birthday.day == today.day and birthday.month == today.month:
-                            if member.name_privacy == "private":
-                                name = member.display_name
-                            else:
-                                name = member.name
-
-                            year_text = ""
-                            if birthday.year != 1 and birthday.year != 4:
-                                if today.year - birthday.year > 0:
-                                    year_text = f': {today.year - birthday.year} years old'
-
-                            output += f'{name} {system.tag} {year_text}\n'
-
-            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
-            output = splitLongMsg(output)
-
-            for o in output:
-                await self.client.get_channel(754527915290525807).send(o)
-
-            conn.commit()
-            cursor.close()
-            conn.close()'''
-
-    async def get_days_birthdays(search_day=None):
+    async def get_days_birthdays(self, channel, search_day=None):
         if search_day == None:
             today_utc = datetime.now(tz=pytz.utc)
             search_day = today_utc.astimezone(timezone('US/Pacific'))
             
-        async with ctx.channel.typing():
+        async with channel.typing():
             output = ""
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = conn.cursor()
@@ -211,18 +168,45 @@ class Birthdays(commands.Cog):
                             year_text = ""
                             if birthday.year != 1 and birthday.year != 4:
                                 if search_day.year - birthday.year > 0:
-                                    year_text = f': {today.year - birthday.year} years old'
+                                    year_text = f': {search_day.year - birthday.year} years old'
 
                             output += f'{name} {system.tag} {year_text}\n'
-
-            output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d")))} - Today\'s Birthdays:**\n' + output
 
             conn.commit()
             cursor.close()
             conn.close()
 
+            output = escapeCharacters(output)
             return output
+
+
+    ''' ------------------------------
+             MANUAL BIRTHDAYS
+        ------------------------------'''
+
+    async def add_birthday(self, birthday: Birthday):
+        async with gistSem:
+            new_content = f'{gist.files["birthdays.txt"].content}{birthday.gist_birthday()}'
+            gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
+        
+    @commands.command(pass_context=True)
+    @commands.is_owner()
+    async def addBirthday(self, ctx, name="", *,birthday_raw=""):
+        birthday = Birthday(name.capitalize(), birthday_raw, ctx.author.id, True)
+        
+        await self.add_birthday(birthday)
+        
+        await ctx.send(f'Birthday {birthday.short_birthday()} set for {birthday.name}.')
+
+    @commands.command(pass_context=True, aliases=["deleteBirthday","delBirthday"])
+    @commands.is_owner()
+    async def removeBirthday(self, ctx, name=""):
+        birthdays = re.split("\n",gist.files["birthdays.txt"].content)
+        new_content = '\n'.join([x for x in birthdays if (str(ctx.author.id) not in x and name not in x)])
+        gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
             
+        await ctx.send(f'Birthday removed.')
+
     def get_todays_birthdays(self, day):
         birthday_list = []
         todays_birthdays = []
@@ -240,28 +224,38 @@ class Birthdays(commands.Cog):
         #await ctx.send(str(birthday_list))
         return todays_birthdays
 
-    async def add_birthday(self, birthday: Birthday):
-        async with gistSem:
-            new_content = f'{gist.files["birthdays.txt"].content}{birthday.gist_string}'
-            gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
+    async def get_systems_birthdays(self, system_id, auth):
+        birthdays = []
         
-    @commands.command(pass_context=True)
-    @commands.is_owner()
-    async def addBirthday(self, ctx, name="", *,birthday_raw=""):
-        birthday = Birthday(name, birthday_raw, ctx.author.id, True, pkid="     ")
+        try:
+            async with aiohttp.ClientSession() as session:
+                system = await pluralKit.System.get_by_hid(session,system_id, auth)
+                members = await system.members(session)
+        except:
+            raise checks.OtherError("I don't have access to your member list! Either set your member list to public, or run `hbs;deleteSystemBirthdays` and run `hbs;addSystemBirthdays` to share your access token.")
         
-        await self.add_birthday(birthday)
-        
-        await ctx.send(f'Birthday {birthday.short_birthday()} set for {birthday.name.capitalize()}.')
+        for member in members:
+            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
+                name = member.display_name if member.name_privacy == "private" else member.name
+                birthdays.append(Birthday(name=name, birthday=member.birthday, raw=True))
+                
+        return birthdays
 
-    @commands.command(pass_context=True, aliases=["deleteBirthday","delBirthday"])
-    @commands.is_owner()
-    async def removeBirthday(self, ctx, name=""):
-        birthdays = re.split("\n",gist.files["birthdays.txt"].content)
-        new_content = '\n'.join([x for x in birthdays if (str(ctx.author.id) not in x and name not in x)])
-        gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
-            
-        await ctx.send(f'Birthday removed.')
+    async def get_gist_user_birthdays(self, user_id):
+        birthdays = []
+        raw_birthdays = gist.files["birthdays.txt"].content
+        raw_birthdays = re.split("\n",raw_birthdays)
+        birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
+        birthday_list = [b for b in birthday_list if b.id == user_id]
+
+        for birthday in birthday_list:
+            birthdays.append(birthday)
+
+        return birthdays
+    
+    ''' ------------------------------
+            SYSTEM BIRTHDAYS
+        ------------------------------'''
 
     @commands.command(pass_context=True)
     async def addSystemBirthdays(self, ctx):
@@ -329,157 +323,65 @@ class Birthdays(commands.Cog):
         cursor.close()
         conn.close()
 
+    '''---------------------------
+            LIST BIRTHDAYS
+    ------------------------------'''
 
-    @commands.command(pass_context=True, aliases=["myBirthdays", "birthdayList","birthdaysList"])
-    async def listBirthdays(self, ctx):
+    async def list_birthdays(self, ctx, include_system, include_gist, include_all):
         async with ctx.channel.typing():
-            output = ""
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             cursor = conn.cursor()
-            today_utc = datetime.now(tz=pytz.utc)
-            today = today_utc.astimezone(timezone('US/Pacific'))
-
+            
+            today = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
+            output = f'**Your Birthdays:**\n'
             birthdays = []
             
             system = await pk.get_system_by_discord_id(ctx.author.id)
             
             cursor.execute("SELECT * FROM pkinfo")
             data = cursor.fetchall()
-
             
-            for i in data:
-                if system.hid == i[0]:
-                    try:
-                        async with aiohttp.ClientSession() as session:
-                            system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                            members = await system.members(session)
-                    except:
-                        raise checks.OtherError("I don't have access to your member list! Either set your member list to public, or run `hbs;deleteSystemBirthdays` and run `hbs;addSystemBirthdays` to share your access token.")
-                    
-                    for member in members:
-                        if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                            birthdays.append(member)
-                            
-                    if len(birthdays) > 0:
-                        birthdays.sort(key = lambda d: (parser.parse(d.birthday).month, parser.parse(d.birthday).day, (d.display_name if d.name_privacy == "private" else d.name)))
-                        for i in range(1,13):
-                            new_birthdays = [b for b in birthdays if parser.parse(b.birthday).month == i]
-                            if len(new_birthdays) > 0:
-                                month = date(1900, i, 1).strftime('%B')
-                                output += f'__{month}__\n'
-                                for j in range(1,32):
-                                    new_new_birthdays = [b for b in new_birthdays if parser.parse(b.birthday).day == j]
-                                    if len(new_new_birthdays) > 0:
-                                        day = date(1900, 1, j).strftime('%d').lstrip('0')
-                                        output += f'{day}: '
-                                        
-                                        for member in new_new_birthdays:
-                                            birthday = parser.parse(member.birthday)
+            if include_system:
+                for i in data:
+                    if include_all == True or system.hid == i[0]:
+                        try:
+                            birthdays += await self.get_systems_birthdays(i[0],i[1])
+                        except:
+                            raise
 
-                                            year_text = ""
-                                            if birthday.year != 1 and birthday.year != 4:
-                                                year_text = f' ({birthday.strftime("%Y")})'
-                                        
-                                            if (member.name_privacy == "private"):
-                                                name = member.display_name
-                                            else:
-                                                name = member.name
-                                                
-                                            output += (f'{name}{year_text}, ')
-                                            
-                                        output = output.rstrip(", ")
-                                        output += "\n"
+            if include_gist:
+                birthdays = birthdays + await self.get_gist_user_birthdays(ctx.author.id)
                             
-            if len(output) > 0:
-                output = f'**Your Birthdays:**\n' + output
-                output = splitLongMsg(output)
+            output = format_birthdays_year(birthdays)
+            output = splitLongMsg(escapeCharacters(output))
 
-                for o in output:
-                    await ctx.send(o)
-                #await ctx.send(output)
-        
-    '''@commands.command(pass_context=True)
+            return output
+
+    @commands.command(pass_context=True, aliases=["myBirthdays", "birthdayList","birthdaysList"])
     async def listBirthdays(self, ctx):
-        output = "Your Birthdays: \n"
-        raw_birthdays = gist.files["birthdays.txt"].content
-        raw_birthdays = re.split("\n",raw_birthdays)
-        birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
-        birthday_list = [b for b in birthday_list if b.id == ctx.author.id]
-        for birthday in birthday_list:
-            output += str(birthday) + "\n"
-        await ctx.send(output)'''
+        output = await self.list_birthdays(ctx, include_system=True, include_gist = True, include_all=False)
+        for o in output:
+            await ctx.send(o)
 
     @commands.command(pass_context=True)
     @checks.is_vriska()
     async def listAllBirthdays(self, ctx):
-        async with ctx.channel.typing():
-            '''output = "Birthdays: \n"
-            raw_birthdays = gist.files["birthdays.txt"].content
-            raw_birthdays = re.split("\n",raw_birthdays)
-            birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
-            for birthday in birthday_list:
-                output += str(birthday) + "\n"
-            await ctx.send(output)'''
+        output = await self.list_birthdays(ctx, include_system=True, include_gist = True, include_all=True)
+        for o in output:
+            await ctx.send(o)
 
-            output = ""
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-            today_utc = datetime.now(tz=pytz.utc)
-            today = today_utc.astimezone(timezone('US/Pacific'))
+    @commands.command(pass_context=True)
+    async def listSystemBirthdays(self, ctx):
+        output = await self.list_birthdays(ctx, include_system=True, include_gist = False, include_all=False)
+        for o in output:
+            await ctx.send(o)
 
-            birthdays = []
-            
-            cursor.execute("SELECT * FROM pkinfo")
-            data = cursor.fetchall()
+    @commands.command(pass_context=True)
+    async def listManualBirthdays(self, ctx):
+        output = await self.list_birthdays(ctx, include_system=False, include_gist = True, include_all=False)
+        for o in output:
+            await ctx.send(o)
 
-            for i in data:
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                        members = await system.members(session)
-                except:
-                    pass
-
-                for member in members:
-                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                        birthdays.append(member)
-                        
-            if len(birthdays) > 0:
-                birthdays.sort(key = lambda d: (parser.parse(d.birthday).month, parser.parse(d.birthday).day, (d.display_name if d.name_privacy == "private" else d.name)))
-                for i in range(1,13):
-                    new_birthdays = [b for b in birthdays if parser.isoparse(b.birthday).month == i]
-                    if len(new_birthdays) > 0:
-                        month = date(1900, i, 1).strftime('%B')
-                        output += f'__{month}__\n'
-                        for j in range(1,32):
-                            new_new_birthdays = [b for b in new_birthdays if parser.parse(b.birthday).day == j]
-                            if len(new_new_birthdays) > 0:
-                                day = date(1900, 1, j).strftime('%d').lstrip('0')
-                                output += f'{day}: '
-                                
-                                for member in new_new_birthdays:
-                                    birthday = parser.parse(member.birthday)
-
-                                    year_text = ""
-                                    if birthday.year != 1 and birthday.year != 4:
-                                        year_text = f' ({birthday.strftime("%Y")})'
-                                
-                                    if (member.name_privacy == "private"):
-                                        name = member.display_name
-                                    else:
-                                        name = member.name
-                                        
-                                    output += (f'{name}{year_text}, ')
-                                    
-                                output = output.rstrip(", ")
-                                output += "\n"
-                            
-            if len(output) > 0:
-                output = f'**Birthdays:**\n' + output
-                output = splitLongMsg(output)
-
-                for o in output:
-                    await ctx.send(o)
-                       
+    
 def setup(client):
     client.add_cog(Birthdays(client))

@@ -43,6 +43,10 @@ def splitLongMsg(txt, limit=1990,char='\n'):
     outputArr.append(output)
     return outputArr
 
+def escapeCharacters(txt):
+    txt = re.sub("\*","\\\*",txt)
+    txt = re.sub("\|","\\\|",txt)
+    return txt
 
 def formatTriggerDoc(txt):
     txtArr = re.split('(censor the text as well.)',txt)
