@@ -104,7 +104,10 @@ class Birthdays(commands.Cog):
 
             output = "**My Birthdays:**\n"
             birthdays = await get_pk_birthdays_by_system(system.hid)
-            birthdays.update(await get_gist_birthdays_by_user(ctx.author.id))
+            try:
+                birthdays.update(await get_gist_birthdays_by_user(ctx.author.id))
+            except:
+                pass
 
             output += await format_birthdays_year(birthdays)
             await split_and_send(output, ctx.channel)
