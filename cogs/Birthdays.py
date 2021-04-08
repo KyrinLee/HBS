@@ -39,7 +39,7 @@ class Birthdays(commands.Cog):
             birthdays = await get_pk_birthdays_by_day(today)
             birthdays.update(await get_gist_birthdays_by_day(today))
 
-            output = await format_birthdays_day(birthdays, day, self.client)
+            output = await format_birthdays_day(birthdays, today, self.client)
             await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
                 
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
