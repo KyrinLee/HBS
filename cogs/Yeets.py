@@ -8,7 +8,7 @@ import psycopg2
 from psycopg2 import Error
 
 from modules import checks
-from modules.functions import confirmationMenu
+from modules.functions import *
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -22,10 +22,8 @@ class Yeets(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.guild.id == 609112858214793217:
-
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-
+            
+            conn, cursor = database_connect()
             cursor.execute(select_q,("joinMsg",))
             joinmsg = str(cursor.fetchall()[0][0])
 
@@ -37,17 +35,14 @@ class Yeets(commands.Cog):
 
             if msg != "":
                 await self.client.get_channel(int(yeetsChannel)).send(msg)
-
-            conn.commit()
-            cursor.close()
-            conn.close()
+                
+            database_disconnect(conn, cursor)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         if member.guild.id == 609112858214793217:
 
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn, cursor = database_connect()
 
             cursor.execute(select_q,("leaveMsg",))
             leavemsg = str(cursor.fetchall()[0][0])
@@ -62,23 +57,17 @@ class Yeets(commands.Cog):
             if msg != "":
                 await self.client.get_channel(int(yeetsChannel)).send(msg)
 
-            conn.commit()
-            cursor.close()
-            conn.close()
+            database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True,aliases=['changeMessage','changeMsg'],brief="Change join/leave messages.",
                       help="Message example: '\u003cname\u003e has left the server.'\nUse \u003cname\u003e for default capitalization, or \u003cNAME\u003e for all caps.\nLeave message blank to disable join/leave message.")
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
     async def changeYeetsMessage(self,ctx: commands.Context,msgName=None,*,message=""):
-
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-        cursor = conn.cursor()
+        conn, cursor = database_connect()
 
         if msgName == None:
-            raise checks.InvalidArgument("Please specify 'join' or 'leave' message.")
-
+            raise discord.InvalidArgument("Please specify 'join' or 'leave' message.")
         if message == None:
             message = ""
 
@@ -102,26 +91,21 @@ class Yeets(commands.Cog):
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
-        conn.commit()
-        cursor.close()
-        conn.close()
+        database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True,aliases=['changeYeets','changeJoin','changeLeave'],brief="Change join/leave message channel.",)
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
     async def changeYeetsChannel(self, ctx:commands.Context, channelID=None):
 
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-
-        cursor = conn.cursor()
-
+        conn, cursor = database_connect()
         channelname = "test"
 
         if channelID == None:
-            raise checks.InvalidArgument("Please include a numeric channel ID.")
+            raise discord.InvalidArgument("Please include a numeric channel ID.")
 
         if channelID.isnumeric() == False:
-            raise checks.InvalidArguments("Please include a numeric channel ID.")
+            raise discord.InvalidArguments("Please include a numeric channel ID.")
             
         cid = int(channelID)
         for channel in ctx.guild.channels:
@@ -136,13 +120,9 @@ class Yeets(commands.Cog):
                     await ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
                     
         if channelname == "test":
-            raise checks.InvalidArgument(message="That channel is not in this server.")
+            raise discord.InvalidArgument(message="That channel is not in this server.")
           
-
-
-        conn.commit()
-        cursor.close()
-        conn.close()
+        database_disconnect(conn, cursor)
             
             
 def setup(client):

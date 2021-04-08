@@ -1,7 +1,6 @@
 import discord
 from discord.ext import tasks, commands
 import sys
-
 import os
 
 import github
@@ -9,70 +8,16 @@ from github import Github
 from dateutil import parser
 import re
 
-from modules import checks, pk, pluralKit
+from modules import checks, pk
 from modules.Birthday import Birthday
-from modules import pluralKit
 
-from modules.functions import splitLongMsg, confirmationMenu, escapeCharacters
+from modules.birthday_functions import *
+from modules.functions import *
 from resources.constants import *
-
-import psycopg2
 
 from datetime import datetime, date
 
-import aiohttp
-import asyncio
-
-from pytz import timezone
-import pytz
-
-# or using an access token
-g = Github(os.environ['GIST_TOKEN'])
-
-# Then play with your Github objects:
-gist = g.get_gist(os.environ['BIRTHDAYS_GIST_ID'])
-
-gistSem = asyncio.Semaphore(1)
-
-def format_birthdays_year(birthdays):
-    output = ""
-    if len(birthdays) > 0:
-        birthdays.sort(key = lambda d: (d.birthday.month, d.birthday.day, d.name))
-        for i in range(1,13):
-            new_birthdays = [b for b in birthdays if b.birthday.month == i]
-            if len(new_birthdays) > 0:
-                month = date(1900, i, 1).strftime('%B')
-                output += f'__{month}__\n'
-                for j in range(1,32):
-                    new_new_birthdays = [b for b in new_birthdays if b.birthday.day == j]
-                    if len(new_new_birthdays) > 0:
-                        day = date(1900, 1, j).strftime('%d').lstrip('0')
-                        output += f'{day}: '
-                        
-                        for member in new_new_birthdays:
-                            birthday = member.birthday
-
-                            year_text = ""
-                            if birthday.year != 1 and birthday.year != 4:
-                                year_text = f' ({birthday.strftime("%Y")})'
-                        
-                            output += (f'{member.name}{year_text}, ')
-                            
-                        output = output.rstrip(", ")
-                        output += "\n"
-    return output
-
-def calculate_age(born):
-    today = date.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-
-class DuplicateBirthday(Exception):
-    def __init__(self, *args, **kwargs):
-        self.conflictBirthday = kwargs.pop("conflict",None)
-        self.newBirthday = kwargs.pop("birthday",None)
-        super().__init__(*args, **kwargs)
-        self.__dict__.update(kwargs)
-    pass
+import aiohttp, asyncio
 
 class Birthdays(commands.Cog):
     def __init__(self, client):
@@ -81,307 +26,251 @@ class Birthdays(commands.Cog):
     @tasks.loop(seconds=30.0)
     async def time_check(self):
         output = ""
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
-
-        today_utc = datetime.now(tz=pytz.utc)
-        today = today_utc.astimezone(timezone('US/Pacific'))
+        birthdays = []
+        conn,cursor = database_connect()
+        today = get_today()
         
         cursor.execute("SELECT * FROM vars WHERE name = 'last_birthday'")
         data = cursor.fetchall()
-        if len(data[0]) == 0:
-            last_birthday_string = "0000-00-00"
-        else:
-            last_birthday_string = data[0][1]
-
+        last_birthday_string = "0000-00-00" if len(data[0]) == 0 else data[0][1]
         last_birthday = parser.parse(last_birthday_string).date()
 
         if today.date() != last_birthday:
-            channel = self.client.get_channel(754527915290525807)
+            birthdays = await get_pk_birthdays_by_day(today)
+            birthdays.update(await get_gist_birthdays_by_day(today))
+
+            output = await format_birthdays_day(birthdays, day, self.client)
+            await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
+                
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
-            birthdays = self.get_todays_birthdays(today.date())
 
-            output = get_days_birthdays(channel)
-            for o in output:
-                await channel.send(o)
-            
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+        database_disconnect(conn,cursor)
+        
     ''' ------------------------------
             GETTING BIRTHDAYS
         ------------------------------'''
         
-    @commands.command(pass_context=True)
+    @commands.command(brief="See all of today's birthdays.")
     async def todaysBirthdays(self, ctx):
-        today = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
+        async with ctx.channel.typing():
+            today = get_today()
         
-        output = f'**{re.sub("x","",re.sub("x0","",today.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**\n'
-        output += await self.get_days_birthdays(ctx.channel, search_day=today)
-        output = splitLongMsg(output)
-        for o in output:
-            await ctx.send(o)
+            birthdays = await get_pk_birthdays_by_day(today)
+            birthdays.update(await get_gist_birthdays_by_day(today))
 
-    @commands.command(pass_context=True)
-    async def birthdays(self, ctx, *, day=None):
-        if day == "today":
-            day = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')) 
-        else:
-            day = parser.parse(day)
+            output = await format_birthdays_day(birthdays, today, self.client)
+            output = replace_user_ids_with_nicknames(self.client,output)
+            await split_and_send(output, ctx.channel)
+
+    @commands.command(aliases=["birthdays"], brief="See all of a given day's birthdays.")
+    async def daysBirthdays(self, ctx, *, day=None):
+        async with ctx.channel.typing():
+            day = get_today() if day.lower() == "today" else parser.parse(day)
+                
+            birthdays = await get_pk_birthdays_by_day(day)
+            birthdays.update(await get_gist_birthdays_by_day(day))
+
+            output = await format_birthdays_day(birthdays, day, self.client)
+            output = replace_user_ids_with_nicknames(self.client,output)
+            await split_and_send(output, ctx.channel)
+
+    @commands.command(brief="See all birthdays within the next week.")
+    async def upcomingBirthdays(self, ctx):
+        async with ctx.channel.typing():
+            num_days = 14
+            output = "**Upcoming Birthdays:**\n"
+            start_day = get_today() + timedelta(days=1)
+            end_day = start_day + timedelta(days=num_days-1)
+
+            pk_birthdays = await get_pk_birthdays_by_date_range(start_day, end_day)
+            gist_birthdays = await get_gist_birthdays_by_date_range(start_day, end_day)
+
+            for i in range(0,num_days):
+                pk_birthdays[i].update(gist_birthdays[i])
+                birthdays = pk_birthdays
+                day = start_day + timedelta(days=i)
+                
+                text = await format_birthdays_day(birthdays[i], day, self.client, header_format="")
+                if text != "":
+                    output += f'__{re.sub("x","",re.sub("x0","",day.strftime("%B x%d")))}__\n{text}\n'
+
+            output = replace_user_ids_with_nicknames(self.client, output)
+            await split_and_send(output, ctx.channel)
+
+    @commands.command(aliases=["myBirthdays", "birthdayList","birthdaysList"], brief="See all of your birthdays.")
+    async def listBirthdays(self, ctx):
+        async with ctx.channel.typing():
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+
+            output = "**My Birthdays:**\n"
+            birthdays = await get_pk_birthdays_by_system(system.hid)
+            birthdays.update(await get_gist_birthdays_by_user(ctx.author.id))
+
+            output += await format_birthdays_year(birthdays)
+            await split_and_send(output, ctx.channel)
+
+    '''@commands.command(brief="See all birthdays, from all users.")
+    @checks.is_vriska()
+    async def listAllBirthdays(self, ctx):
+        async with ctx.channel.typing():
+            output = "**All Birthdays:**\n"
+            birthdays = await get_pk_birthdays()
+            birthdays.update(await get_gist_birthdays_by_user(ctx.author.id))
+
+            output += await format_birthdays_year(birthdays)
+            await split_and_send(output, ctx.channel)'''
+
+    @commands.command(aliases=["listSysBirthdays","listPKBirthdays","mySysBirthdays","mySystemBirthdays","myPKBirthdays"], brief="List all birthdays in your PluralKit System.")
+    async def listSystemBirthdays(self, ctx):
+        async with ctx.channel.typing():
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+            output = "**My PluralKit Birthdays:**\n"
+
+            birthdays = await get_pk_birthdays_by_system(system.hid)
             
-        output = f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Birthdays:**\n'
-        output += await self.get_days_birthdays(ctx.channel, search_day=day)
-        output = splitLongMsg(output)
-        for o in output:
-            await ctx.send(o)
+            output += await format_birthdays_year(birthdays)
+            await split_and_send(output, ctx.channel)
 
-    async def get_days_birthdays(self, channel, search_day=None):
-        if search_day == None:
-            today_utc = datetime.now(tz=pytz.utc)
-            search_day = today_utc.astimezone(timezone('US/Pacific'))
-            
-        async with channel.typing():
-            output = ""
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-            
-            cursor.execute("SELECT * FROM pkinfo")
-            data = cursor.fetchall()
+    @commands.command(brief="List all birthdays you have manually added.")
+    async def listManualBirthdays(self, ctx):
+        output = "**My Manual Birthdays:**\n"
+        async with ctx.channel.typing():
+            birthdays = await get_gist_birthdays_by_user(ctx.author.id)
 
-            for i in data:
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                        members = await system.members(session)
-                except:
-                    pass
-                for member in members:
-                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                        birthday = parser.isoparse(member.birthday)
-                        if birthday.day == search_day.day and birthday.month == search_day.month:
-                            if member.name_privacy == "private":
-                                name = member.display_name
-                            else:
-                                name = member.name
-
-                            year_text = ""
-                            if birthday.year != 1 and birthday.year != 4:
-                                if search_day.year - birthday.year > 0:
-                                    year_text = f': {search_day.year - birthday.year} years old'
-
-                            output += f'{name} {system.tag} {year_text}\n'
-
-            conn.commit()
-            cursor.close()
-            conn.close()
-
-            output = escapeCharacters(output)
-            return output
-
+        output += await format_birthdays_year(birthdays)
+        await split_and_send(output, ctx.channel)
 
     ''' ------------------------------
              MANUAL BIRTHDAYS
         ------------------------------'''
 
-    async def add_birthday(self, birthday: Birthday):
-        async with gistSem:
-            new_content = f'{gist.files["birthdays.txt"].content}{birthday.gist_birthday()}'
-            gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
-        
-    @commands.command(pass_context=True)
-    @commands.is_owner()
+    @commands.command(brief="Add a manual birthday.")
     async def addBirthday(self, ctx, name="", *,birthday_raw=""):
-        birthday = Birthday(name.capitalize(), birthday_raw, ctx.author.id, True)
+        new_birthday = Birthday(name.capitalize(), birthday_raw, ctx.author.id, True)
         
-        await self.add_birthday(birthday)
+        async with ctx.channel.typing():
+            birthday_conflict = None
+            try:
+                birthday_conflict = await get_gist_birthday_by_user_and_name(name.capitalize(), ctx.author.id)
+            except checks.OtherError:
+                pass
+            except:
+                raise
+            
+            if birthday_conflict != None:
+                await ctx.send(f'You already have a birthday named {new_birthday.name}!')
+                await ctx.invoke(self.client.get_command('updateBirthday'), name=name, birthday_raw=birthday_raw)
+                return
+            
+            await add_gist_birthday(new_birthday)
         
-        await ctx.send(f'Birthday {birthday.short_birthday()} set for {birthday.name}.')
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
 
-    @commands.command(pass_context=True, aliases=["deleteBirthday","delBirthday"])
-    @commands.is_owner()
+    @commands.command(brief="Update a manual birthday.")
+    async def updateBirthday(self, ctx, name="", *,birthday_raw=""):
+        new_birthday = Birthday(name.capitalize(), birthday_raw, ctx.author.id, True)
+        
+        birthday_conflict = await get_gist_birthday_by_user_and_name(name.capitalize(), ctx.author.id)
+        if birthday_conflict != None:
+            menu_text = f' Would you like to replace the birthday for {name.capitalize()} on {birthday_conflict.short_birthday()} with {new_birthday.short_birthday()}?'
+            result = await confirmationMenu(self.client, ctx, menu_text)
+            if result == 1:
+                await remove_gist_birthday(new_birthday.name, ctx.author.id)
+                await add_gist_birthday(new_birthday)
+                await ctx.send(f'Birthday for {new_birthday.name} updated to {new_birthday.short_birthday()}.')
+                return 
+            elif result == 0:
+                await ctx.send("Operation cancelled.")
+                return
+            else:
+                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+
+        await add_gist_birthday(new_birthday)
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
+
+    @commands.command(aliases=["deleteBirthday","delBirthday"],brief="Remove a manual birthday.")
     async def removeBirthday(self, ctx, name=""):
-        birthdays = re.split("\n",gist.files["birthdays.txt"].content)
-        new_content = '\n'.join([x for x in birthdays if (str(ctx.author.id) not in x and name not in x)])
-        gist.edit(files={"birthdays.txt": github.InputFileContent(content=new_content)})
-            
+        async with ctx.channel.typing():
+            await remove_gist_birthday(name, ctx.author.id)
         await ctx.send(f'Birthday removed.')
-
-    def get_todays_birthdays(self, day):
-        birthday_list = []
-        todays_birthdays = []
-        
-        raw_birthdays = gist.files["birthdays.txt"].content
-        raw_birthdays = re.split("\n",raw_birthdays)
-        #for birthday in raw_birthdays:
-        #sys.stdout.write(str(birthday_list))
-        birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
-            
-        for birthday in birthday_list:
-            if birthday.birthday.date().month == day.month and birthday.birthday.date().day == day.day:
-                todays_birthdays.append(birthday)
-
-        #await ctx.send(str(birthday_list))
-        return todays_birthdays
-
-    async def get_systems_birthdays(self, system_id, auth):
-        birthdays = []
-        
-        try:
-            async with aiohttp.ClientSession() as session:
-                system = await pluralKit.System.get_by_hid(session,system_id, auth)
-                members = await system.members(session)
-        except:
-            raise checks.OtherError("I don't have access to your member list! Either set your member list to public, or run `hbs;deleteSystemBirthdays` and run `hbs;addSystemBirthdays` to share your access token.")
-        
-        for member in members:
-            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                name = member.display_name if member.name_privacy == "private" else member.name
-                birthdays.append(Birthday(name=name, birthday=member.birthday, raw=True))
-                
-        return birthdays
-
-    async def get_gist_user_birthdays(self, user_id):
-        birthdays = []
-        raw_birthdays = gist.files["birthdays.txt"].content
-        raw_birthdays = re.split("\n",raw_birthdays)
-        birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
-        birthday_list = [b for b in birthday_list if b.id == user_id]
-
-        for birthday in birthday_list:
-            birthdays.append(birthday)
-
-        return birthdays
     
     ''' ------------------------------
             SYSTEM BIRTHDAYS
         ------------------------------'''
 
-    @commands.command(pass_context=True)
+    @commands.command(brief="Connect your PluralKit account.")
     async def addSystemBirthdays(self, ctx):
-        sql_insert_query = """ INSERT INTO pkinfo (id, token) VALUES (%s,%s)"""
-        token = ""
-        
-        system = await pk.get_system_by_discord_id(ctx.author.id)
-
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM pkinfo")
-        data = cursor.fetchall()
-
-        if len(data) > 0:
-            for i in data:
-                if i[0] == str(system.hid):
-                    raise checks.OtherError("Your PluralKit account is already connected!")
-        try:
-            async with aiohttp.ClientSession() as session:
-                members = await system.members(session)
-        except:
-            await ctx.send("Your member list is currently private. Check your DMs for information about an authorization token to enable linking your PK account.")
-            token = await pk.prompt_for_pk_token(self.client, ctx)
-            
-
-        record_to_insert = (str(system.hid), token)
-        cursor.execute(sql_insert_query, record_to_insert)
-        await ctx.send("PluralKit Birthdays successfully connected!")
-            
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-    @commands.command(pass_context=True)
-    async def deleteSystemBirthdays(self, ctx):
-        sql_delete_query = """DELETE FROM pkinfo WHERE id = %s"""
-        system = await pk.get_system_by_discord_id(ctx.author.id)
-
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM pkinfo")
-        data = cursor.fetchall()
-
-        currently_connected = False
-        
-        if len(data) > 0:
-            for i in data:
-                if i[0] == str(system.hid):
-                    currently_connected = True
-                    
-        if currently_connected:
-            record = (str(system.hid),)
-            try:
-                cursor.execute(sql_delete_query, record)
-                await ctx.send("PluralKit account disconnected.")    
-            except (Exception, psycopg2.DatabaseError) as error:
-                print(error)
-
-        else:
-            raise checks.OtherError("Your PluralKit account is already unconnected.")
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
-    '''---------------------------
-            LIST BIRTHDAYS
-    ------------------------------'''
-
-    async def list_birthdays(self, ctx, include_system, include_gist, include_all):
         async with ctx.channel.typing():
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-            
-            today = datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
-            output = f'**Your Birthdays:**\n'
-            birthdays = []
-            
+            sql_insert_query = """ INSERT INTO pkinfo (id, token) VALUES (%s,%s)"""
+            token = ""
             system = await pk.get_system_by_discord_id(ctx.author.id)
+            conn, cursor = database_connect()
             
             cursor.execute("SELECT * FROM pkinfo")
             data = cursor.fetchall()
-            
-            if include_system:
+
+            if len(data) > 0:
                 for i in data:
-                    if include_all == True or system.hid == i[0]:
-                        try:
-                            birthdays += await self.get_systems_birthdays(i[0],i[1])
-                        except:
-                            raise
+                    if i[0] == str(system.hid):
+                        raise checks.OtherError("Your PluralKit account is already connected!")
+            try:
+                async with aiohttp.ClientSession() as session:
+                    members = await system.members(session)
+            except:
+                await ctx.send(NO_ACCESS + "\nPlease check your DMs!")
+                token = await pk.prompt_for_pk_token(self.client, ctx)
 
-            if include_gist:
-                birthdays = birthdays + await self.get_gist_user_birthdays(ctx.author.id)
-                            
-            output = format_birthdays_year(birthdays)
-            output = splitLongMsg(escapeCharacters(output))
+            record_to_insert = (str(system.hid), token)
+            cursor.execute(sql_insert_query, record_to_insert)
 
-            return output
+        await ctx.send("PluralKit Birthdays successfully connected!")   
+        database_disconnect(conn,cursor)
 
-    @commands.command(pass_context=True, aliases=["myBirthdays", "birthdayList","birthdaysList"])
-    async def listBirthdays(self, ctx):
-        output = await self.list_birthdays(ctx, include_system=True, include_gist = True, include_all=False)
-        for o in output:
-            await ctx.send(o)
+    @commands.command(brief="Disconnect your PluralKit account.")
+    async def deleteSystemBirthdays(self, ctx):
+        async with ctx.channel.typing():
+            sql_delete_query = """DELETE FROM pkinfo WHERE id = %s"""
+            system = await pk.get_system_by_discord_id(ctx.author.id)
 
-    @commands.command(pass_context=True)
-    @checks.is_vriska()
-    async def listAllBirthdays(self, ctx):
-        output = await self.list_birthdays(ctx, include_system=True, include_gist = True, include_all=True)
-        for o in output:
-            await ctx.send(o)
+            conn, cursor = database_connect()
+            
+            cursor.execute("SELECT * FROM pkinfo")
+            data = cursor.fetchall()
 
-    @commands.command(pass_context=True)
-    async def listSystemBirthdays(self, ctx):
-        output = await self.list_birthdays(ctx, include_system=True, include_gist = False, include_all=False)
-        for o in output:
-            await ctx.send(o)
+            currently_connected = False
+            
+            if len(data) > 0:
+                for i in data:
+                    if i[0] == str(system.hid):
+                        currently_connected = True
+                        
+            if currently_connected:
+                record = (str(system.hid),)
+                try:
+                    cursor.execute(sql_delete_query, record)
+                    await ctx.send("PluralKit account disconnected.")    
+                except (Exception, psycopg2.DatabaseError) as error:
+                    print(error)
 
-    @commands.command(pass_context=True)
-    async def listManualBirthdays(self, ctx):
-        output = await self.list_birthdays(ctx, include_system=False, include_gist = True, include_all=False)
-        for o in output:
-            await ctx.send(o)
+            else:
+                raise checks.OtherError("Your PluralKit account is already unconnected.")
 
+        database_disconnect(conn,cursor)
+
+    @commands.command(aliases=["addtoken","pktoken"],brief="Add a token to your PluralKit connection.")
+    async def addPKToken(self, ctx):
+        async with ctx.channel.typing():
+            sql_update_query = "UPDATE pkinfo SET token = %s WHERE id = %s"
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+            conn, cursor = database_connect()
+            
+            token = await pk.prompt_for_pk_token(self.client, ctx)
+
+            record_to_insert = (token, str(system.hid))
+            cursor.execute(sql_update_query, record_to_insert)
+
+        await ctx.send("PluralKit Token successfully added!")
+        database_disconnect(conn,cursor)
     
 def setup(client):
     client.add_cog(Birthdays(client))

@@ -12,12 +12,11 @@ from psycopg2 import Error
 
 from modules.checks import FuckyError
 from modules import checks
-from modules.functions import confirmationMenu, strfdelta
+from modules.functions import *
+from discord import InvalidArgument
 
 import asyncio
 resetSem = asyncio.Semaphore(1)
-
-from discord import InvalidArgument
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
@@ -32,9 +31,7 @@ class Counters(commands.Cog):
             if counter==None:
                 raise InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
             
-            connection = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = connection.cursor()
-
+            conn, cursor = database_connect()
             currTime = datetime.utcnow()
 
             cursor.execute("CREATE TABLE IF NOT EXISTS counters (name VARCHAR(255) UNIQUE, timestamp TIMESTAMP, mentions INT)") #SAFEGUARD, SHOULDN'T BE NEEDED
@@ -73,13 +70,9 @@ class Counters(commands.Cog):
 
             else:
                 raise InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
-            
 
-            connection.commit()
-            cursor.close()
-            connection.close()
+            database_disconnect(conn, cursor)
 
-        
     @commands.command(aliases=['addCounter'],brief="Create a new counter.")
     @checks.is_in_skys()
     async def newCounter(self,ctx: commands.Context, counter=None):
@@ -90,8 +83,7 @@ class Counters(commands.Cog):
         else:
             counter = counter.lower()
             #SEARCH DATABASE TO SEE IF COUNTER ALREADY EXISTS
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn, cursor = database_connect()
 
             cursor.execute("SELECT * FROM counters WHERE name = %s",(counter,))
             counters = cursor.fetchall()
@@ -114,9 +106,7 @@ class Counters(commands.Cog):
             else:
                 raise InvalidArgument("That counter already exists!")
         
-            conn.commit()
-            cursor.close()
-            conn.close()
+            database_disconnect(conn, cursor)
 
     @commands.is_owner()
     @checks.is_in_skys()
@@ -126,8 +116,7 @@ class Counters(commands.Cog):
             raise InvalidArgument("You gotta tell me which one! <:angercry:757731437326762014>")
         
         else:
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn, cursor = database_connect()
             counter = counter.lower()
 
             select_query = "SELECT * FROM counters WHERE name = %s"
@@ -149,16 +138,13 @@ class Counters(commands.Cog):
             else:
                 raise InvalidArgument("That counter doesn't exist!")
 
-            conn.commit()
-            cursor.close()
-            conn.close()
+            database_disconnect(conn, cursor)
             
 
     @commands.command(aliases=['counters','listCounters','allCounters','getCounters'],brief="List all counters.")
     @checks.is_in_skys()
     async def viewCounters(self, ctx:commands.Context):
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
+        conn, cursor = database_connect()
 
         cursor.execute("SELECT * FROM counters ORDER BY mentions DESC")
         counters = cursor.fetchall()
@@ -174,11 +160,8 @@ class Counters(commands.Cog):
         output += "```"
 
         await ctx.send(output)
-
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+        database_disconnect(conn, cursor)
+       
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
     @checks.is_in_skys()
     async def viewCounter(self, ctx, counter=None):

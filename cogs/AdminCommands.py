@@ -173,15 +173,12 @@ class AdminCommands(commands.Cog):
             #CHANGE STATUS AND ADD TO DATABASE
             try:
                 await self.client.change_presence(activity=discord.Game(name=game))
-                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                cursor = conn.cursor()
+                conn, cursor = database_connect()
                 cursor.execute("UPDATE vars SET value = %s WHERE name = 'game'",(game,))
             except:
                 raise FuckyError()
             finally:
-                conn.commit()
-                cursor.close()
-                conn.close()
+                database_disconnect(conn, cursor)
             await ctx.send(f'HBS\'s status game changed to {game}.')
 
     @commands.command(pass_context=True,brief="Adds test stickbug emoji.")
@@ -201,19 +198,13 @@ class AdminCommands(commands.Cog):
     @commands.command(pass_context=True,brief="Run a database query.")
     @checks.is_vriska()
     async def sql(self, ctx, *, query=""):
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
+        conn, cursor = database_connect()
 
         cursor.execute(query)
         data = cursor.fetchall()
 
-        outputArr = splitLongMsg(str(data),char=',')
-        for o in outputArr:
-            await ctx.send(o)
-
-        conn.commit()
-        cursor.close()
-        conn.close()
+        await split_and_send(str(data), ctx.channel, char=',')
+        database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True, aliases=["disable tupper", "disableTupperbox","disable tupperbox"], brief="Disables Tupperbox.")
     async def disableTupper(self,ctx):

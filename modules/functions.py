@@ -7,7 +7,28 @@ from discord.ext import commands
 
 from resources.constants import *
 
+from datetime import datetime, date
+
+import aiohttp
 import asyncio
+
+from pytz import timezone
+import pytz
+
+import psycopg2
+
+def get_today():
+    return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
+
+def database_connect():
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cursor = conn.cursor()
+    return conn, cursor
+
+def database_disconnect(conn, cursor):
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 def nsyl(word):
   try:
@@ -24,6 +45,11 @@ async def check_for_react(msg, reaction_name, user_id):
               if u.id == user_id:
                   return True
   return False
+
+async def split_and_send(txt, channel, limit=1990, char='\n'):
+    output = splitLongMsg(txt, limit, char)
+    for o in output:
+        await channel.send(o)
 
 def splitLongMsg(txt, limit=1990,char='\n'):
     txtArr = txt.split(char)

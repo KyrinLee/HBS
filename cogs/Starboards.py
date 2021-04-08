@@ -13,7 +13,7 @@ from discord import NotFound
 import asyncio
 
 from modules import checks
-from modules.functions import getMessage, confirmationMenu
+from modules.functions import *
 from resources.constants import *
 
 reactSem = asyncio.Semaphore(1)
@@ -42,8 +42,7 @@ class Starboards(commands.Cog):
                     if str(r.emoji) == e:
                         count = r.count
 
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn, cursor = database_connect() 
 
             cursor.execute("SELECT * FROM starboards WHERE tablename= '" + str(starboardDBname) + "'")
 
@@ -136,11 +135,7 @@ class Starboards(commands.Cog):
                     query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
                     cursor.execute(query, (datetime.fromtimestamp(time.time()),))
 
-                
-
-            conn.commit()
-            cursor.close()
-            conn.close()
+            database_disconnect(conn, cursor)
 
     @commands.Cog.listener()
     @checks.is_in_skys()
@@ -192,7 +187,7 @@ class Starboards(commands.Cog):
         msg = await getMessage(self.client, ctx, messageIDorLink)
 
         if starboard not in starboards:
-            raise checks.InvalidArgument("That starboard does not exist.")
+            raise discord.InvalidArgument("That starboard does not exist.")
 
         await self.addToStarboard(msg,forceStar=True,starboardDBname=starboard)
 
@@ -201,9 +196,9 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def changeStarboard(self,ctx,starboard="starboard",channelID=None):
         if starboard not in starboards:
-            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         elif channelID == None:
-            raise checks.InvalidArgument("Please include message ID or link.")
+            raise discord.InvalidArgument("Please include message ID or link.")
         else:
             channel = self.client.get_channel(channelID)
             result = await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
@@ -226,8 +221,7 @@ class Starboards(commands.Cog):
     @checks.is_in_skys()
     @commands.is_owner()
     async def viewStarboards(self, ctx:commands.Context,mobile=""):
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        cursor = conn.cursor()
+        conn, cursor = database_connect() 
 
         cursor.execute("SELECT * FROM starboards")
         starboards = cursor.fetchall()
@@ -247,10 +241,7 @@ class Starboards(commands.Cog):
         output = (output + "```") if mobile != "-m" else output
 
         await ctx.send(output)
-
-        conn.commit()
-        cursor.close()
-        conn.close()
+        database_disconnect(conn, cursor)
 
 
     @commands.command(brief="Change threshold for a starboard.",help="Starboard defaults to 'starboard'.\nSet starlimit to 0 to disable starboard.")
@@ -258,23 +249,20 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def changeStarlimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
-            raise checks.InvalidArgument("Please include new star limit or 0 to disable.")
+            raise discord.InvalidArgument("Please include new star limit or 0 to disable.")
         elif starboard not in starboards:
-            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         else:
             result = await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
             if result == 1:
-                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                cursor = conn.cursor()
+                conn, cursor = database_connect() 
                 cursor.execute(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
                 if starlimit == 0:
                     await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
                 else:
                     await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
 
-                conn.commit()
-                cursor.close()
-                conn.close()
+                database_disconnect(conn, cursor)
 
             elif result == 0:
                 await ctx.send("Operation cancelled.")
@@ -286,16 +274,16 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def disableStarboard(self,ctx,starboard="starboard"):
         if starboard not in starboards:
-            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = 0)
 
     @commands.command(brief="Enable a starboard.",help="Starboard defaults to 'starboard'.")
     @commands.is_owner()
     async def enableStarboard(self,ctx,starboard="starboard",starlimit=None):
         if starboard not in starboards:
-            raise checks.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         if not starlimit.isdigit():
-            raise checks.InvalidArgument("Please include a valid integer star limit for the starboard.")
+            raise discord.InvalidArgument("Please include a valid integer star limit for the starboard.")
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = int(starlimit))
 
     '''async def purgeStarboards(self,oldTime):
@@ -320,8 +308,7 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
         async with ctx.channel.typing():
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
+            conn, cursor = database_connect() 
             async for message in self.client.get_channel(int(sourceChId)).history(limit=lim, oldest_first=True):
                 try:
                     s = message.content.split(" ")[1]
@@ -331,10 +318,8 @@ class Starboards(commands.Cog):
                     
                 except:
                     continue
-
-            conn.commit()
-            cursor.close()
-            conn.close()
+                
+            database_disconnect(conn, cursor)
 
     @commands.command(brief="Scrape all starboard text content to text file.")
     @checks.is_vriska()

@@ -77,6 +77,16 @@ async def get_system_members_by_discord_id(discord_user_id: int) -> Optional[Dic
         log.warning(
             "Could not connect to PK server without errors. \n{}".format(e))
 
+async def get_system_tag_by_pk_id(pk_id:str) -> str:
+    try:
+        async with aiohttp.ClientSession() as session:
+            system = await pk.System.get_by_hid(session, pk_id)
+            return system.tag
+
+    except aiohttp.ClientError as e:
+        log.warning(
+            "Could not connect to PK server without errors. \n{}".format(e))
+
 async def get_pk_message(message_id: int) -> Optional[Dict]:
     """Attempts to retrieve details on a proxied/pre-proxied message"""
     try:
