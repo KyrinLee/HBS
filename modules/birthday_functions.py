@@ -70,9 +70,9 @@ async def format_birthdays_day(birthday_dict, day, client, header_format=None):
     
     if header_format == None:
         if (day.year == today.year and day.month == today.month and day.day == today.day):
-            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays**\n'
+            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**\n'
         else:
-            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays**\n'
+            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays:**\n'
     else:
         output += header_format
 
