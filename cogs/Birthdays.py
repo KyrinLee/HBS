@@ -100,6 +100,7 @@ class Birthdays(commands.Cog):
     @commands.command(aliases=["myBirthdays", "birthdayList","birthdaysList"], brief="See all of your birthdays.")
     async def listBirthdays(self, ctx):
         async with ctx.channel.typing():
+            birthdays_array = []
             system = await pk.get_system_by_discord_id(ctx.author.id)
 
             output = "**My Birthdays:**\n"
@@ -109,7 +110,11 @@ class Birthdays(commands.Cog):
             except:
                 pass
 
-            output += await format_birthdays_year(birthdays)
+            for id, members in birthdays.items():
+                birthdays_array += members
+            birthdays_dict = {system.hid: birthdays_array}
+
+            output += await format_birthdays_year(birthdays_dict)
             await split_and_send(output, ctx.channel)
 
     '''@commands.command(brief="See all birthdays, from all users.")
