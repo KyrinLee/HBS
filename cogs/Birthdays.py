@@ -8,7 +8,7 @@ from github import Github
 from dateutil import parser
 import re
 
-from modules import checks, pk
+from modules import checks, pk, birthday_functions
 from modules.Birthday import Birthday
 
 from modules.birthday_functions import *
@@ -45,6 +45,10 @@ class Birthdays(commands.Cog):
             cursor.execute("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
 
         database_disconnect(conn,cursor)
+
+    @tasks.loop(seconds=3600)
+    async def update_cache(self):
+        birthday_functions.pluralkit_birthdays_cached_dict = await get_pk_birthdays()
         
     ''' ------------------------------
             GETTING BIRTHDAYS
@@ -77,7 +81,7 @@ class Birthdays(commands.Cog):
     @commands.command(brief="See all birthdays within the next week.")
     async def upcomingBirthdays(self, ctx):
         async with ctx.channel.typing():
-            num_days = 14
+            num_days = 7
             output = "**Upcoming Birthdays:**\n"
             start_day = get_today() + timedelta(days=1)
             end_day = start_day + timedelta(days=num_days-1)
@@ -209,7 +213,7 @@ class Birthdays(commands.Cog):
     @commands.command(brief="Connect your PluralKit account.")
     async def addSystemBirthdays(self, ctx):
         async with ctx.channel.typing():
-            sql_insert_query = """ INSERT INTO pkinfo (id, token) VALUES (%s,%s)"""
+            sql_insert_query = """ INSERT INTO pkinfo (id, token, show_age) VALUES (%s,%s,False)"""
             token = ""
             system = await pk.get_system_by_discord_id(ctx.author.id)
             conn, cursor = database_connect()
@@ -278,6 +282,32 @@ class Birthdays(commands.Cog):
             cursor.execute(sql_update_query, record_to_insert)
 
         await ctx.send("PluralKit Token successfully added!")
+        database_disconnect(conn,cursor)
+
+    @commands.command(brief="Set your system birthdays to show ages based on birth year.")
+    async def showAge(self, ctx):
+        async with ctx.channel.typing():
+            sql_update_query = "UPDATE pkinfo SET show_age = True WHERE id = %s"
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+            conn, cursor = database_connect()
+            
+            record_to_insert = (str(system.hid),)
+            cursor.execute(sql_update_query, record_to_insert)
+
+        await ctx.send("Your PluralKit birthdays will now show age based on birth year.")
+        database_disconnect(conn,cursor)
+
+    @commands.command(brief="Set your system birthdays to hide ages based on birth year.")
+    async def hideAge(self, ctx):
+        async with ctx.channel.typing():
+            sql_update_query = "UPDATE pkinfo SET show_age = False WHERE id = %s"
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+            conn, cursor = database_connect()
+            
+            record_to_insert = (str(system.hid),)
+            cursor.execute(sql_update_query, record_to_insert)
+
+        await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.")
         database_disconnect(conn,cursor)
     
 def setup(client):

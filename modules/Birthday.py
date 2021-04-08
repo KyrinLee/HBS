@@ -14,8 +14,9 @@ class Birthday:
     birthday: datetime.date
     year: int
     id: int
+    show_age: bool
 
-    def __init__(self, name="", birthday=None, id=None, raw=True, year=None):
+    def __init__(self, name="", birthday=None, id=None, raw=True, year=None, show_age=False):
         self.year = -1
         if raw:
             try:
@@ -34,6 +35,7 @@ class Birthday:
         
         self.name = name.rstrip()
         self.id = id
+        self.show_age = show_age
 
     @classmethod
     def from_string(cls, birthday_string) -> 'Birthday':

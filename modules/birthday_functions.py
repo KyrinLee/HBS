@@ -16,6 +16,8 @@ from modules import checks, pk, pluralKit
 from modules.Birthday import Birthday
 from resources.constants import *
 
+pluralkit_birthdays_cached_dict = {}
+
 gistSem = asyncio.Semaphore(1)
 
 g = Github(os.environ['GIST_TOKEN'])
@@ -67,9 +69,9 @@ async def format_birthdays_day(birthday_dict, day, client, header_format=None):
     
     if header_format == None:
         if (day.year == today.year and day.month == today.month and day.day == today.day):
-            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays'
+            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays**\n'
         else:
-            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays'
+            output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays**\n'
     else:
         output += header_format
 
@@ -80,7 +82,7 @@ async def format_birthdays_day(birthday_dict, day, client, header_format=None):
                 age_text = ""
                 birthday = member.birthday
                 if member.year not in [-1,1,4]:
-                    if calculate_age(birthday, day) > 0:
+                    if member.show_age and calculate_age(birthday, day) > 0:
                         age_text = f': {calculate_age(birthday, day)} years old'
                 final_birthdays.append(f'{member.name} {tag}{age_text}')
 
@@ -99,6 +101,9 @@ def calculate_age(born, on_date=None):
 
 async def get_pk_birthdays():
     birthday_dict = {}
+    if pluralkit_birthdays_cached_dict != {}:
+        return pluralkit_birthdays_cached_dict
+    
     conn, cursor = database_connect()
 
     cursor.execute("SELECT * FROM pkinfo")
@@ -118,7 +123,7 @@ async def get_pk_birthdays():
                 for member in members:
                     if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
                         name = member.display_name if member.name_privacy == "private" else member.name
-                        system_birthdays.append(Birthday(name=name, birthday=member.birthday, raw=True))
+                        system_birthdays.append(Birthday(name=name, birthday=member.birthday, raw=True, show_age=bool(i[2])))
                 
         except:
             system_birthdays = NO_ACCESS + "\nEither set your member list to public, or run `hbs;addPKToken` to share your access token."

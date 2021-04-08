@@ -72,6 +72,7 @@ async def on_ready():
 
     
     client.get_cog('Birthdays').time_check.start()
+    client.get_cog('Birthdays').update_cache.start()
 
     conn.commit()
     cursor.close()
