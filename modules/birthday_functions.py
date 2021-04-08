@@ -17,6 +17,7 @@ from modules.Birthday import Birthday
 from resources.constants import *
 
 pluralkit_birthdays_cached_dict = {}
+gist_birthdays_cached_dict = {}
 
 gistSem = asyncio.Semaphore(1)
 
@@ -174,6 +175,9 @@ async def get_pk_birthdays_by_date_range(start_day, end_day):
 
 async def get_gist_birthdays():
     birthday_dict = {}
+    if gist_birthdays_cached_dict != {}:
+        return gist_birthdays_cached_dict
+    
     async with gistSem:
         raw_birthdays = gist.files["birthdays.txt"].content
         raw_birthdays = re.split("\n",raw_birthdays)
