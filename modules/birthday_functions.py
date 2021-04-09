@@ -15,17 +15,8 @@ from modules import checks, pk, pluralKit
 from modules.Birthday import Birthday
 from resources.constants import *
 
-<<<<<<< HEAD
 pluralkit_cache = []
 manual_cache = []
-=======
-pluralkit_birthdays_cached_dict = {}
-
-gistSem = asyncio.Semaphore(1)
-
-g = Github(os.environ['GIST_TOKEN'])
-gist = g.get_gist(os.environ['BIRTHDAYS_GIST_ID'])
->>>>>>> parent of 6666218 (update birthdays)
 
 sql_insert_query = """INSERT INTO birthdays (name, day, month, year, id, show_age) VALUES (%s,%s,%s,%s,%s,%s)"""
 sql_delete_query = """DELETE FROM birthdays where name = %s and id = %s"""
@@ -160,7 +151,6 @@ async def get_pk_birthdays_by_date_range(start_day, end_day):
 
 #MANUAL BIRTHDAY FUNCTIONS
 
-<<<<<<< HEAD
 async def get_manual_birthdays():
     birthdays = []
     if manual_cache != []:
@@ -185,52 +175,6 @@ async def get_manual_birthdays_by_date_range(start_day, end_day):
     query = "SELECT * FROM birthdays WHERE day >= %s AND month >= %s AND day <= %s AND month <= %s"
     values = (start_day.day, start_day.month, end_day.day, end_day.month)
     data = await run_query(query, values)
-=======
-async def get_gist_birthdays():
-    birthday_dict = {}
-    async with gistSem:
-        raw_birthdays = gist.files["birthdays.txt"].content
-        raw_birthdays = re.split("\n",raw_birthdays)
-        birthday_list = [Birthday.from_string(birthday) for birthday in raw_birthdays if birthday != ""]
-    for user_id, members in groupby(birthday_list, lambda x: x.id):
-        if user_id != 0:
-            members = list(members)
-            members.sort(key = lambda d: (d.birthday.month, d.birthday.day, d.name))
-            if len(members) == 0:
-                members = NO_GIST_BIRTHDAYS_SET
-            birthday_dict[user_id] = members
-            
-    return birthday_dict
-
-async def get_gist_birthdays_by_day(search_day):
-    birthday_dict = {}
-    all_birthdays = await get_gist_birthdays()
-            
-    for user_id, birthdays in all_birthdays.items():
-        birthday_dict[user_id] = [b for b in birthdays if (b.birthday.month == search_day.month and b.birthday.day == search_day.day)]
-
-    return birthday_dict
-
-async def get_gist_birthdays_by_date_range(start_day, end_day):
-    day_array = []
-    all_birthdays = await get_gist_birthdays()
-    
-    day = start_day
-    while day <= end_day:
-        birthday_dict = {}
-        for user_id, birthdays in all_birthdays.items():
-            birthday_dict[user_id] = [b for b in birthdays if (b.birthday.month == day.month and b.birthday.day == day.day)]
-        day_array.append(birthday_dict)
-        day += timedelta(days=1)
-    return day_array
-
-async def get_gist_birthdays_by_user(user_id):
-    birthday_dict = await get_gist_birthdays()
-    try:
-        birthdays = birthday_dict[user_id]
-    except:
-        raise checks.OtherError(NO_GIST_BIRTHDAYS_SET)
->>>>>>> parent of 6666218 (update birthdays)
     
     for row in data:
         birthdays.append(Birthday.from_database_row(row))
