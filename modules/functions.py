@@ -252,8 +252,11 @@ def line_count():
     for file_path in glob.glob("./**/*.py",recursive=True):
         try:
             with open(file_path) as file:
-                line_count += len(file.readlines())
+                lines = file.readlines()
+                line_count += len(lines)
+                for line in lines:
+                    char_count += len(line)
         except:
             pass
 
-    return line_count
+    return line_count, char_count
