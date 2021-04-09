@@ -70,7 +70,8 @@ async def on_ready():
     client.get_cog('Birthdays').time_check.start()
     client.get_cog('Birthdays').update_cache.start()
 
-    game = f'{str(line_count())} lines of code'
+    lines, chars = line_count()
+    game = f'{str(lines)} lines | {str(chars)} characters'
     await client.change_presence(activity=discord.Game(name=game))
 
 @client.before_invoke
