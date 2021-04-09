@@ -8,6 +8,9 @@ import re
 
 import sys
 
+from pytz import timezone
+import pytz
+
 from modules import checks
 
 class Birthday:

@@ -34,7 +34,14 @@ async def run_query(query, values=()):
     async with databaseSem:
         conn, cursor = database_connect()
         cursor.execute(query, values)
-        data = cursor.fetchall()
+        try:
+            data = cursor.fetchall()
+        except psycopg2.ProgrammingError as e:
+            if str(e) == "no results to fetch":
+                data = []
+            else:
+                raise
+
         database_disconnect(conn, cursor)
 
     return data
@@ -89,11 +96,6 @@ def formatTriggerDoc(txt):
     txtArr[2] = re.sub(r'\[([\s\S]*?)\]',r'||\1||',txtArr[2])
     txtArr[2] = re.sub(r'(\*\*[\s\S]*?\*\*)',r'__\1__',txtArr[2])
     txtArr[2] = re.sub(r'-        ',r'      - ',txtArr[2])
-    #txtArr[2] = re.sub(r': *(.{2,}[\r\n]*)',r': ||\1||',txtArr[2])
-
-    #txtArr[2] = re.sub(r'\* (.*[\r\n]*)',r'* ||\1||',txtArr[2])
-
-    
     txtArr[2] = re.sub(r'\r\n\|\|',r'||\n',txtArr[2])
 
     return "".join(txtArr)

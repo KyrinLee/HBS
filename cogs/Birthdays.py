@@ -36,8 +36,8 @@ class Birthdays(commands.Cog):
         last_birthday = parser.parse(last_birthday_string).date()
 
         if today.date() != last_birthday:
-            birthdays.append(await get_pk_birthdays_by_day(today))
-            birthdays.append(await get_manual_birthdays_by_day(today))
+            birthdays = await get_pk_birthdays_by_day(today)
+            birthdays += await get_manual_birthdays_by_day(today)
 
             output = await format_birthdays_day(birthdays, today, self.client)
             await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
@@ -76,7 +76,7 @@ class Birthdays(commands.Cog):
             await split_and_send(output, ctx.channel)
 
     @commands.command(brief="See all birthdays within the next week.")
-    async def upcomingBirthdays(self, ctx, num_days=7):
+    async def upcomingBirthdays(self, ctx, num_days=6):
         async with ctx.channel.typing():
             output = "**Upcoming Birthdays:**\n"
             start_day = get_today() + timedelta(days=1)
@@ -85,14 +85,14 @@ class Birthdays(commands.Cog):
             birthdays = await get_pk_birthdays_by_date_range(start_day, end_day)
             birthdays += await get_manual_birthdays_by_date_range(start_day, end_day)
             
-            for i in range(0,num_days+1):
+            for i in range(0,num_days):
                 day = start_day + timedelta(days=i)
                 days_birthdays = [b for b in birthdays if b.same_day_as(day)]
-                sys.stdout.write(str(days_birthdays) + "\n")
                 
-                text = await format_birthdays_day(days_birthdays, day, self.client, header_format="")
-                if text != "":
-                    output += f'__{re.sub("x","",re.sub("x0","",day.strftime("%B x%d")))}__\n{text}\n'
+                if days_birthdays != []:
+                    output += await format_birthdays_day(days_birthdays, day, self.client)
+
+        output = re.sub("\*\*","__",output)
 
         await split_and_send(output, ctx.channel)
 

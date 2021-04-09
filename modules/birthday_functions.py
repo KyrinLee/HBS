@@ -25,7 +25,7 @@ NO_MANUAL_BIRTHDAYS_SET = "You have no manual birthdays set! Use `hbs;addBirthda
 NO_ACCESS = "I don't have access to your member list!"
 
 def sort_birthday_list(birthdays):
-    birthdays.sort(key = lambda d: (d.month, d.day, d.name))
+    birthdays.sort(key = lambda b: (b.month, b.day, b.name))
     return birthdays
     
 def calculate_age(birthday, on_date):
@@ -67,20 +67,18 @@ async def format_birthdays_year(birthdays):
     
     return output
 
-async def format_birthdays_day(birthdays, day, client, header_format=None):
+async def format_birthdays_day(birthdays, day, client):
     output = ""
     final_birthdays = []
     today = get_today()
     
-    if birthdays == []:
-        return output
-    
-    if header_format != None:
-        output += header_format
-    elif (day.year == today.year and day.month == today.month and day.day == today.day):
+    if (day == today):
         output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**\n'
     else:
         output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays:**\n'
+
+    if birthdays == []:
+        return output
 
     birthdays = sort_birthday_list(birthdays)
 
@@ -91,9 +89,8 @@ async def format_birthdays_day(birthdays, day, client, header_format=None):
         final_birthdays.append(f'{member.name} {tag}{age_text}')
         
     output += escapeCharacters("\n".join(final_birthdays))
-    output = replace_user_ids_with_nicknames(client, output)
+    output = replace_user_ids_with_nicknames(client, output) + "\n"
     return output
-
 
 #PLURALKIT BIRTHDAY FUNCTIONS
 
