@@ -46,8 +46,12 @@ class Birthdays(commands.Cog):
 
     @tasks.loop(seconds=1800)
     async def update_cache(self):
+<<<<<<< HEAD
         birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
         birthday_functions.manual_cache = await get_manual_birthdays()
+=======
+        birthday_functions.pluralkit_birthdays_cached_dict = await get_pk_birthdays()
+>>>>>>> parent of 6666218 (update birthdays)
         
     ''' ------------------------------
             GETTING BIRTHDAYS
