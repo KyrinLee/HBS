@@ -254,9 +254,15 @@ async def on_member_join(member):
 async def on_member_update(before, after):
     if before.guild.id ==SKYS_SERVER_ID:
         if before.id == HUSSIEBOT_ID:
+            hussie_phrase = random.choice(["The one and only Andrew", "My boyfriend", "My precious kismesis", "My love", "My fiance", "My matesprit", "Dumb bitch", "Goddamn coward", "Goddamn little fruit", "The idiot I'm marrying", "Stupid"])
+                
             if str(before.status) == "online" and str(after.status) == "offline":
-                hussie_phrase = random.choice(["The one and only Andrew", "My boyfriend", "My precious kismesis", "My love", "My fiance", "My matesprit", "Dumb bitch", "Goddamn coward", "Goddamn little fruit"])
-                await client.get_channel(HBS_CHANNEL_ID).send(hussie_phrase + " Hussie just went offline. :pensive:")
+                if random.random() < .95:
+                    await client.get_channel(HBS_CHANNEL_ID).send(hussie_phrase + " Hussie just went offline. :pensive:")
+                else:
+                    await client.get_channel(HBS_CHANNEL_ID).send("Hussie just went offline. It begins.")
+            if str(before.status) == "offline" and str(after.status) == "online":
+                await client.get_channel(HBS_CHANNEL_ID).send(hussie_phrase + " Hussie is back online! :D")
 
 @client.command(pass_context=True,brief="Spoil an image.", aliases=['spoiler'])
 async def spoil(ctx, *, text=""):
@@ -360,8 +366,6 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
 client.run(os.environ["token"])
-
-
 
 #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
 '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
