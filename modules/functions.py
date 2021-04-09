@@ -248,11 +248,15 @@ def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
 def line_count():
     import glob
     line_count = 0
+    char_count = 0
     for file_path in glob.glob("./**/*.py",recursive=True):
         try:
             with open(file_path) as file:
-                line_count += len(file.readlines())
+                lines = file.readlines()
+                line_count += len(lines)
+                for line in lines:
+                    char_count += len(line)
         except:
             pass
 
-    return line_count
+    return line_count, char_count
