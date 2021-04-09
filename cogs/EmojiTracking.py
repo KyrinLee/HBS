@@ -13,8 +13,8 @@ from datetime import datetime, date
 import asyncio
 
 from modules import checks
-from modules.constants import *
 from modules.functions import *
+from resources.constants import *
 
 postgreSQL_select_Query = "SELECT id FROM emoji"
 update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
