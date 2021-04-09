@@ -78,7 +78,7 @@ class Birthdays(commands.Cog):
     @commands.command(brief="See all birthdays within the next week.")
     async def upcomingBirthdays(self, ctx, num_days=6):
         async with ctx.channel.typing():
-            output = "**Upcoming Birthdays:**\n"
+            output = "**__Upcoming Birthdays:__**\n"
             start_day = get_today() + timedelta(days=1)
             end_day = start_day + timedelta(days=num_days-1)
 
@@ -91,8 +91,6 @@ class Birthdays(commands.Cog):
                 
                 if days_birthdays != []:
                     output += await format_birthdays_day(days_birthdays, day, self.client)
-
-        output = re.sub("\*\*","__",output)
 
         await split_and_send(output, ctx.channel)
 
