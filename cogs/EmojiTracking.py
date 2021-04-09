@@ -13,7 +13,7 @@ from datetime import datetime, date
 import asyncio
 
 from modules import checks
-from constants import *
+from modules.constants import *
 from modules.functions import *
 
 postgreSQL_select_Query = "SELECT id FROM emoji"
