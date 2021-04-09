@@ -63,13 +63,15 @@ async def on_ready():
         sys.stdout.write(str(g.name) + ", Owner ID: " + str(g.owner_id) + "\n");
     sys.stdout.flush()
 
-    data = await run_query("SELECT * FROM vars WHERE name = 'game'")
+    '''data = await run_query("SELECT * FROM vars WHERE name = 'game'")
     game = data[0][1]
-    await client.change_presence(activity=discord.Game(name=game))
+    await client.change_presence(activity=discord.Game(name=game))'''
     
     client.get_cog('Birthdays').time_check.start()
     client.get_cog('Birthdays').update_cache.start()
 
+    game = f'{str(line_count())} lines of code'
+    await client.change_presence(activity=discord.Game(name=game))
 
 @client.before_invoke
 async def common(ctx):
@@ -361,7 +363,6 @@ if __name__ == "__main__":
         sys.stdout.write(failOutput)
         for i in range(0,len(failed)):
             sys.stdout.write(f'\t{failed[i]}, Exception: {failedExc[i]}\n')
-
 
     sys.stdout.flush()
 

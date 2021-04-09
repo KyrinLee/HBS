@@ -244,3 +244,15 @@ def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
         if field in desired_fields and field in constants:
             values[field], remainder = divmod(remainder, constants[field])
     return f.format(fmt, **values)
+
+def line_count():
+    import glob
+    line_count = 0
+    for file_path in glob.glob("./**/*.py",recursive=True):
+        try:
+            with open(file_path) as file:
+                line_count += len(file.readlines())
+        except:
+            pass
+
+    return line_count
