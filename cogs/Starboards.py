@@ -22,7 +22,7 @@ class Starboards(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    async def addToStarboard(self,msg,starboardDBname=None,forceStar=False):
+    async def add_to_starboard(self,msg,starboardDBname=None,forceStar=False):
         reacts = msg.reactions
 
         count = 0
@@ -42,11 +42,8 @@ class Starboards(commands.Cog):
                     if str(r.emoji) == e:
                         count = r.count
 
-            conn, cursor = database_connect() 
-
-            cursor.execute("SELECT * FROM starboards WHERE tablename= '" + str(starboardDBname) + "'")
-
-            board = cursor.fetchall()[0]
+            data = await run_query("SELECT * FROM starboards WHERE tablename= %s", (str(starboardDBname),))
+            board = data[0]
             starboardID = board[1]
             starlimit = board[4]
             starboardDBname = board[3]
@@ -54,10 +51,7 @@ class Starboards(commands.Cog):
             if starlimit == 0:
                 return 
 
-            cursor.execute(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
-            row = cursor.fetchall()
-
-            color = colors[max(0, min(count-starlimit,12))]
+            row = await run_query(f'SELECT * FROM {starboardDBname} WHERE msg = {msg.id}')
             
             star = str(stars[min(count,10)//5]) if starboardDBname == "starboard" else emojis[0]
             
@@ -72,12 +66,12 @@ class Starboards(commands.Cog):
 
                 
                 if count == 0: #DELETE STARRED MESSAGE IF STAR COUNT HITS ZERO. REMOVE FROM DATABASE.
-                    cursor.execute(f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}')
+                    await run_query(f'DELETE FROM {starboardDBname} WHERE msg = {msg.id}')
                     await smsg.delete()
                     edited = True
                 else:
                     update_query = f'UPDATE {starboardDBname} SET ns = {count}, time = %s WHERE msg = {msg.id}'
-                    cursor.execute(update_query, (datetime.fromtimestamp(time.time()),))
+                    await run_query(update_query, (datetime.fromtimestamp(time.time()),))
 
                     text = f'{star} **{count}** <#{msg.channel.id}>'
 
@@ -133,9 +127,7 @@ class Starboards(commands.Cog):
                     smsg = await self.client.get_channel(starboardID).send(content=text, embed=embed)
 
                     query = f'INSERT INTO {starboardDBname} (msg, smsg, ns, time) VALUES ({msg.id},{smsg.id},{count},%s)'
-                    cursor.execute(query, (datetime.fromtimestamp(time.time()),))
-
-            database_disconnect(conn, cursor)
+                    await run_query(query, (datetime.fromtimestamp(time.time()),))
 
     @commands.Cog.listener()
     @checks.is_in_skys()
@@ -157,7 +149,7 @@ class Starboards(commands.Cog):
                 starboardDBname = "starboard"
 
             if starboardDBname != "":
-                await self.addToStarboard(msg, starboardDBname=starboardDBname)
+                await self.add_to_starboard(msg, starboardDBname=starboardDBname)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
@@ -178,7 +170,7 @@ class Starboards(commands.Cog):
                 starboardDBname = "starboard"
 
             if starboardDBname != "":
-                await self.addToStarboard(msg, starboardDBname=starboardDBname)
+                await self.add_to_starboard(msg, starboardDBname=starboardDBname)
             
     @commands.command(pass_context=True, brief="Manually star a message.", help="Starboard defaults to 'starboard'.")
     @checks.is_in_skys()
@@ -189,7 +181,7 @@ class Starboards(commands.Cog):
         if starboard not in starboards:
             raise discord.InvalidArgument("That starboard does not exist.")
 
-        await self.addToStarboard(msg,forceStar=True,starboardDBname=starboard)
+        await self.add_to_starboard(msg,forceStar=True,starboardDBname=starboard)
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardChannel'], brief="Change a starboard channel.",help="Starboard defaults to 'starboard'.")
     @checks.is_in_skys()
@@ -199,33 +191,24 @@ class Starboards(commands.Cog):
             raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         elif channelID == None:
             raise discord.InvalidArgument("Please include message ID or link.")
+
+        channel = self.client.get_channel(channelID)
+        result = await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
+        if result == 1:
+            await run_query(f'UPDATE starboards SET channelid = {channelID} WHERE name = {starboard}')
+            await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
+
+        elif result == 0:
+            await ctx.send("Operation cancelled.")
         else:
-            channel = self.client.get_channel(channelID)
-            result = await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
-            if result == 1:
-                conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-                cursor = conn.cursor()
-                cursor.execute(f'UPDATE starboards SET channelid = {channelID} WHERE name = {starboard}')
-                await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
-
-                conn.commit()
-                cursor.close()
-                conn.close()
-
-            elif result == 0:
-                await ctx.send("Operation cancelled.")
-            else:
-                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.command(aliases=['starboardInfo'],brief="View all starboard settings.",help="Use mobile selector -m for a more readable format on mobile.")
     @checks.is_in_skys()
     @commands.is_owner()
     async def viewStarboards(self, ctx:commands.Context,mobile=""):
-        conn, cursor = database_connect() 
-
-        cursor.execute("SELECT * FROM starboards")
-        starboards = cursor.fetchall()
-
+        starboards = await run_query("SELECT * FROM starboards")
+        
         maxName = max([len(row[0]) for row in starboards])
         maxChannelName = max([len(str(self.client.get_channel(int(row[1])))) for row in starboards])
         
@@ -241,8 +224,6 @@ class Starboards(commands.Cog):
         output = (output + "```") if mobile != "-m" else output
 
         await ctx.send(output)
-        database_disconnect(conn, cursor)
-
 
     @commands.command(brief="Change threshold for a starboard.",help="Starboard defaults to 'starboard'.\nSet starlimit to 0 to disable starboard.")
     @checks.is_in_skys()
@@ -252,22 +233,19 @@ class Starboards(commands.Cog):
             raise discord.InvalidArgument("Please include new star limit or 0 to disable.")
         elif starboard not in starboards:
             raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
-        else:
-            result = await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
-            if result == 1:
-                conn, cursor = database_connect() 
-                cursor.execute(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
-                if starlimit == 0:
-                    await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
-                else:
-                    await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
 
-                database_disconnect(conn, cursor)
-
-            elif result == 0:
-                await ctx.send("Operation cancelled.")
+        result = await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
+        if result == 1:
+            await run_query(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
+            if starlimit == 0:
+                await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
             else:
-                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+                await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
+
+        elif result == 0:
+            await ctx.send("Operation cancelled.")
+        else:
+            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
     @commands.command(brief="Disable a starboard.",help="Starboard defaults to 'starboard'.")
     @checks.is_in_skys()
@@ -284,6 +262,7 @@ class Starboards(commands.Cog):
             raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         if not starlimit.isdigit():
             raise discord.InvalidArgument("Please include a valid integer star limit for the starboard.")
+
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = int(starlimit))
 
     '''async def purgeStarboards(self,oldTime):
@@ -308,29 +287,15 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def transferStarboard(self, ctx:commands.Context, sourceChId, targetChId, lim=1000):
         async with ctx.channel.typing():
-            conn, cursor = database_connect() 
             async for message in self.client.get_channel(int(sourceChId)).history(limit=lim, oldest_first=True):
                 try:
                     s = message.content.split(" ")[1]
                     smsg = await self.client.get_channel(int(targetChId)).send(content=message.content,embed=message.embeds[0])
                     q = f'INSERT INTO test VALUES ({message.id},{smsg.id},{s},%s)'
-                    cursor.execute(q, (datetime.fromtimestamp(time.time()),))
+                    await run_query(q, (datetime.fromtimestamp(time.time()),))
                     
                 except:
                     continue
                 
-            database_disconnect(conn, cursor)
-
-    @commands.command(brief="Scrape all starboard text content to text file.")
-    @checks.is_vriska()
-    async def scrapeStarboard(self, ctx:commands.Context, starboardId=None):
-        async with ctx.channel.typing():
-            with open('starboard_text.txt', 'w') as f:
-                async for message in self.client.get_channel(int(starboardId)).history(limit=2000, oldest_first=True):
-                    try:
-                        f.write(message.embeds[0].description + "\n")             
-                    except:
-                        continue
-                    
 def setup(client):
     client.add_cog(Starboards(client))

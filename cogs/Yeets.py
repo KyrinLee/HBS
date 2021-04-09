@@ -30,13 +30,13 @@ class Yeets(commands.Cog):
             cursor.execute(select_q,("yeetsChannel",))
             yeetsChannel = str(cursor.fetchall()[0][0])
             
+            database_disconnect(conn, cursor)
+            
             msg = joinmsg.replace("<name>",str(member.name))
             msg = msg.replace("<NAME>",str(member.name).upper())
 
             if msg != "":
                 await self.client.get_channel(int(yeetsChannel)).send(msg)
-                
-            database_disconnect(conn, cursor)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -49,22 +49,20 @@ class Yeets(commands.Cog):
 
             cursor.execute(select_q,("yeetsChannel",))
             yeetsChannel = str(cursor.fetchall()[0][0])
+
+            database_disconnect(conn, cursor)
             
             msg = leavemsg.replace("<name>",str(member.name))
             msg = msg.replace("<NAME>",str(member.name).upper())
             
-            
             if msg != "":
                 await self.client.get_channel(int(yeetsChannel)).send(msg)
-
-            database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True,aliases=['changeMessage','changeMsg'],brief="Change join/leave messages.",
                       help="Message example: '\u003cname\u003e has left the server.'\nUse \u003cname\u003e for default capitalization, or \u003cNAME\u003e for all caps.\nLeave message blank to disable join/leave message.")
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
     async def changeYeetsMessage(self,ctx: commands.Context,msgName=None,*,message=""):
-        conn, cursor = database_connect()
 
         if msgName == None:
             raise discord.InvalidArgument("Please specify 'join' or 'leave' message.")
@@ -84,36 +82,29 @@ class Yeets(commands.Cog):
         else:
             result = await confirmationMenu(self.client, ctx, f'Would you like to delete the current {messageName.lower()}?')
             if result == 1:
-                cursor.execute(update_q, (message,columnName))
+                await run_query(update_q, (message,columnName))
                 await ctx.send(f'{messageName} deleted. To reinstate {messageName.lower()}s, just run this command again with a non-empty {messageName.lower()}.')
             elif result == 0:
                 await ctx.send("Operation cancelled.")
             else:
                 raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
-        database_disconnect(conn, cursor)
-
     @commands.command(pass_context=True,aliases=['changeYeets','changeJoin','changeLeave'],brief="Change join/leave message channel.",)
     @commands.is_owner()
     @checks.is_in_guild(609112858214793217)
     async def changeYeetsChannel(self, ctx:commands.Context, channelID=None):
-
-        conn, cursor = database_connect()
         channelname = "test"
 
-        if channelID == None:
+        if channelID == None or channelID.isnumeric() == False:
             raise discord.InvalidArgument("Please include a numeric channel ID.")
 
-        if channelID.isnumeric() == False:
-            raise discord.InvalidArguments("Please include a numeric channel ID.")
-            
         cid = int(channelID)
         for channel in ctx.guild.channels:
             if channel.id == cid:
                 channelname = channel.name
 
                 try:
-                    cursor.execute(update_q,(str(cid),"yeetsChannel"))
+                    await run_query(update_q,(str(cid),"yeetsChannel"))
                     await ctx.send("Join/Leave Message channel changed to " + str(channelname) + " (" + str(channel.id) + ").")
                              
                 except:
@@ -121,8 +112,6 @@ class Yeets(commands.Cog):
                     
         if channelname == "test":
             raise discord.InvalidArgument(message="That channel is not in this server.")
-          
-        database_disconnect(conn, cursor)
             
             
 def setup(client):

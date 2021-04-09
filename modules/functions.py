@@ -30,6 +30,15 @@ def database_disconnect(conn, cursor):
     cursor.close()
     conn.close()
 
+async def run_query(query, values=()):
+    async with databaseSem:
+        conn, cursor = database_connect()
+        cursor.execute(query, values)
+        data = cursor.fetchall()
+        database_disconnect(conn, cursor)
+
+    return data
+
 def nsyl(word):
   try:
       return [len(list(y for y in x if y[-1].isdigit())) for x in dictionary[word.lower()]] 

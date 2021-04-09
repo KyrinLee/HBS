@@ -18,13 +18,9 @@ import inflect
 
 p = inflect.engine()
 
-
-DATABASE_URL = os.environ['DATABASE_URL']
-
 class DumbCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
-
 
     @commands.command(pass_context=True,brief="Get your bounty.")
     async def bounty(self, ctx: commands.Context, *, user:commands.clean_content=""):
@@ -84,18 +80,12 @@ class DumbCommands(commands.Cog):
                     if p.singular_noun(word) == False:
                         return word
                     return p.singular_noun(word)
-                    
-                '''def get_word_with_syllable_count(count):
-                    word = ""
-                    while (nsyl(word) != [count]):
-                        word = rd.choice(list(dictionary.keys()))
-                    return word
-                '''
                 
                 word1 = get_word_with_syllable_count(1)
                 word2 = get_word_with_syllable_count(1)
             
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
+        
     @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
     async def ship(self, ctx, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
@@ -152,7 +142,6 @@ class DumbCommands(commands.Cog):
         output = output.rstrip("\n")
         await ctx.send(output)
 
-
     @commands.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
     @commands.cooldown(1, 300, commands.BucketType.user)
     async def whitespace(self, ctx, delete_after=8):
@@ -170,7 +159,6 @@ class DumbCommands(commands.Cog):
 
         hours = None if delete_after == -1 else int(delete_after) * 3600
         await ctx.send(output + "```",delete_after=hours)
-
         
     @commands.command(pass_context=True,brief="Vriska.")
     async def vriska(self, ctx):

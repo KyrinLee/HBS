@@ -1,4 +1,6 @@
 import os
+import asyncio
+
 from nltk.corpus import cmudict
 dictionary = cmudict.dict()
 
@@ -28,6 +30,8 @@ HBS_TEST_CHANNEL_ID = 753349219808444438
 
 VENT_CATEGORY_ID = 609118603417092099
 
+databaseSem = asyncio.Semaphore(1)
+
 stars = ["\U00002B50","\U0001F31F","\U00002728"]
 moodreacts = ["\U0001F91D","<:bigmood:713218567977304146>"]
 cursedreacts = ["\U0001F6BD"]
@@ -43,8 +47,8 @@ right_arrow = "\u27a1"
 x = "\u274c"
 check = "\u2705"
 
-colors = [0xa10000,0xa15000,0xa1a100, 0x658200, 0x416600, 0x008141, 0x008282, 0x005682, 0x000056, 0x2b0057, 0x6a006a, 0x77003c,0xff0000]
-colors = [0x005682,0x005682,0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682, 0x005682,0x005682]
+color = 0x005682
+
 homestuck_characters = ["John Egbert","Rose Lalonde","Jade Harley","Dave Strider","Jane Crocker","Roxy Lalonde","Dirk Strider","Jake English",
                         "Karkat Vantas","Aradia Megido","Tavros Nitram","Sollux Captor","Nepeta Leijon","Kanaya Maryam",
                         "Terezi Pyrope","Vriska Serket","Equius Zahhak","Gamzee Makara","Eridan Ampora","Feferi Peixes",

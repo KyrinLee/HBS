@@ -61,22 +61,14 @@ async def on_ready():
     sys.stdout.write('Servers connected to: \n')
     for g in client.guilds:
         sys.stdout.write(str(g.name) + ", Owner ID: " + str(g.owner_id) + "\n");
-
     sys.stdout.flush()
 
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM vars WHERE name = 'game'")
-    game = cursor.fetchall()[0][1]
+    data = await run_query("SELECT * FROM vars WHERE name = 'game'")
+    game = data[0][1]
     await client.change_presence(activity=discord.Game(name=game))
-
     
     client.get_cog('Birthdays').time_check.start()
     client.get_cog('Birthdays').update_cache.start()
-
-    conn.commit()
-    cursor.close()
-    conn.close()
 
 
 @client.before_invoke
@@ -336,14 +328,6 @@ async def on_error(event_name, *args):
             return #IGNORE ERRORS IN RAW_REACTION_ADD WHEN A MESSAGE IS REACTED TO AND THEN DELETED
     except:
         pass
-    
-    '''f = io.StringIO()
-    with redirect_stderr(f):
-        logging.exception("Exception from event {}".format(event_name))
-    out = f.getvalue()
-
-    await client.get_user(VRISKA_ID).send(str(out))'''
-    logging.exception("Exception from event {}".format(event_name))
 
 if __name__ == "__main__":
     loaded = []

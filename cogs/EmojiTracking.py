@@ -5,7 +5,6 @@ import re
 
 import os
 import psycopg2
-from psycopg2 import Error
 from discord import NotFound
 
 import time
@@ -13,10 +12,13 @@ from datetime import datetime, date
 
 import asyncio
 
-from modules import checks, functions
+from modules import checks
+from constants import *
 from modules.functions import *
 
-DATABASE_URL = os.environ['DATABASE_URL']
+postgreSQL_select_Query = "SELECT id FROM emoji"
+update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
+get_usage = "SELECT usage FROM emoji WHERE id=%s"
 
 class EmojiTracking(commands.Cog):
     def __init__(self, client):
@@ -25,10 +27,6 @@ class EmojiTracking(commands.Cog):
     async def on_message_emojis(self, message):
         await self.updateEmojiList(message.guild)
         try:
-            postgreSQL_select_Query = "SELECT id FROM emoji"
-            update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-            get_usage = "SELECT usage FROM emoji WHERE id=%s"
-            
             conn, cursor = database_connect()
             cursor.execute(postgreSQL_select_Query)
             oldEmojis = cursor.fetchall()
@@ -62,10 +60,6 @@ class EmojiTracking(commands.Cog):
     async def on_raw_reaction_add(self, payload):
         await self.updateEmojiList(self.client.get_guild(payload.guild_id))
 
-        postgreSQL_select_Query = "SELECT id FROM emoji"
-        update_q = "UPDATE emoji SET usage = %s WHERE id = %s"
-        get_usage = "SELECT usage FROM emoji WHERE id=%s"
-
         conn, cursor = database_connect()
         cursor.execute(postgreSQL_select_Query)
         emojis = cursor.fetchall()
@@ -93,8 +87,6 @@ class EmojiTracking(commands.Cog):
 
             await self.updateEmojiList(ctx.guild)
 
-            conn, cursor = database_connect()
-
             if animated == None:
                 where_statement = ""
             elif animated[0] == "s":
@@ -105,9 +97,8 @@ class EmojiTracking(commands.Cog):
                 where_statement = ""
                 await ctx.send("Invalid static/animated argument. Showing all emoji.")
 
-            cursor.execute(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
-
-            emojis = cursor.fetchall()
+            emojis = await run_query(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
+            
             output = "`Top " + str(num) + " emojis:   ` "
 
             for i in range(0,num):
@@ -125,19 +116,12 @@ class EmojiTracking(commands.Cog):
                 output+="\n(static emojis excluded.)"
                 
             await ctx.send(output)
-            database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True, brief="Get usage data for specified emoji.")
     @checks.is_in_skys()
     async def getEmojiUsageCount(self, ctx, emoji:discord.Emoji=None):
-        conn, cursor = database_connect()
-
-        cursor.execute(f'SELECT * FROM emoji WHERE name = \'{emoji.name}\'')
-        data = cursor.fetchall()
-
+        data = await run_query(f'SELECT * FROM emoji WHERE name = \'{emoji.name}\'')
         await ctx.send(str(data[0][3]))
-
-        database_disconnect(conn, cursor)
         
 # ----- GET FULL EMOJI USAGE ----- #
 
@@ -147,7 +131,6 @@ class EmojiTracking(commands.Cog):
         async with ctx.channel.typing():
             output = ""
             await self.updateEmojiList(ctx.guild)
-            conn, cursor = database_connect()
 
             if animated == None:
                 where_statement = ""
@@ -159,15 +142,14 @@ class EmojiTracking(commands.Cog):
                 where_statement = ""
                 await ctx.send("Invalid static/animated argument. Showing all emoji.")
 
-            cursor.execute(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
-            data = cursor.fetchall()
-
+            data = await run_query(f'SELECT * FROM emoji {where_statement} ORDER BY usage DESC, name ASC')
+            
             digits = [row[3] for row in data]
             count = 0
             maxDigits = 5
 
             for i in data:
-                num = functions.numberFormat(i[3])
+                num = numberFormat(i[3])
 
                 if self.client.get_emoji(int(i[1])).available == True:
                     output += str(self.client.get_emoji(int(i[1]))) + ":` " + (str(num)).rjust(maxDigits) + "` "
@@ -184,7 +166,6 @@ class EmojiTracking(commands.Cog):
                     output+="\n(static emojis excluded.)"
                     
             await split_and_send(output, ctx.channel)
-            database_disconnect(conn, cursor)
             
     async def updateEmojiList(self, guild):
         sql_insert_query = """ INSERT INTO emoji (name, id, animated, usage) VALUES (%s,%s,%s,%s)"""
@@ -236,13 +217,9 @@ class EmojiTracking(commands.Cog):
         result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
         if result == 1:
             async with ctx.channel.typing():
-                conn, cursor = database_connect()
-                delete_query = "DELETE FROM emoji"
-                cursor.execute(delete_query)
+                await run_query("DELETE FROM emoji")
                 await ctx.send("Emoji list cleared.")
 
-                database_disconnect(conn, cursor)
-            
         elif result == 0:
             await ctx.send("Operation cancelled.")
         else:

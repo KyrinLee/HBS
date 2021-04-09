@@ -8,8 +8,6 @@ import sys
 import os
 import psycopg2
 
-from psycopg2 import Error
-
 from modules.checks import FuckyError
 from modules import checks
 from modules.functions import *
@@ -144,10 +142,7 @@ class Counters(commands.Cog):
     @commands.command(aliases=['counters','listCounters','allCounters','getCounters'],brief="List all counters.")
     @checks.is_in_skys()
     async def viewCounters(self, ctx:commands.Context):
-        conn, cursor = database_connect()
-
-        cursor.execute("SELECT * FROM counters ORDER BY mentions DESC")
-        counters = cursor.fetchall()
+        counters = await run_query("SELECT * FROM counters ORDER BY mentions DESC")
 
         maxName = max([len(row[0]) for row in counters]) + 1
         maxNum = len(str(max([row[2] for row in counters])))
@@ -160,7 +155,6 @@ class Counters(commands.Cog):
         output += "```"
 
         await ctx.send(output)
-        database_disconnect(conn, cursor)
        
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
     @checks.is_in_skys()
@@ -168,23 +162,14 @@ class Counters(commands.Cog):
         if counter == None:
             raise InvalidArgument("You have to tell me which one!")
         else:
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            cursor = conn.cursor()
-
             counter = counter.lower()
 
-            cursor.execute("SELECT * FROM counters WHERE name = '%s'",(counter,))
-            counters = cursor.fetchall()
-
+            counters = await run_query("SELECT * FROM counters WHERE name = '%s'",(counter,))
+            
             if len(counters) == 0:
                 raise InvalidArgument("That counter doesn't exist silly!")
             else:
                 await ctx.send(f'{(counters[0][0]+":")} {counters[0][2]} resets, last reset: {str(counters[0][1])[0:19]}')
-
-    @commands.command(enabled=False)
-    async def currTime(self, ctx):
-        currTime = datetime.utcnow()
-        await ctx.send(str(currTime))
         
 def setup(client):
     client.add_cog(Counters(client))
