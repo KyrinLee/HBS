@@ -143,18 +143,15 @@ class Counters(commands.Cog):
     @checks.is_in_skys()
     async def viewCounters(self, ctx:commands.Context):
         counters = await run_query("SELECT * FROM counters ORDER BY mentions DESC")
+        output = ""
 
         maxName = max([len(row[0]) for row in counters]) + 1
         maxNum = len(str(max([row[2] for row in counters])))
 
-        output = "```"
-
         for i in range(0,len(counters)):
             output += f'{(counters[i][0]+":").ljust(maxName)} {str(counters[i][2]).rjust(maxNum)} resets, last reset: {str(counters[i][1])[0:19]}\n'
 
-        output += "```"
-
-        await ctx.send(output)
+        await ctx.send(f'```{output}```')
        
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
     @checks.is_in_skys()

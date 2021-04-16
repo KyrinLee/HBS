@@ -8,10 +8,11 @@ import asyncio
 
 import random as rd
 from math import trunc, floor
+import re
 
 from modules import checks
-from modules.functions import nsyl
 
+from modules.functions import *
 from resources.constants import *
 
 import inflect
