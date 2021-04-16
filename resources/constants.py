@@ -65,6 +65,7 @@ spaces = [" " for x in range(30)]
 
 
 DATABASE_URL = os.environ['DATABASE_URL']
+DATABASE_URL_2 = os.environ['DATABASE_URL_2']
 TOKEN = os.environ["token"]
 
 

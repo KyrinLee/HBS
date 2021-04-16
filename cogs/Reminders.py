@@ -4,14 +4,12 @@ import sys
 
 import os
 
-import github
-from github import Github
 from dateutil import parser
 import re
 
 from resources.constants import *
 from modules import checks
-from modules.functions import confirmationMenu
+from modules.functions import *
 
 import aiohttp
 import asyncio
@@ -19,13 +17,20 @@ import asyncio
 from pytz import timezone
 import pytz
 
-# or using an access token
-g = Github(os.environ['GIST_TOKEN'])
+async def get_timezone(ctx):
+    timezones = await run_query("SELECT * FROM timezones WHERE id = %s", (ctx.author.id,), 1);
+    if len(timezones) == 0:
+        return None
+    else:
+        return pytz.timezone(timezones[0][1])
 
-# Then play with your Github objects:
-gist = g.get_gist(os.environ['REMINDERS_GIST_ID'])
-
-gistSem = asyncio.Semaphore(1)
+''' REPEAT TYPES:
+    - every x (24hr, 48hr, 6hr, etc) every week is 168hr, every other week is 336hr
+    - on day every month (1st of each month for example)
+    - on specific weekdays (SMTWRFS)
+    '''
+async def add_reminder(user_id, time, repeat_type=0, repeat_specifiers="", until=""):
+    pass
 
 class Reminders(commands.Cog):
     def __init__(self, client):
@@ -33,51 +38,78 @@ class Reminders(commands.Cog):
         
     @commands.command(pass_context=True)
     async def setTimezone(self, ctx, timezone=None):
+        old_timezone = await get_timezone(ctx)
         if timezone == None:
             raise checks.InvalidArgument("Please include a valid timezone name!")
-        else:
-            if timezone in pytz.all_timezones:
-                content = gist.files["timezones.txt"].content
-                if str(ctx.author.id) not in content:
-                    new_content = f'{content}{str(ctx.author.id)} {timezone}\n'
-                    gist.edit(files={"timezones.txt": github.InputFileContent(content=new_content)})
 
-                else:
-                    for line in content.split("\n"):
-                        if str(ctx.author.id) in line:
-                            timezone_info = line.replace(str(ctx.author.id), "").strip()
-
-                    result = await confirmationMenu(self.client, ctx, f'Would you like to replace your current timezone {timezone_info} with {timezone}?')
-                    if result == 1:
-                        new_content = content.replace(timezone_info, timezone)
-                        gist.edit(files={"timezones.txt": github.InputFileContent(content=new_content)})
-                        await ctx.send("Timezone changed.")                                  
-                    elif result == 0:
-                        await ctx.send("Operation cancelled.")
-                    else:
-                        raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+        if timezone in pytz.all_timezones:
+            if old_timezone == None:
+                await run_query("INSERT INTO timezones (id, timezone) VALUES (%s, %s)", (ctx.author.id, timezone), 1)
+                await ctx.send(f'Timezone {timezone} set.')
             else:
-                raise checks.InvalidArgument("Please include a valid timezone name!")
-
-    async def add_reminder(self):
-        pass
-
+                result = await confirmationMenu(self.client, ctx, f'Would you like to replace your current timezone {old_timezone} with {timezone}?')
+                if result == 1:
+                    await run_query("UPDATE timezones SET timezone = %s WHERE id = %s", (timezone, ctx.author.id), 1)
+                    await ctx.send("Timezone changed.")                                  
+                elif result == 0:
+                    await ctx.send("Operation cancelled.")
+                else:
+                    raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+        else:
+            raise checks.InvalidArgument("Please include a valid timezone name!")
         
-    @commands.command(pass_context=True)
-    async def newReminder(self, ctx, time="", modifiers=""):
-        timezones = gist.files["timezones.txt"].content
-        for line in timezones.split("\n"):
-            if str(ctx.author.id) in line:
-                tz = timezone(line.replace(str(ctx.author.id), "").strip())
-        if tz == None:
-            await ctx.send("You do not have a timezone set! Please run hbs;setTimezone <timezone> to set your timezone.")
-            return
+    @commands.command(enabled=False, aliases=["addReminder"])
+    async def newReminder(self, ctx, *, time=""):
+        timezone = await get_timezone(ctx)
+        if timezone == None:
+            raise checks.OtherError("You do not currently have a timezone set. Run `hbs;setTimezone <timezone>` to set a timezone.")
 
-        await ctx.send(str(tz))
         reminder_time = parser.parse(time)
-        new_time = tz.normalize(tz.localize(reminder_time)).astimezone(pytz.utc)
+        new_time = timezone.normalize(timezone.localize(reminder_time))
+        new_time_utc = new_time.astimezone(pytz.utc)
 
-        
+        result = await confirmationMenu(self.client, ctx, f'You would like to create a reminder at {new_time_utc}. Is this correct?')
+        if result == 0: await ctx.send("Operation cancelled.")
+        elif result != 1: raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+        else:
+            await add_reminder(ctx.author.id, new_time_utc)
+
+    @commands.command(enabled=False,aliases=["addRepeatingReminder", "addRepeatReminder", "repeatingReminder", "repeatReminder", "newRepeatingReminder", "new repeat reminder", "new repeating reminder", "add repeat reminder", "add repeating reminder"])
+    async def newRepeatReminder(self, ctx, *, time=""):
+        timezone = await get_timezone(ctx)
+        if timezone == None:
+            raise checks.OtherError("You do not currently have a timezone set. Run `hbs;setTimezone <timezone>` to set a timezone.")
+
+        reminder_time = parser.parse(time)
+        new_time = timezone.normalize(timezone.localize(reminder_time))
+        new_time_utc = new_time.astimezone(pytz.utc)
+
+        result = await confirmationMenu(self.client, ctx, f'You would like to create a reminder at {new_time}. Is this correct?')
+        if result == 0: await ctx.send("Operation cancelled.")
+        elif result != 1: raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+        else:
+            await ctx.send("Now please read these instructions carefully and reply with a message indicating what sort of repeat you would like your reminder to follow.\n\n"
+                           "If you would like your reminder to repeat on a regular basis, such as every 24 hours, please respond with `A <number of hours>`. \n      For example, a daily repeating reminder would be `A 24`.\n"
+                           "If you would like your reminder to repeat on certain day(s) every month, please respond with `B <day numbers>`.\n      For example, ia reminder on the 1st and 14th of every month would be `B 1 14`.\n"
+                           "If you would like your reminder to repeat on certain weekdays every week, please respond with `C SMTWRFS`, replacing the days you do **not** want reminders on with asterisks. \n      For example, a reminder repeating every monday and friday would be `C *M***F*`. (T and R for thursday will both work.)")
+            
+            def check(m):
+                return m.author == ctx.author and m.channel == ctx.channel
+
+            msg = await client.wait_for('message', check=check)
+            repeat_str = msg.content
+            if repeat_str[0] not in ['A','B','C']:
+                raise checks.InvalidArgument("That was not a valid option! Please run the command again.")
+            elif repeat_str[0] == 'A':
+                repeat_str = repeat_str.lstrip("A ")
+                try:
+                    repeat_num_hours = int(repeat_str)
+                except:
+                    raise checks.InvalidArgument("That is not a valid number of hours! Please run the command again.")
+                await add_reminder(ctx.author.id, new_time_utc, repeat_type=1, repeat_specifiers=repeat_num_hours)
+            
+            await add_reminder(ctx.author.id, new_time_utc)
+
         
 def setup(client):
     client.add_cog(Reminders(client))

@@ -20,8 +20,11 @@ import psycopg2
 def get_today():
     return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
 
-def database_connect():
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+def database_connect(database=0):
+    if database == 0:
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    else:
+        conn = psycopg2.connect(DATABASE_URL_2, sslmode='require')
     cursor = conn.cursor()
     return conn, cursor
 
@@ -30,9 +33,9 @@ def database_disconnect(conn, cursor):
     cursor.close()
     conn.close()
 
-async def run_query(query, values=()):
+async def run_query(query, values=(), database=0):
     async with databaseSem:
-        conn, cursor = database_connect()
+        conn, cursor = database_connect(database)
         cursor.execute(query, values)
         try:
             data = cursor.fetchall()
