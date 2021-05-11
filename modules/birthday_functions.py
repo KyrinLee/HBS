@@ -58,7 +58,7 @@ async def format_birthdays_year(birthdays):
             output += str(day_key) + ": "
             for member in day_group:
                 year_text = ''
-                if member.year not in [-1,1,4]:
+                if member.show_age and member.year not in [-1,1,4]:
                     year_text = f' ({member.year})'
             
                 output += (f'{member.name}{year_text}, ')
@@ -85,7 +85,7 @@ async def format_birthdays_day(birthdays, day, client):
     for member in birthdays:
         tag = member.tag if (len(member.id) == 5) else f'<{str(member.id)}>'
         age = calculate_age(member, day)
-        age_text = f': {age} years old' if age != -1 else ""
+        age_text = f': {age} years old' if age != -1 and member.show_age else ""
         final_birthdays.append(f'{member.name} {tag}{age_text}')
         
     output += escapeCharacters("\n".join(final_birthdays))

@@ -15,15 +15,12 @@ from modules import checks
 from modules.functions import *
 from resources.constants import *
 
-import inflect
-
-p = inflect.engine()
-
 class DumbCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
     @commands.command(pass_context=True,brief="Get your bounty.")
+    @checks.is_in_skys()
     async def bounty(self, ctx: commands.Context, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
         if user=="":
@@ -88,6 +85,7 @@ class DumbCommands(commands.Cog):
         await ctx.send(f'{user} is a {word1.capitalize()} of {word2.capitalize()}.')
         
     @commands.command(pass_context=True,brief="Generates a ship.", aliases=["shippingchart","shipping"])
+    @checks.is_in_skys()
     async def ship(self, ctx, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
         if user=="":
@@ -117,6 +115,7 @@ class DumbCommands(commands.Cog):
         await ctx.send(f'{user}\'s blood color is {color} ({color.split("_")[2].split(":")[0]})')
             
     @commands.command(pass_context=True,brief="Sends bubblewrap message.")
+    @checks.is_in_skys()
     async def bubblewrap(self, ctx, size="5x5"):
         await asyncio.sleep(1)
         dimensions = re.split('x| ',size)
@@ -134,6 +133,7 @@ class DumbCommands(commands.Cog):
         await ctx.send(output)
 
     @commands.command(pass_context=True,brief="Sends list of HussieBot's currently blacklisted phrases.")
+    @checks.is_in_skys()
     async def hussieBlacklist(self, ctx):
         await asyncio.sleep(1)
         output = "Currently Blacklisted Phrases: \n"
@@ -145,6 +145,7 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
     @commands.cooldown(1, 300, commands.BucketType.user)
+    @checks.is_in_skys()
     async def whitespace(self, ctx, delete_after=8):
         await asyncio.sleep(1)
         try:

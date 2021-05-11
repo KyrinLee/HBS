@@ -22,20 +22,10 @@ class AdminCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(pass_context=True,brief="Return json embed data.",enabled=False)
-    @commands.is_owner()
-    async def getEmbed(self, ctx:commands.Context, msgIDorLink):
-        #SEARCH ALL CHANNELS FOR MESSAGE
-        async with ctx.channel.typing():
-            msg = await getMessage(self.client, ctx, msgIDorLink)
-
-            #TRY TO RETURN JSON EMBED DATA
-            try:
-                dictionary = msg.embeds[0].to_dict()
-                json_object = json.dumps(dictionary, indent = 4)   
-                await ctx.send("```json\n" + json_object + "```")  
-            except:
-                raise InvalidArgument("That's not a real message dummie. That or something else went fucky.")
+    async def cog_check(self, ctx):
+        if not ctx.guild.id == SKYS_SERVER_ID:
+            raise checks.WrongServer()
+        return True
 
     @commands.command(pass_context=True,brief="Clear Channel.",help="Clears 0 messages by default.\nClears newest messages by default.")
     @commands.is_owner()

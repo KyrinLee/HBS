@@ -109,8 +109,8 @@ def formatTriggerDoc(txt):
 async def confirmationMenu(client, ctx, confirmationMessage="",autoclear=""):
     msg = await ctx.send(confirmationMessage)
   
-    await msg.add_reaction("✅")
-    await msg.add_reaction("❌")
+    await msg.add_reaction(check_emoji)
+    await msg.add_reaction(x_emoji)
 
     def check(reaction, user):
         return user == ctx.author
@@ -118,20 +118,19 @@ async def confirmationMenu(client, ctx, confirmationMessage="",autoclear=""):
     try:
         reaction, user = await client.wait_for('reaction_add', check=check, timeout=60.0)
     except asyncio.TimeoutError:
-        await ctx.send("Oops too slow!")
         if autoclear: await msg.delete()
-        return 0
+        raise checks.OtherError("Operation timed out.")
 
     if user == ctx.author:
-        if str(reaction) == "❌":
+        if str(reaction) == x_emoji:
             if autoclear: await msg.delete()
-            return 0
-        elif str(reaction) == "✅":
+            raise checks.OtherError("Operation cancelled.")
+        elif str(reaction) == check_emoji:
             if autoclear: await msg.delete()
             return 1
     else:
         if autoclear: await msg.delete()
-        return -1
+        raise checks.FuckyError()
 
 # ----- FIND MESSAGE VIA ID OR LINK ----- #
 async def getMessage(client, ctx,id=None, channelId=None):

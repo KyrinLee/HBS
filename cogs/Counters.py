@@ -22,8 +22,12 @@ class Counters(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def cog_check(self, ctx):
+        if not ctx.guild.id == SKYS_SERVER_ID:
+            raise checks.WrongServer()
+        return True
+
     @commands.command(aliases=['reset','update'],brief="Reset/Update a counter.")
-    @checks.is_in_skys()
     async def resetCounter(self,ctx: commands.Context, *, counter=None):
         async with resetSem:
             if counter==None:
@@ -72,7 +76,6 @@ class Counters(commands.Cog):
             database_disconnect(conn, cursor)
 
     @commands.command(aliases=['addCounter'],brief="Create a new counter.")
-    @checks.is_in_skys()
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
@@ -88,8 +91,7 @@ class Counters(commands.Cog):
 
             #IF COUNTER DOESN'T EXIST, CREATE IT
             if len(counters) == 0:
-                result = await confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?')
-                if result == 1:
+                if await confirmationMenu(self.client, ctx, f'Would you like to create new counter {counter}?') == 1:
                     try:
                         currTime = datetime.utcnow()
 
@@ -97,17 +99,12 @@ class Counters(commands.Cog):
                         await ctx.send(f'Counter {counter} created.')
                     except:
                         raise FuckyError()
-                elif result == 0:
-                    await ctx.send("Counter creation cancelled.")
-                else:
-                    raise FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
             else:
                 raise InvalidArgument("That counter already exists!")
         
             database_disconnect(conn, cursor)
 
     @commands.is_owner()
-    @checks.is_in_skys()
     @commands.command(aliases=['removeCounter'],brief="Delete a counter.")
     async def deleteCounter(self,ctx: commands.Context, counter=None):
         if counter == None:
@@ -123,16 +120,9 @@ class Counters(commands.Cog):
             counters = cursor.fetchall()
 
             if len(counters) != 0:
-                result = await confirmationMenu(self.client, ctx, f'Would you like to delete counter {counter}?')
-                if result == 1:
-                    
+                if (await confirmationMenu(self.client, ctx, f'Would you like to delete counter {counter}?') == 1):
                     cursor.execute("DELETE FROM counters WHERE name = %s",(counter,))
-                    await ctx.send(f'Counter {counter} deleted.') 
-
-                elif result == 0:
-                    await ctx.send("Counter deletion cancelled.")
-                else:
-                    raise FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+                    await ctx.send(f'Counter {counter} deleted.')
             else:
                 raise InvalidArgument("That counter doesn't exist!")
 
@@ -140,7 +130,6 @@ class Counters(commands.Cog):
             
 
     @commands.command(aliases=['counters','listCounters','allCounters','getCounters'],brief="List all counters.")
-    @checks.is_in_skys()
     async def viewCounters(self, ctx:commands.Context):
         counters = await run_query("SELECT * FROM counters ORDER BY mentions DESC")
         output = ""
@@ -154,7 +143,6 @@ class Counters(commands.Cog):
         await ctx.send(f'```{output}```')
        
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
-    @checks.is_in_skys()
     async def viewCounter(self, ctx, counter=None):
         if counter == None:
             raise InvalidArgument("You have to tell me which one!")

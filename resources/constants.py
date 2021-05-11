@@ -44,8 +44,8 @@ looking = "<:looking:772588405904375819>"
 newspaper2 = "\U0001F5DE\U0000FE0F"
 left_arrow = "\u2b05"
 right_arrow = "\u27a1"
-x = "\u274c"
-check = "\u2705"
+x_emoji = "\u274c"
+check_emoji = "\u2705"
 
 color = 0x005682
 
@@ -63,6 +63,8 @@ bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
 spaces = [" " for x in range(30)]
 
+who_choices_sky = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto.","Hatsune Miku.","Vriska.","Milk Boy.","Hussiebot" + blobspade,"Nox.","David Elizabeth Strider.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
+who_choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Hatsune Miku.","Vriska.","Hussiebot" + blobspade,"It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 DATABASE_URL_2 = os.environ['DATABASE_URL_2']

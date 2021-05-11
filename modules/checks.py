@@ -36,7 +36,7 @@ def is_in_guild(guild_id):
 
 def is_in_skys():
     return is_in_guild(SKYS_SERVER_ID)
-
+    
 def is_in_DMs():
     async def predicate(ctx):
         return (ctx.guild == None)

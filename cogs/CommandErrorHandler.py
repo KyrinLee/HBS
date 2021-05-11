@@ -96,7 +96,7 @@ class CommandErrorHandler(commands.Cog):
                                        
                     elif message_content.startswith("who"):
                         await asyncio.sleep(1)
-                        choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto.","Hatsune Miku.","Vriska.","Milk Boy.","Hussiebot" + blobspade,"Nox.","David Elizabeth Strider.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
+                        choices = who_choices_skys if checks.is_in_skys() else who_choices
                         num = random.random()
                         if num < .6:
                             await message.channel.send(random.choice(choices))
@@ -148,7 +148,7 @@ class CommandErrorHandler(commands.Cog):
                 await ctx.send("I tried to send a message longer than 2000 characters! I probably shouldn't be doing that.")
 
         elif isinstance(error, CouldNotConnectToPKAPI):
-            await self.client.get_channel(HBS_CHANNEL_ID).send("PK has been API banned! @ramblingArachnid#8781 you should make HBS turn on tupper when this happens")
+            await self.client.get_channel(HBS_CHANNEL_ID).send("PK connection error! @ramblingArachnid#8781 you should make HBS turn on tupper when this happens")
             
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.

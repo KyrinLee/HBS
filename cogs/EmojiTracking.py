@@ -24,6 +24,11 @@ class EmojiTracking(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def cog_check(self, ctx):
+        if not ctx.guild.id == SKYS_SERVER_ID:
+            raise checks.WrongServer()
+        return True
+
     async def on_message_emojis(self, message):
         await self.updateEmojiList(message.guild)
         try:
@@ -56,7 +61,6 @@ class EmojiTracking(commands.Cog):
             raise
 
     @commands.Cog.listener()
-    @checks.is_in_skys()
     async def on_raw_reaction_add(self, payload):
         await self.updateEmojiList(self.client.get_guild(payload.guild_id))
 
@@ -74,7 +78,6 @@ class EmojiTracking(commands.Cog):
         database_disconnect(conn, cursor)
 
     @commands.command(pass_context=True,aliases=['geu'],brief="Get most and least used emojis.")
-    @checks.is_in_skys()
     async def getEmojiUsage(self, ctx, num=None, animated=None):
         async with ctx.channel.typing():
             if num == None:
@@ -118,7 +121,6 @@ class EmojiTracking(commands.Cog):
             await ctx.send(output)
 
     @commands.command(pass_context=True, brief="Get usage data for specified emoji.")
-    @checks.is_in_skys()
     async def getEmojiUsageCount(self, ctx, emoji:discord.Emoji=None):
         data = await run_query(f'SELECT * FROM emoji WHERE name = \'{emoji.name}\'')
         await ctx.send(str(data[0][3]))
@@ -126,7 +128,6 @@ class EmojiTracking(commands.Cog):
 # ----- GET FULL EMOJI USAGE ----- #
 
     @commands.command(pass_context=True, aliases=['gfeu'], brief="Get all emoji usage data.")
-    @checks.is_in_skys()
     async def getFullEmojiUsage(self, ctx, animated=None):
         async with ctx.channel.typing():
             output = ""
@@ -205,7 +206,6 @@ class EmojiTracking(commands.Cog):
     
     @commands.command(pass_context=True,brief="Update emoji list.")
     @commands.is_owner()
-    @checks.is_in_skys()
     async def updateEmojis(self, ctx):
         async with ctx.channel.typing():
             await self.updateEmojiList(ctx.guild)
@@ -214,16 +214,10 @@ class EmojiTracking(commands.Cog):
     @commands.command(pass_context=True,brief="Clears all emoji usage data.")
     @commands.is_owner()
     async def clearEmojiList(self, ctx):
-        result = await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.')
-        if result == 1:
+        if (await checks.confirmationMenu(self.client, ctx, f'Would you like to clear all emoji usage data? This cannot be undone.') == 1):
             async with ctx.channel.typing():
                 await run_query("DELETE FROM emoji")
                 await ctx.send("Emoji list cleared.")
-
-        elif result == 0:
-            await ctx.send("Operation cancelled.")
-        else:
-            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
 def setup(client):
     client.add_cog(EmojiTracking(client))

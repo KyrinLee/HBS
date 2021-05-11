@@ -109,9 +109,8 @@ async def on_message(message: discord.Message):
     if message.author.id == HUSSIEBOT_ID: #if hussiebot
         if (message.content in ["<:vriska:480855644388458497>",":vriska:",":eye:"]): 
             await message.delete()
-        if message.content == "Andrew Hussie is a valid troll name.":
+        if message.guild.id == SKYS_SERVER_ID and message.content == "Andrew Hussie is a valid troll name.":
             await message.delete()
-            await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
         for phrase in bannedPhrases:
             if message.content.find(phrase) != -1:
                 await message.delete()
@@ -133,7 +132,7 @@ async def on_message(message: discord.Message):
                             await asyncio.sleep(1)
                             await message.channel.send("Vriska Serket is a valid troll ::::)")
                         #ANDREW HUSSIE
-                        if (message_content == "andrew hussie"):
+                        if (message.guild.id == SKYS_SERVER_ID and message_content == "andrew hussie"):
                             await asyncio.sleep(1)
                             await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
                         #VALID KID NAME
@@ -161,17 +160,17 @@ async def on_message(message: discord.Message):
                             await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
 
                 #HUSSIE
-                if any(i in message_content for i in ["hussie"]):
+                if message.guild.id == SKYS_SERVER_ID and any(i in message_content for i in ["hussie"]):
                     if message_content.count("hussie") > message_content.count("suppressor") and message_content.count("hussie") > message_content.count("oppressor"):
                         if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("hussie"):
                             await message.add_reaction(blobspade)
                 #COWARDBOT
-                if any(i in message_content for i in ["cowardbot"]):
+                if message.guild.id == SKYS_SERVER_ID and any(i in message_content for i in ["cowardbot"]):
                     if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("hussie"):
                         await message.add_reaction(blobspade)
                        
                 #SPAGHETTI    
-                if any(i in message_content for i in ["spag","spah"]):  #message.channel.id != FOOD_CHANNEL_ID to ban from food 
+                if message.guild.id == SKYS_SERVER_ID and any(i in message_content for i in ["spag","spah"]):  #message.channel.id != FOOD_CHANNEL_ID to ban from food 
                     if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("spaghetti"):
                         await message.add_reaction(spaghetti)
                 #HBS
@@ -186,7 +185,7 @@ async def on_message(message: discord.Message):
                             await message.channel.send(random.choice(["owo","owo?","uwu","OwO"]))
                        
                 #HOMESTUCK
-                if message.channel.id != HOMESTUCK_CHANNEL_ID and message.author.id != PLURALKIT_ID and any(i in message_content for i in ["homestuck"]):
+                if message.guild.id == SKYS_SERVER_ID and message.channel.id != HOMESTUCK_CHANNEL_ID and message.author.id != PLURALKIT_ID and any(i in message_content for i in ["homestuck"]):
                     if message.channel.id == HBS_CHANNEL_ID or await timeout_reaction_check("homestuck"):
                         await message.add_reaction(looking)
     except:
@@ -203,7 +202,7 @@ async def on_raw_reaction_add(payload):
         return
 
     #HANDLE DELETION
-    if payload.emoji.name == x:
+    if payload.emoji.name == x_emoji:
         #GET CHANNEL AND MESSAGE
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
@@ -214,7 +213,7 @@ async def on_raw_reaction_add(payload):
 
         #YAG AND TUPPERBOX DELETION, IF NOT MENU
         if (msg.author.id in [YAGBOT_ID, TUPPERBOX_ID]):
-            if not await check_for_react(msg, x, msg.author.id):
+            if not await check_for_react(msg, x_emoji, msg.author.id):
                 await msg.delete()
 
         #PLURALKIT DELETION
@@ -231,7 +230,7 @@ async def on_raw_reaction_add(payload):
         if (msg.author.id == client.user.id) and (payload.user_id != client.user.id):
             await msg.delete()
 
-    if payload.emoji.name == "hussiebap" or payload.emoji.name == newspaper2:
+    if payload.guild.id == SKYS_SERVER_ID and payload.emoji.name == "hussiebap" or payload.emoji.name == newspaper2:
         #GET CHANNEL AND MESSAGE
         channel = client.get_channel(payload.channel_id)
         msg = await channel.fetch_message(payload.message_id)
@@ -254,7 +253,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_update(before, after):
-    if before.guild.id ==SKYS_SERVER_ID:
+    if before.guild.id == SKYS_SERVER_ID:
         if before.id == HUSSIEBOT_ID:
             hussie_phrase = random.choice(["The one and only Andrew", "My boyfriend", "My precious kismesis", "My love", "My fiance", "My matesprit", "Dumb bitch", "Goddamn coward", "Goddamn little fruit", "The idiot I'm marrying", "Stupid"])
                 
@@ -322,12 +321,6 @@ async def shutup(ctx, time="1h"):
 
     blacklisted_channels.update({ctx.channel.id: expire_time})
     await ctx.channel.send(f'HBS successfully muted in this channel for {strfdelta(wait_time, fmt="{H}h{M}m{S}s").replace("0h","").replace("0m","").replace("0s","")}.')
-
-@client.command(pass_context=True)
-@checks.is_vriska()
-async def getvar(ctx, varname):
-    var = globals()[varname]
-    await ctx.channel.send(str(var))
 
 @client.event
 async def on_error(event_name, *args):

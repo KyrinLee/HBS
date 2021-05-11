@@ -3,8 +3,6 @@ from discord.ext import tasks, commands
 import sys
 import os
 
-import github
-from github import Github
 from dateutil import parser
 import re
 
@@ -23,6 +21,11 @@ import aiohttp, asyncio
 class Birthdays(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    async def cog_check(self, ctx):
+        if not ctx.guild.id == SKYS_SERVER_ID and not ctx.author.id == VRISKA_ID:
+            raise checks.WrongServer()
+        return True
 
     @tasks.loop(seconds=30.0)
     async def time_check(self):
@@ -52,9 +55,26 @@ class Birthdays(commands.Cog):
     ''' ------------------------------
             GETTING BIRTHDAYS
         ------------------------------'''
-        
-    @commands.command(brief="See all of today's birthdays.")
-    async def todaysBirthdays(self, ctx):
+
+    @commands.group(invoke_without_command=True, brief="See all of a day's birthdays.", aliases=["birthday"])
+    async def birthdays(self, ctx, *, day=None):
+        async with ctx.channel.typing():
+            if day == None:
+                day = get_today()
+            else:
+                try:
+                    day = parser.parse(day)
+                except:
+                    raise discord.InvalidArgument("Invalid date!")
+            
+            birthdays = await get_pk_birthdays_by_day(day)
+            birthdays += await get_manual_birthdays_by_day(day)
+
+            output = await format_birthdays_day(birthdays, day, self.client)
+        await split_and_send(output, ctx.channel)
+
+    @birthdays.command(brief="See all of today's birthdays.")
+    async def today(self, ctx):
         async with ctx.channel.typing():
             today = get_today()
         
@@ -62,21 +82,11 @@ class Birthdays(commands.Cog):
             birthdays += await get_manual_birthdays_by_day(today)
 
             output = await format_birthdays_day(birthdays, today, self.client)
-            await split_and_send(output, ctx.channel)
+        await split_and_send(output, ctx.channel)
 
-    @commands.command(aliases=["birthdays"], brief="See all of a given day's birthdays.")
-    async def daysBirthdays(self, ctx, *, day=None):
-        async with ctx.channel.typing():
-            day = get_today() if day.lower() == "today" else parser.parse(day)
-                
-            birthdays = await get_pk_birthdays_by_day(day)
-            birthdays += await get_manual_birthdays_by_day(day)
-
-            output = await format_birthdays_day(birthdays, day, self.client)
-            await split_and_send(output, ctx.channel)
-
-    @commands.command(brief="See all birthdays within the next week.")
-    async def upcomingBirthdays(self, ctx, num_days=6):
+    @birthdays.command(brief="See all birthdays within the next week.")
+    @checks.is_in_skys()
+    async def upcoming(self, ctx, num_days=7):
         async with ctx.channel.typing():
             output = "**__Upcoming Birthdays:__**\n"
             start_day = get_today() + timedelta(days=1)
@@ -94,59 +104,34 @@ class Birthdays(commands.Cog):
 
         await split_and_send(output, ctx.channel)
 
-    @commands.command(aliases=["myBirthdays", "birthdayList","birthdaysList"], brief="See all of your birthdays.")
-    async def listBirthdays(self, ctx):
+    @birthdays.command(brief="See all of your birthdays.")
+    async def list(self, ctx, *, flags=""):
         async with ctx.channel.typing():
+            if "-m" in flags and "-s" in flags:
+                flags = ""
             system = await pk.get_system_by_discord_id(ctx.author.id)
 
             output = "**My Birthdays:**\n"
-            birthdays = await get_pk_birthdays_by_system(system.hid)
-            birthdays += await get_manual_birthdays_by_user(ctx.author.id)
+            birthdays = []
+            if ("-m" not in flags):
+                birthdays += await get_pk_birthdays_by_system(system.hid)
+            if ("-s" not in flags):
+                birthdays += await get_manual_birthdays_by_user(ctx.author.id)
             
             output += await format_birthdays_year(birthdays)
+            if "-m" in flags: output += "\n(Showing only manual birthdays.)"
+            if "-s" in flags: output += "\n(Showing only system birthdays.)"
         await split_and_send(output, ctx.channel)
-
-    @commands.command(brief="See all birthdays, from all users.")
-    @checks.is_vriska()
-    async def listAllBirthdays(self, ctx):
-        birthdays = []
-        async with ctx.channel.typing():
-            output = "**All Birthdays:**\n"
-            
-            birthdays += await get_all_pk_birthdays()
-            birthdays += await get_manual_birthdays()
-
-            output += await format_birthdays_year(birthdays)
-        await split_and_send(output, ctx.channel)
-
-    @commands.command(aliases=["listSysBirthdays","listPKBirthdays","mySysBirthdays","mySystemBirthdays","myPKBirthdays"], brief="List all birthdays in your PluralKit System.")
-    async def listSystemBirthdays(self, ctx):
-        async with ctx.channel.typing():
-            system = await pk.get_system_by_discord_id(ctx.author.id)
-            output = "**My PluralKit Birthdays:**\n"
-
-            birthdays = await get_pk_birthdays_by_system(system.hid)
-            
-            output += await format_birthdays_year(birthdays)
-        await split_and_send(output, ctx.channel)
-
-    @commands.command(brief="List all birthdays you have manually added.")
-    async def listManualBirthdays(self, ctx):
-        output = "**My Manual Birthdays:**\n"
-        async with ctx.channel.typing():
-            birthdays = await get_manual_birthdays_by_user(ctx.author.id)
-            if len(birthdays) == 0:
-                raise checks.OtherError(NO_MANUAL_BIRTHDAYS_SET)
-
-            output += await format_birthdays_year(birthdays)
-        await split_and_send(output, ctx.channel)
-
+        
     ''' ------------------------------
              MANUAL BIRTHDAYS
         ------------------------------'''
 
-    @commands.command(brief="Add a manual birthday.")
-    async def addBirthday(self, ctx, name="", *,birthday_raw=""):
+    @birthdays.command(brief="Add a manual birthday.", aliases=["new","n"])
+    async def add(self, ctx, name="", *,birthday_raw=""):
+        if (name in range(1,32) or name.lower() in ["january","jan","february","feb","march","mar","april","apr","may","june","jun","july","jul","august","aug","september","sep","sept","october","oct","november","nov","december","dec"]):
+            await confirmationMenu(self.client, ctx, f'You have entered {name} as the name for this birthday. Is this correct?')           
+
         new_birthday = Birthday.from_raw(name.capitalize(), birthday_raw, ctx.author.id)
         
         async with ctx.channel.typing():
@@ -158,10 +143,11 @@ class Birthdays(commands.Cog):
             
             await add_manual_birthday(new_birthday)
         
-        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.\nPlease note, it may take a moment for the system to update.')
+        birthday_functions.manual_cache = await get_manual_birthdays()
 
-    @commands.command(brief="Update a manual birthday.")
-    async def updateBirthday(self, ctx, name="", *,birthday_raw=""):
+    @birthdays.command(brief="Update a manual birthday.", aliases=["edit"])
+    async def update(self, ctx, name="", *,birthday_raw=""):
         new_birthday = Birthday.from_raw(name.capitalize(), birthday_raw, ctx.author.id)
         birthday_conflict = await get_manual_birthday_by_user_and_name(name.capitalize(), ctx.author.id)
         
@@ -170,28 +156,26 @@ class Birthdays(commands.Cog):
             result = await confirmationMenu(self.client, ctx, menu_text)
             if result == 1:
                 await update_manual_birthday(new_birthday)
-                await ctx.send(f'Birthday for {new_birthday.name} updated to {new_birthday.short_birthday()}.')
+                await ctx.send(f'Birthday for {new_birthday.name} updated to {new_birthday.short_birthday()}.\nPlease note, it may take a moment for the system to update.')
+                birthday_functions.manual_cache = await get_manual_birthdays()
                 return 
-            elif result == 0:
-                await ctx.send("Operation cancelled.")
-                return
-            else:
-                raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
 
-        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.\nPlease note, it may take a moment for the system to update.')
+        birthday_functions.manual_cache = await get_manual_birthdays()
 
-    @commands.command(aliases=["deleteBirthday","delBirthday"],brief="Remove a manual birthday.")
-    async def removeBirthday(self, ctx, name=""):
+    @commands.command(aliases=["remove", "rem"],brief="Remove a manual birthday.")
+    async def delete(self, ctx, name=""):
         async with ctx.channel.typing():
-            await remove_manual_birthday(name, ctx.author.id)
+            await delete_manual_birthday(name, ctx.author.id)
         await ctx.send(f'Birthday removed.')
+        birthday_functions.manual_cache = await get_manual_birthdays()
     
     ''' ------------------------------
             SYSTEM BIRTHDAYS
         ------------------------------'''
 
-    @commands.command(brief="Connect your PluralKit account.")
-    async def addSystemBirthdays(self, ctx):
+    @birthdays.command(brief="Connect your PluralKit account.")
+    async def connect(self, ctx):
         async with ctx.channel.typing():
             sql_insert_query = """ INSERT INTO pkinfo (id, token, show_age) VALUES (%s,%s,False)"""
             token = ""
@@ -212,10 +196,11 @@ class Birthdays(commands.Cog):
             record_to_insert = (str(system.hid), token)
             await run_query(sql_insert_query, record_to_insert)
 
-        await ctx.send("PluralKit Birthdays successfully connected!")   
+        await ctx.send("PluralKit Birthdays successfully connected!\nPlease note, it may take a moment for the system to update.")
+        birthday_functions.pluralkit_cache = await get_all_pk_birthdays() 
 
-    @commands.command(brief="Disconnect your PluralKit account.")
-    async def deleteSystemBirthdays(self, ctx):
+    @birthdays.command(brief="Disconnect your PluralKit account.")
+    async def disconnect(self, ctx):
         async with ctx.channel.typing():
             sql_delete_query = """DELETE FROM pkinfo WHERE id = %s"""
             system = await pk.get_system_by_discord_id(ctx.author.id)
@@ -231,13 +216,13 @@ class Birthdays(commands.Cog):
             if currently_connected:
                 record = (str(system.hid),)
                 await run_query(sql_delete_query, record)
-                await ctx.send("PluralKit account disconnected.")
-
+                await ctx.send("PluralKit account disconnected.\nPlease note, it may take a moment for the system to update.")
+                birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
             else:
                 raise checks.OtherError("Your PluralKit account is already unconnected.")
             
-    @commands.command(aliases=["addtoken","pktoken"],brief="Add a token to your PluralKit connection.")
-    async def addPKToken(self, ctx):
+    @birthdays.command(aliases=["addtoken","pktoken"],brief="Add a token to your PluralKit connection.")
+    async def token(self, ctx):
         async with ctx.channel.typing():
             system = await pk.get_system_by_discord_id(ctx.author.id)
             token = await pk.prompt_for_pk_token(self.client, ctx)
@@ -246,27 +231,54 @@ class Birthdays(commands.Cog):
             record_to_insert = (token, str(system.hid))
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("PluralKit Token successfully added!")
+        await ctx.send("PluralKit Token successfully added!\nPlease note, it may take a moment for the system to update.")
+        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
 
-    @commands.command(brief="Set your system birthdays to show ages based on birth year.")
-    async def showAge(self, ctx):
+    @birthdays.group(invoke_without_command=True)
+    async def age(self, ctx):
+        async with ctx.channel.typing():
+            system = await pk.get_system_by_discord_id(ctx.author.id)
+            sql_get_query = "SELECT show_age FROM pkinfo WHERE id = %s"
+            data = await run_query(sql_get_query, (str(system.hid),))
+        if (data[0][0]):
+            await ctx.send(f'Your PluralKit birthday ages are currently shown.')
+        else:
+            await ctx.send(f'Your PluralKit birthdays ages are currently hidden.')
+
+    @age.command(brief="Set your system birthdays to show ages based on birth year.", aliases=["enable","on"])
+    async def show(self, ctx):
         async with ctx.channel.typing():
             system = await pk.get_system_by_discord_id(ctx.author.id)
             sql_update_query = "UPDATE pkinfo SET show_age = True WHERE id = %s"
             record_to_insert = (str(system.hid),)
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("Your PluralKit birthdays will now show age based on birth year.")
+        await ctx.send("Your PluralKit birthdays will now show age based on birth year.\nPlease note, it may take a moment for the system to update.")
+        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
 
-    @commands.command(brief="Set your system birthdays to hide ages based on birth year.")
-    async def hideAge(self, ctx):
+    @age.command(brief="Set your system birthdays to hide ages based on birth year.", aliases=["disable","off"])
+    async def hide(self, ctx):
         async with ctx.channel.typing():
             system = await pk.get_system_by_discord_id(ctx.author.id)
             sql_update_query = "UPDATE pkinfo SET show_age = False WHERE id = %s"
             record_to_insert = (str(system.hid),)
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.")
+        await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.\nPlease note, it may take a moment for the system to update.")
+        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
+
+    @commands.command(brief="See all birthdays, from all users.")
+    @checks.is_vriska()
+    async def listAllBirthdays(self, ctx):
+        birthdays = []
+        async with ctx.channel.typing():
+            output = "**All Birthdays:**\n"
+            
+            birthdays += await get_all_pk_birthdays()
+            birthdays += await get_manual_birthdays()
+
+            output += await format_birthdays_year(birthdays)
+        await split_and_send(output, ctx.channel)
     
 def setup(client):
     client.add_cog(Birthdays(client))

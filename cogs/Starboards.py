@@ -22,6 +22,11 @@ class Starboards(commands.Cog):
     def __init__(self, client):
         self.client = client
 
+    async def cog_check(self, ctx):
+        if not ctx.guild.id == SKYS_SERVER_ID:
+            raise checks.WrongServer()
+        return True
+
     async def add_to_starboard(self,msg,starboardDBname=None,forceStar=False):
         reacts = msg.reactions
 
@@ -130,7 +135,6 @@ class Starboards(commands.Cog):
                     await run_query(query, (datetime.fromtimestamp(time.time()),))
 
     @commands.Cog.listener()
-    @checks.is_in_skys()
     async def on_raw_reaction_add(self, payload):
         async with reactSem:
             if (payload.guild_id == None):
@@ -173,7 +177,6 @@ class Starboards(commands.Cog):
                 await self.add_to_starboard(msg, starboardDBname=starboardDBname)
             
     @commands.command(pass_context=True, brief="Manually star a message.", help="Starboard defaults to 'starboard'.")
-    @checks.is_in_skys()
     @commands.is_owner()
     async def star(self,ctx, messageIDorLink=None, starboard="starboard"):
         msg = await getMessage(self.client, ctx, messageIDorLink)
@@ -184,7 +187,6 @@ class Starboards(commands.Cog):
         await self.add_to_starboard(msg,forceStar=True,starboardDBname=starboard)
 
     @commands.command(pass_context=True, aliases=['moveStarboard','changeStarboardChannel'], brief="Change a starboard channel.",help="Starboard defaults to 'starboard'.")
-    @checks.is_in_skys()
     @commands.is_owner()
     async def changeStarboard(self,ctx,starboard="starboard",channelID=None):
         if starboard not in starboards:
@@ -193,18 +195,11 @@ class Starboards(commands.Cog):
             raise discord.InvalidArgument("Please include message ID or link.")
 
         channel = self.client.get_channel(channelID)
-        result = await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?')
-        if result == 1:
+        if await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?') == 1:
             await run_query(f'UPDATE starboards SET channelid = {channelID} WHERE name = {starboard}')
             await ctx.send(f'{starboard.capitalize()} channel has been updated to {channel}.')
 
-        elif result == 0:
-            await ctx.send("Operation cancelled.")
-        else:
-            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
-
     @commands.command(aliases=['starboardInfo'],brief="View all starboard settings.",help="Use mobile selector -m for a more readable format on mobile.")
-    @checks.is_in_skys()
     @commands.is_owner()
     async def viewStarboards(self, ctx:commands.Context,mobile=""):
         starboards = await run_query("SELECT * FROM starboards")
@@ -226,7 +221,6 @@ class Starboards(commands.Cog):
         await ctx.send(output)
 
     @commands.command(brief="Change threshold for a starboard.",help="Starboard defaults to 'starboard'.\nSet starlimit to 0 to disable starboard.")
-    @checks.is_in_skys()
     @commands.is_owner()
     async def changeStarlimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
@@ -234,21 +228,18 @@ class Starboards(commands.Cog):
         elif starboard not in starboards:
             raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
 
-        result = await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?') if starlimit == 0 else await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
-        if result == 1:
-            await run_query(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
-            if starlimit == 0:
-                await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
-            else:
-                await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
-
-        elif result == 0:
-            await ctx.send("Operation cancelled.")
+        if starlimit == 0:
+            await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?')
         else:
-            raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+            await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} starlimit to {starlimit}?')
+        
+        await run_query(f'UPDATE starboards SET starlimit = {starlimit} WHERE name = \'{starboard}\'')
+        if starlimit == 0:
+            await ctx.send(f'{starboard.capitalize()} has been disabled. Simply set this starboard\'s limit to above 0 to re-enable.')
+        else:
+            await ctx.send(f'{starboard.capitalize()} starlimit has been updated to {starlimit}.')
 
     @commands.command(brief="Disable a starboard.",help="Starboard defaults to 'starboard'.")
-    @checks.is_in_skys()
     @commands.is_owner()
     async def disableStarboard(self,ctx,starboard="starboard"):
         if starboard not in starboards:

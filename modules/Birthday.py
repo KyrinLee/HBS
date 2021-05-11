@@ -52,8 +52,14 @@ class Birthday:
         return f'{self.name} {self.birthday.strftime("%b %d")} {self.year}'
 
     def same_day_as(self, day):
-        if self.month == day.month and self.day == day.day:
-            return True
+        try:
+            if self.month == day.month and self.day == day.day:
+                return True
+        except:
+            day = parser.parse(day)
+            if self.month == day.month and self.day == day.day:
+                return True
+            
         return False
 
     def in_date_range(self, start_day, end_day):
