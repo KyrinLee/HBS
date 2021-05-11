@@ -46,11 +46,6 @@ class Birthdays(commands.Cog):
             await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
                 
             await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
-
-    @tasks.loop(seconds=1800)
-    async def update_cache(self):
-        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
-        birthday_functions.manual_cache = await get_manual_birthdays()
         
     ''' ------------------------------
             GETTING BIRTHDAYS
@@ -143,9 +138,8 @@ class Birthdays(commands.Cog):
             
             await add_manual_birthday(new_birthday)
         
-        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.\nPlease note, it may take a moment for the system to update.')
-        birthday_functions.manual_cache = await get_manual_birthdays()
-
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
+        
     @birthdays.command(brief="Update a manual birthday.", aliases=["edit"])
     async def update(self, ctx, name="", *,birthday_raw=""):
         new_birthday = Birthday.from_raw(name.capitalize(), birthday_raw, ctx.author.id)
@@ -156,20 +150,17 @@ class Birthdays(commands.Cog):
             result = await confirmationMenu(self.client, ctx, menu_text)
             if result == 1:
                 await update_manual_birthday(new_birthday)
-                await ctx.send(f'Birthday for {new_birthday.name} updated to {new_birthday.short_birthday()}.\nPlease note, it may take a moment for the system to update.')
-                birthday_functions.manual_cache = await get_manual_birthdays()
+                await ctx.send(f'Birthday for {new_birthday.name} updated to {new_birthday.short_birthday()}.')
                 return 
 
-        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.\nPlease note, it may take a moment for the system to update.')
-        birthday_functions.manual_cache = await get_manual_birthdays()
+        await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
 
     @commands.command(aliases=["remove", "rem"],brief="Remove a manual birthday.")
     async def delete(self, ctx, name=""):
         async with ctx.channel.typing():
             await delete_manual_birthday(name, ctx.author.id)
         await ctx.send(f'Birthday removed.')
-        birthday_functions.manual_cache = await get_manual_birthdays()
-    
+        
     ''' ------------------------------
             SYSTEM BIRTHDAYS
         ------------------------------'''
@@ -196,8 +187,7 @@ class Birthdays(commands.Cog):
             record_to_insert = (str(system.hid), token)
             await run_query(sql_insert_query, record_to_insert)
 
-        await ctx.send("PluralKit Birthdays successfully connected!\nPlease note, it may take a moment for the system to update.")
-        birthday_functions.pluralkit_cache = await get_all_pk_birthdays() 
+        await ctx.send("PluralKit Birthdays successfully connected!")
 
     @birthdays.command(brief="Disconnect your PluralKit account.")
     async def disconnect(self, ctx):
@@ -216,8 +206,7 @@ class Birthdays(commands.Cog):
             if currently_connected:
                 record = (str(system.hid),)
                 await run_query(sql_delete_query, record)
-                await ctx.send("PluralKit account disconnected.\nPlease note, it may take a moment for the system to update.")
-                birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
+                await ctx.send("PluralKit account disconnected.")
             else:
                 raise checks.OtherError("Your PluralKit account is already unconnected.")
             
@@ -231,8 +220,7 @@ class Birthdays(commands.Cog):
             record_to_insert = (token, str(system.hid))
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("PluralKit Token successfully added!\nPlease note, it may take a moment for the system to update.")
-        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
+        await ctx.send("PluralKit Token successfully added!")
 
     @birthdays.group(invoke_without_command=True)
     async def age(self, ctx):
@@ -253,8 +241,7 @@ class Birthdays(commands.Cog):
             record_to_insert = (str(system.hid),)
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("Your PluralKit birthdays will now show age based on birth year.\nPlease note, it may take a moment for the system to update.")
-        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
+        await ctx.send("Your PluralKit birthdays will now show age based on birth year.")
 
     @age.command(brief="Set your system birthdays to hide ages based on birth year.", aliases=["disable","off"])
     async def hide(self, ctx):
@@ -264,8 +251,7 @@ class Birthdays(commands.Cog):
             record_to_insert = (str(system.hid),)
             await run_query(sql_update_query, record_to_insert)
 
-        await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.\nPlease note, it may take a moment for the system to update.")
-        birthday_functions.pluralkit_cache = await get_all_pk_birthdays()
+        await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.")
 
     @commands.command(brief="See all birthdays, from all users.")
     @checks.is_vriska()

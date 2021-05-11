@@ -15,9 +15,6 @@ from modules import checks, pk, pluralKit
 from modules.Birthday import Birthday
 from resources.constants import *
 
-pluralkit_cache = []
-manual_cache = []
-
 sql_insert_query = """INSERT INTO birthdays (name, day, month, year, id, show_age) VALUES (%s,%s,%s,%s,%s,%s)"""
 sql_delete_query = """DELETE FROM birthdays where name = %s and id = %s"""
 NO_PK_BIRTHDAYS_SET = "You have no birthdays set in PluralKit!"
@@ -97,9 +94,6 @@ async def format_birthdays_day(birthdays, day, client):
 async def get_pk_birthdays():
     final_array = []
     pk_errors = {}
-    
-    if pluralkit_cache != []:
-        return pluralkit_cache, pk_errors
 
     data = await run_query("SELECT * FROM pkinfo")
 
@@ -150,9 +144,7 @@ async def get_pk_birthdays_by_date_range(start_day, end_day):
 
 async def get_manual_birthdays():
     birthdays = []
-    if manual_cache != []:
-        return manual_cache
-    
+
     data = await run_query("SELECT * FROM birthdays")
     for row in data:
         birthdays.append(Birthday.from_database_row(row))
