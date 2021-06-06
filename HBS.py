@@ -1,7 +1,6 @@
 import discord
 import logging
 import re
-import json
 import asyncio
 
 from discord.ext import commands
@@ -9,7 +8,7 @@ from discord.ext import commands
 import time
 from datetime import datetime, date, timedelta
 import string
-
+F
 import os
 import sys
 
@@ -78,8 +77,6 @@ async def common(ctx):
     await ctx.message.clear_reactions()
 
 async def timeout_reaction_check(reaction_name, time=10):
-    result = False
-
     try:
         start_time = reaction_timeouts.get(reaction_name)[0]
         expire_time = reaction_timeouts.get(reaction_name)[1]

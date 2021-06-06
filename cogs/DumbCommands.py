@@ -15,6 +15,9 @@ from modules import checks
 from modules.functions import *
 from resources.constants import *
 
+import inflect
+p = inflect.engine()
+
 class DumbCommands(commands.Cog):
     def __init__(self, client):
         self.client = client
