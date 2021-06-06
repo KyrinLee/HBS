@@ -26,7 +26,7 @@ class DumbCommands(commands.Cog):
     @checks.is_in_skys()
     async def bounty(self, ctx: commands.Context, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
-        if user=="":
+        if user=="" or user in ["", "me", "Me", "ME"]:
             user = ctx.author.display_name
         elif user[0] == '@':
             user = user[1:]
@@ -66,7 +66,7 @@ class DumbCommands(commands.Cog):
     async def classpect(self, ctx, *, user:commands.clean_content=""):
         await asyncio.sleep(1)
         async with ctx.channel.typing():
-            if user=="":
+            if user=="" or user=="me":
                 user = ctx.author.display_name
             elif user[0] == '@':
                 user = user[1:]
@@ -109,6 +109,12 @@ class DumbCommands(commands.Cog):
 
     @commands.command(pass_context=True, brief="Get your blood color!", aliases=["hemospec","bloodcolor","blood"])
     async def hemospectrum(self, ctx, user:commands.clean_content=""):
+        if user == "":
+            output = ""
+            for h in hearts:
+                output += h;
+            await ctx.send(output)
+            return
         if user in ["", "me", "Me", "ME"]:
             user = ctx.author.display_name
         elif user[0] == '@':
