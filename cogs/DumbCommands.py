@@ -111,7 +111,7 @@ class DumbCommands(commands.Cog):
     async def hemospectrum(self, ctx, user:commands.clean_content=""):
         if user == "":
             output = ""
-            for h in hearts:
+            for h in hearts[1:]:
                 output += h;
             await ctx.send(output)
             return
