@@ -149,7 +149,7 @@ class DumbCommands(commands.Cog):
     @commands.command(pass_context=True,brief="Sends a number of whitespace lines to clear a channel.", help="Use 'permanent' or a specified number of hours for auto-deletion.")
     @commands.cooldown(1, 300, commands.BucketType.user)
     @checks.is_in_skys()
-    async def whitespace(self, ctx, delete_after=8):
+    async def whitespace(self, ctx, delete_after='8h'):
         await asyncio.sleep(1)
         try:
             int(delete_after.rstrip('h'))

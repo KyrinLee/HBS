@@ -8,7 +8,7 @@ from discord.ext import commands
 import time
 from datetime import datetime, date, timedelta
 import string
-F
+
 import os
 import sys
 
