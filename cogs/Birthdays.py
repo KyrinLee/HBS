@@ -253,9 +253,9 @@ class Birthdays(commands.Cog):
 
         await ctx.send("Your PluralKit birthdays will no longer show age based on birth year.")
 
-    @commands.command(brief="See all birthdays, from all users.")
+    @birthdays.command(brief="See all birthdays, from all users.", enabled=False)
     @checks.is_vriska()
-    async def listAllBirthdays(self, ctx):
+    async def listall(self, ctx):
         birthdays = []
         async with ctx.channel.typing():
             output = "**All Birthdays:**\n"
