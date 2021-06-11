@@ -155,7 +155,7 @@ class Birthdays(commands.Cog):
 
         await ctx.send(f'Birthday {new_birthday.short_birthday()} set for {new_birthday.name}.')
 
-    @commands.command(aliases=["remove", "rem"],brief="Remove a manual birthday.")
+    @birthdays.command(aliases=["remove", "rem"],brief="Remove a manual birthday.")
     async def delete(self, ctx, name=""):
         async with ctx.channel.typing():
             await delete_manual_birthday(name, ctx.author.id)
