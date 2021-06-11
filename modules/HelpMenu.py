@@ -232,7 +232,7 @@ class HBSHelpCommand(commands.DefaultHelpCommand):
             return await self.send_bot_help(mapping)
 
         # Check if it's a cog
-        cog = bot.get_cog(command) or bot.get_cog(command.capitalize())
+        cog = bot.get_cog(command)
         if cog is not None:
             return await self.send_cog_help(cog)
 
