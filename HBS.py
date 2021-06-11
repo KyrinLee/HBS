@@ -31,6 +31,7 @@ from resources.constants import *
 intents = discord.Intents.default()
 intents.members = True
 intents.presences = True
+from pretty_help import PrettyHelp
 
 startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","Birthdays","Reminders"]
 
@@ -41,10 +42,9 @@ client = commands.Bot(
     command_prefix=("hbs;","\hbs;","Hbs;","\Hbs;","hbs ","Hbs ","\hbs ","\Hbs "),
     owner_ids=[VRISKA_ID, SKYS_ID, EM_ID],
     case_insensitive=True,
-    help_command=HBSHelpCommand(indent=4,paginator=commands.Paginator()),
     description="HussieBot Oppression & More",
     status="online",
-    #help_command=None,
+    help_command=PrettyHelp(),
     intents=intents)
 
 

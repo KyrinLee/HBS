@@ -18,7 +18,7 @@ from resources.constants import *
 import inflect
 p = inflect.engine()
 
-class DumbCommands(commands.Cog):
+class DumbCommands(commands.Cog, name="Other Commands"):
     def __init__(self, client):
         self.client = client
 

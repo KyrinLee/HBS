@@ -18,7 +18,7 @@ import time
 
 import aiohttp, asyncio
 
-class Birthdays(commands.Cog):
+class Birthdays(commands.Cog, name="Birthday Commands"):
     def __init__(self, client):
         self.client = client
 
@@ -54,13 +54,11 @@ class Birthdays(commands.Cog):
     @commands.group(invoke_without_command=True, brief="See all of a day's birthdays.", aliases=["birthday"])
     async def birthdays(self, ctx, *, day=None):
         async with ctx.channel.typing():
-            if day == None:
-                day = get_today()
-            else:
+            if day!=None:
                 try:
                     day = parser.parse(day)
                 except:
-                    raise discord.InvalidArgument("Invalid date!")
+                    raise discord.InvalidArgument("Invalid date or command.")
             
             birthdays = await get_pk_birthdays_by_day(day)
             birthdays += await get_manual_birthdays_by_day(day)

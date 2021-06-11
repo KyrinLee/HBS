@@ -18,7 +18,7 @@ from resources.constants import *
 
 from discord import InvalidArgument
 
-class AdminCommands(commands.Cog):
+class AdminCommands(commands.Cog, name="Admin Commands"):
     def __init__(self, client):
         self.client = client
 

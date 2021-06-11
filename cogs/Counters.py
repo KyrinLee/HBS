@@ -18,7 +18,7 @@ resetSem = asyncio.Semaphore(1)
 
 DATABASE_URL = os.environ['DATABASE_URL']
 
-class Counters(commands.Cog):
+class Counters(commands.Cog, name="Counter Commands"):
     def __init__(self, client):
         self.client = client
 
