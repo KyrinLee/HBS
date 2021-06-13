@@ -11,4 +11,4 @@ pytz
 syllables
 nltk
 inflect
-DiscordPrettyHelp
+discord-pretty-help
