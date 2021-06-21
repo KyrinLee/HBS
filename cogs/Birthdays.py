@@ -60,11 +60,14 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
                 except:
                     raise discord.InvalidArgument("Invalid date or command.")
             
-            birthdays = await get_pk_birthdays_by_day(day)
-            birthdays += await get_manual_birthdays_by_day(day)
+            try:
+                birthdays = await get_pk_birthdays_by_day(day)
+                birthdays += await get_manual_birthdays_by_day(day)
 
-            output = await format_birthdays_day(birthdays, day, self.client)
-        await split_and_send(output, ctx.channel)
+                output = await format_birthdays_day(birthdays, day, self.client)
+                await split_and_send(output, ctx.channel)
+            except:
+                raise discord.InvalidArgument("Invalid date or command.")
 
     @birthdays.command(brief="See all of today's birthdays.")
     async def today(self, ctx):

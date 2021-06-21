@@ -66,8 +66,7 @@ async def on_ready():
     game = data[0][1]
     await client.change_presence(activity=discord.Game(name=game))'''
     
-    client.get_cog('Birthdays').time_check.start()
-    client.get_cog('Birthdays').update_cache.start()
+    client.get_cog('Birthday Commands').time_check.start()
 
     game = f'{str(line_count())} lines of code'
     await client.change_presence(activity=discord.Game(name=game))
