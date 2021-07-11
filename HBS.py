@@ -67,8 +67,16 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name=game))'''
     
     client.get_cog('Birthday Commands').time_check.start()
+    server = "| Err"
+    num = int(os.environ["CURR_SERVER"])
+    if num == 0:
+        server = "| PC"
+    if num == 1:
+        server = "| 1"
+    if num == 2:
+        server = "| 2"
 
-    game = f'{str(line_count())} lines of code'
+    game = f'{str(line_count())} lines of code {server}'
     await client.change_presence(activity=discord.Game(name=game))
 
 @client.before_invoke
