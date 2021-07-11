@@ -261,6 +261,19 @@ async def on_member_update(before, after):
             if str(before.status) == "offline" and str(after.status) == "online":
                 await client.get_channel(HBS_CHANNEL_ID).send(hussie_phrase + " Hussie is back online! :D")
 
+@checks.is_vriska()
+@client.command(brief="Get current server.", aliases=['current server', 'curr server'])
+async def server(ctx):
+    server = "error/other"
+    num = int(os.environ["CURR_SERVER"])
+    if num == 0:
+        server = "Vriska's PC"
+    if num == 1:
+        server = "Server 1"
+    if num == 2:
+        server = "Server 2"
+    await ctx.send("Current Server: " + server)
+
 @client.command(pass_context=True,brief="Spoil an image.", aliases=['spoiler'])
 async def spoil(ctx, *, text=""):
     

@@ -18,7 +18,7 @@ import pytz
 import psycopg2
 
 def get_today():
-    return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific'))
+    return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')).replace(hour=0,minute=0,second=0,microsecond=0)
 
 def database_connect(database=0):
     if database == 0:

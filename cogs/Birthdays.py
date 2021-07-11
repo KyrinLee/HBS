@@ -86,7 +86,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         async with ctx.channel.typing():
             output = "**__Upcoming Birthdays:__**\n"
             start_day = get_today() + timedelta(days=1)
-            end_day = start_day + timedelta(days=num_days-1)
+            end_day = start_day + timedelta(days=num_days)
 
             birthdays = await get_pk_birthdays_by_date_range(start_day, end_day)
             birthdays += await get_manual_birthdays_by_date_range(start_day, end_day)
@@ -160,7 +160,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     async def delete(self, ctx, name=""):
         async with ctx.channel.typing():
             await delete_manual_birthday(name, ctx.author.id)
-        await ctx.send(f'Birthday removed.')
+        await ctx.send(f'Birthday removed. Probably. Vriska is too dumb to figure out how to check if a birthday was actually removed so you should double check with `hbs birthdays list -m`. If it wasn\'t removed make sure you capitalized right cause this is case sensitive for some reason. Thanks! ::::)')
         
     ''' ------------------------------
             SYSTEM BIRTHDAYS
