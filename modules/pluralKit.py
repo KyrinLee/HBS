@@ -106,6 +106,7 @@ class System:
     description: str
     tag: str
     avatar_url: str
+    banner: str
     created: str
     tz: str
     api_token: str
@@ -115,7 +116,7 @@ class System:
     front_history_privacy: Optional[str]
 
 
-    def __init__(self, id, created, name=None, description=None, tag=None, avatar_url=None, tz=None, api_token=None,
+    def __init__(self, id, created, name=None, description=None, tag=None, avatar_url=None, banner=None, tz=None, api_token=None,
                  description_privacy=None, member_list_privacy=None, front_privacy=None, front_history_privacy=None):
         self.hid = id
         self.created = created
@@ -123,6 +124,7 @@ class System:
         self.description = description
         self.tag = tag
         self.avatar_url = avatar_url
+        self.banner = banner
         self.tz = tz
         self.api_token = api_token
         self.description_privacy = description_privacy
@@ -132,11 +134,11 @@ class System:
 
 
     def __repr__(self):
-        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} created={self.created} tz={self.tz}"
+        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
 
 
     def __str__(self):
-        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} created={self.created} tz={self.tz}"
+        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
 
 
     async def members(self, session: aiohttp.ClientSession):
@@ -196,6 +198,7 @@ class Member:
     system: int
     color: str
     avatar_url: str
+    banner: str
     birthday: date
     pronouns: str
     description: str
@@ -215,7 +218,7 @@ class Member:
     metadata_privacy: str
 
     def __init__(self, keep_proxy=None, proxy_tags=None, id=None, name=None, display_name=None, system=None, created=None, color=None,
-                 avatar_url=None, birthday=None, pronouns=None, description=None, prefix=None, suffix=None, sid=None, visibility=None, privacy=None, name_privacy=None,
+                 avatar_url=None, banner=None, birthday=None, pronouns=None, description=None, prefix=None, suffix=None, sid=None, visibility=None, privacy=None, name_privacy=None,
                  description_privacy=None, avatar_privacy=None, birthday_privacy=None, pronoun_privacy=None, metadata_privacy=None):
         self.hid = id
         self.name = name
@@ -224,6 +227,7 @@ class Member:
         self.created = created
         self.color = color
         self.avatar_url = avatar_url
+        self.banner = banner
         self.birthday = birthday
         self.pronouns = pronouns
         self.description = description
@@ -246,10 +250,10 @@ class Member:
                 self.proxy_tags.append(ProxyTag(proxy_tag['prefix'], proxy_tag['suffix']))
 
     def __repr__(self):
-        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
+        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
 
     def __str__(self):
-        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
+        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
 
     # TODO: Determine if lazily compairing just the id's is enough or if we need to compare other vars as well
     def __eq__(self, other):

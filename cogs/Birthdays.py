@@ -85,8 +85,8 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     async def upcoming(self, ctx, num_days=7):
         async with ctx.channel.typing():
             output = "**__Upcoming Birthdays:__**\n"
-            start_day = get_today() + timedelta(days=1)
-            end_day = start_day + timedelta(days=num_days)
+            start_day = get_today() + timedelta(days=0)
+            end_day = start_day + timedelta(days=num_days+1)
 
             birthdays = await get_pk_birthdays_by_date_range(start_day, end_day)
             birthdays += await get_manual_birthdays_by_date_range(start_day, end_day)

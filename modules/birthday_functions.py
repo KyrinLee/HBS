@@ -123,6 +123,8 @@ async def get_pk_birthdays():
 
 async def get_all_pk_birthdays():
     birthdays, errors = await get_pk_birthdays()
+    for e in errors:
+        sys.stdout.write(e)
     return birthdays
 
 async def get_pk_birthdays_by_system(system_id):
