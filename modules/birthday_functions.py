@@ -114,8 +114,14 @@ async def get_pk_birthdays():
                             tag = system.tag
                             system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag))
                     
+            except pluralKit.NotFound:
+                pk_errors[i[0]] = pluralKit.NotFound
+        
+            except pluralKit.Unauthorized:
+                pk_errors[i[0]] = pluralKit.Unauthorized
+
             except:
-                pk_errors[i[0]] = checks.OtherError(NO_ACCESS + "\nEither set your member list to public, or run `hbs;addPKToken` to share your access token.")
+                raise
 
             final_array += system_birthdays
 
@@ -123,8 +129,7 @@ async def get_pk_birthdays():
 
 async def get_all_pk_birthdays():
     birthdays, errors = await get_pk_birthdays()
-    for e in errors:
-        sys.stdout.write(e)
+    sys.stdout.write(str(errors))
     return birthdays
 
 async def get_pk_birthdays_by_system(system_id):

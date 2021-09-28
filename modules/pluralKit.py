@@ -105,6 +105,7 @@ class System:
     name: str
     description: str
     tag: str
+    color: str
     avatar_url: str
     banner: str
     created: str
@@ -116,13 +117,14 @@ class System:
     front_history_privacy: Optional[str]
 
 
-    def __init__(self, id, created, name=None, description=None, tag=None, avatar_url=None, banner=None, tz=None, api_token=None,
+    def __init__(self, id, created, name=None, description=None, tag=None, color=None, avatar_url=None, banner=None, tz=None, api_token=None,
                  description_privacy=None, member_list_privacy=None, front_privacy=None, front_history_privacy=None):
         self.hid = id
         self.created = created
         self.name = name
         self.description = description
         self.tag = tag
+        self.color = color
         self.avatar_url = avatar_url
         self.banner = banner
         self.tz = tz
@@ -134,11 +136,11 @@ class System:
 
 
     def __repr__(self):
-        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
+        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} color={self.color} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
 
 
     def __str__(self):
-        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
+        return f"<System hid={self.hid} name={self.name} description={self.description} tag={self.tag} color={self.color} avatar_url={self.avatar_url} banner={self.banner} created={self.created} tz={self.tz}"
 
 
     async def members(self, session: aiohttp.ClientSession):
@@ -158,10 +160,13 @@ class System:
 
     @staticmethod
     async def get_by_hid(session: aiohttp.ClientSession, hid, authorization=None):
-        json = await api_get(session, f"/s/{hid}", authorization)
-        sys = json
-        return System(api_token = authorization, **sys)
-
+        try:
+            json = await api_get(session, f"/s/{hid}", authorization)
+            sys = json
+            return System(api_token = authorization, **sys)
+        except:
+            raise
+    
 
     @staticmethod
     async def get_by_account(session: aiohttp.ClientSession, account, authorization=None):

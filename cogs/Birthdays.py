@@ -22,11 +22,6 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     def __init__(self, client):
         self.client = client
 
-    async def cog_check(self, ctx):
-        if not ctx.guild.id == SKYS_SERVER_ID and not ctx.author.id == VRISKA_ID:
-            raise checks.WrongServer()
-        return True
-
     @tasks.loop(seconds=30.0)
     async def time_check(self):
         output = ""
@@ -69,6 +64,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
             except:
                 raise discord.InvalidArgument("Invalid date or command.")
 
+    @checks.is_in_skys()
     @birthdays.command(brief="See all of today's birthdays.")
     async def today(self, ctx):
         async with ctx.channel.typing():
@@ -122,7 +118,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     ''' ------------------------------
              MANUAL BIRTHDAYS
         ------------------------------'''
-
+    
     @birthdays.command(brief="Add a manual birthday.", aliases=["new","n"])
     async def add(self, ctx, name="", *,birthday_raw=""):
         if (name in range(1,32) or name.lower() in ["january","jan","february","feb","march","mar","april","apr","may","june","jun","july","jul","august","aug","september","sep","sept","october","oct","november","nov","december","dec"]):
