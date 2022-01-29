@@ -24,6 +24,14 @@ NO_ACCESS = "I don't have access to your member list!"
 def sort_birthday_list(birthdays):
     birthdays.sort(key = lambda b: (b.month, b.day, b.name))
     return birthdays
+
+def sort_birthday_list_by_system(birthdays):
+    birthdays.sort(key = lambda b: (b.group_name, b.name))
+    birthday_groups = []
+    for k, g in groupby(birthdays, lambda c: c.group_name):
+        birthday_groups.append(list(g))
+
+    return birthday_groups
     
 def calculate_age(birthday, on_date):
     if birthday.year not in [-1,1,4] and birthday.show_age:
@@ -70,22 +78,28 @@ async def format_birthdays_day(birthdays, day, client):
     today = get_today()
     
     if (day == today):
-        output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**\n'
+        output += f'__**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))} - Today\'s Birthdays:**__\n'
     else:
-        output += f'**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays:**\n'
+        output += f'__**{re.sub("x","",re.sub("x0","",day.strftime("%B x%d, %Y")))}\'s Birthdays:**__\n'
 
     if birthdays == []:
         return output
 
-    birthdays = sort_birthday_list(birthdays)
+    birthday_groups = sort_birthday_list_by_system(birthdays)
+    for group in birthday_groups:
+        group_birthdays = []
 
-    for member in birthdays:
-        tag = member.tag if (len(member.id) == 5) else f'<{str(member.id)}>'
-        age = calculate_age(member, day)
-        age_text = f': {age} years old' if age != -1 and member.show_age else ""
-        final_birthdays.append(f'{member.name} {tag}{age_text}')
+        for member in group:
+            age = calculate_age(member, day)
+            age_text = f'( {age} years old)' if age != -1 and member.show_age else ""
+            group_birthdays.append(f'{member.name}{age_text}')
+                
+        if len(group) == 1 and group[0].name == group[0].group_name:
+            final_birthdays.append(f'     **{group_birthdays[0]}** <{group[0].tag}>')
+        else:
+            final_birthdays.append(f'     **{group[0].group_name}:** {", ".join(group_birthdays)}')
         
-    output += escapeCharacters("\n".join(final_birthdays))
+    output += "\n".join(final_birthdays)
     output = replace_user_ids_with_nicknames(client, output) + "\n"
     return output
 
@@ -112,7 +126,8 @@ async def get_pk_birthdays():
                         if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
                             name = member.display_name if member.name_privacy == "private" else member.name
                             tag = system.tag
-                            system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag))
+                            system_name = system.name
+                            system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
                     
             except pluralKit.NotFound:
                 pk_errors[i[0]] = pluralKit.NotFound
@@ -144,10 +159,6 @@ async def get_pk_birthdays_by_day(search_day):
     birthdays = await get_all_pk_birthdays()
     return [b for b in birthdays if b.same_day_as(search_day)]
 
-async def get_pk_birthdays_by_date_range(start_day, end_day):
-    birthdays = await get_all_pk_birthdays()
-    return [b for b in birthdays if b.in_date_range(start_day, end_day)]
-
 #MANUAL BIRTHDAY FUNCTIONS
 
 async def get_manual_birthdays():
@@ -162,17 +173,6 @@ async def get_manual_birthdays():
 async def get_manual_birthdays_by_day(search_day):
     birthdays = []
     data = await run_query(f'SELECT * FROM birthdays WHERE day = %s AND month = %s',(search_day.day, search_day.month))
-    for row in data:
-        birthdays.append(Birthday.from_database_row(row))
-
-    return birthdays
-
-async def get_manual_birthdays_by_date_range(start_day, end_day):
-    birthdays = []
-    query = "SELECT * FROM birthdays WHERE day >= %s AND month >= %s AND day <= %s AND month <= %s"
-    values = (start_day.day, start_day.month, end_day.day, end_day.month)
-    data = await run_query(query, values)
-    
     for row in data:
         birthdays.append(Birthday.from_database_row(row))
 

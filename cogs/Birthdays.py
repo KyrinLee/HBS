@@ -29,18 +29,18 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         today = get_today()
         
         data = await run_query("SELECT * FROM vars WHERE name = 'last_birthday'")
-        
         last_birthday_string = "0000-00-00" if len(data[0]) == 0 else data[0][1]
         last_birthday = parser.parse(last_birthday_string).date()
+            
+        while today.date() != last_birthday:
+            last_birthday = last_birthday + timedelta(days=1)    
+            birthdays = await get_pk_birthdays_by_day(last_birthday)
+            birthdays += await get_manual_birthdays_by_day(last_birthday)
 
-        if today.date() != last_birthday:
-            birthdays = await get_pk_birthdays_by_day(today)
-            birthdays += await get_manual_birthdays_by_day(today)
-
-            output = await format_birthdays_day(birthdays, today, self.client)
+            output = await format_birthdays_day(birthdays, last_birthday, self.client)
             await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
                 
-            await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
+        await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
         
     ''' ------------------------------
             GETTING BIRTHDAYS
@@ -83,9 +83,9 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
             output = "**__Upcoming Birthdays:__**\n"
             start_day = get_today() + timedelta(days=0)
             end_day = start_day + timedelta(days=num_days+1)
-
-            birthdays = await get_pk_birthdays_by_date_range(start_day, end_day)
-            birthdays += await get_manual_birthdays_by_date_range(start_day, end_day)
+            
+            birthdays = await get_all_pk_birthdays()
+            birthdays += await get_manual_birthdays()
             
             for i in range(0,num_days):
                 day = start_day + timedelta(days=i)
@@ -93,7 +93,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
                 
                 if days_birthdays != []:
                     output += await format_birthdays_day(days_birthdays, day, self.client)
-
+                
         await split_and_send(output, ctx.channel)
 
     @birthdays.command(brief="See all of your birthdays.")
@@ -130,7 +130,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
             birthday_conflict = await get_manual_birthday_by_user_and_name(name.capitalize(), ctx.author.id)
             if birthday_conflict != None:
                 await ctx.send(f'You already have a birthday named {new_birthday.name}!')
-                await ctx.invoke(self.client.get_command('updateBirthday'), name=name, birthday_raw=birthday_raw)
+                await ctx.invoke(self.client.get_command('birthdays update'), name=new_birthday.name, birthday_raw=birthday_raw)
                 return
             
             await add_manual_birthday(new_birthday)
@@ -155,8 +155,8 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     @birthdays.command(aliases=["remove", "rem"],brief="Remove a manual birthday.")
     async def delete(self, ctx, name=""):
         async with ctx.channel.typing():
-            await delete_manual_birthday(name, ctx.author.id)
-        await ctx.send(f'Birthday removed. Probably. Vriska is too dumb to figure out how to check if a birthday was actually removed so you should double check with `hbs birthdays list -m`. If it wasn\'t removed make sure you capitalized right cause this is case sensitive for some reason. Thanks! ::::)')
+            await delete_manual_birthday(name.capitalize(), ctx.author.id)
+        await ctx.send(f'Birthday removed. Probably.')
         
     ''' ------------------------------
             SYSTEM BIRTHDAYS

@@ -113,12 +113,13 @@ class System:
     api_token: str
     description_privacy: Optional[str]
     member_list_privacy: Optional[str]
+    group_list_privacy: Optional[str]
     front_privacy: Optional[str]
     front_history_privacy: Optional[str]
 
 
     def __init__(self, id, created, name=None, description=None, tag=None, color=None, avatar_url=None, banner=None, tz=None, api_token=None,
-                 description_privacy=None, member_list_privacy=None, front_privacy=None, front_history_privacy=None):
+                 description_privacy=None, member_list_privacy=None, group_list_privacy=None, front_privacy=None, front_history_privacy=None):
         self.hid = id
         self.created = created
         self.name = name
@@ -131,6 +132,7 @@ class System:
         self.api_token = api_token
         self.description_privacy = description_privacy
         self.member_list_privacy = member_list_privacy
+        self.group_list_privacy = group_list_privacy
         self.front_privacy = front_privacy
         self.front_history_privacy = front_history_privacy
 

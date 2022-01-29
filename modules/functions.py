@@ -91,6 +91,7 @@ def splitLongMsg(txt, limit=1990,char='\n'):
 def escapeCharacters(txt):
     txt = re.sub("\*","\\\*",txt)
     txt = re.sub("\|","\\\|",txt)
+    txt = re.sub("\_","\\\_",txt)
     return txt
 
 def formatTriggerDoc(txt):
