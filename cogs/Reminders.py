@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 import sys
 
 import os
@@ -11,6 +11,8 @@ from resources.constants import *
 from modules import checks
 from modules.functions import *
 
+import random
+import string
 import aiohttp
 import asyncio
 
@@ -29,12 +31,33 @@ async def get_timezone(ctx):
     - on day every month (1st of each month for example)
     - on specific weekdays (SMTWRFS)
     '''
-async def add_reminder(user_id, time, repeat_type=0, repeat_specifiers="", until=""):
-    pass
+async def add_reminder(user_id, name, time, repeat_type=0, repeat_specifiers="", until=""):
+    repeat_bitstring = str(repeat_type)
+    sql_insert_query = "INSERT INTO reminders VALUES (%s,%s,%s,%s)"
+    data = await run_query(sql_insert_query, (name, user_id, time, repeat_bitstring), database=2)
 
 class Reminders(commands.Cog):
     def __init__(self, client):
         self.client = client
+
+    @tasks.loop(seconds=5.0)
+    async def time_check(self):
+        output = ""
+        now = datetime.utcnow()
+        
+        data = await run_query("SELECT * FROM reminders", database=2)
+        for row in data:
+            if row[2] < now:
+                output = (f'Your Reminder **{row[1]}** is here!')
+                if row[3][0] == '0':
+                    await run_query("DELETE FROM reminders WHERE name = %s AND user_id = %s", (row[0],row[1]), database=2)
+                    output += '\nThis reminder will not repeat.'
+                else:
+                    repeat_info_string = "how did you get this, i didn't write this code yet"
+                    output += 'This reminder is set to repeat {repeat_info_string}. If you\'d like to delete it, please run `hbs reminders delete <name>`.'
+                user = self.client.get_user(row[1])
+                await user.send(output)
+        #await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
         
     @commands.command(pass_context=True)
     async def setTimezone(self, ctx, timezone=None):
@@ -57,9 +80,48 @@ class Reminders(commands.Cog):
                     raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
         else:
             raise checks.InvalidArgument("Please include a valid timezone name!")
+
+    @commands.group()
+    async def reminders(self, ctx):
+        timezone = await get_timezone(ctx)
+        if timezone == None:
+            raise checks.OtherError("You do not currently have a timezone set. Run `hbs setTimezone <timezone>` to set a timezone.")
+
+    @reminders.command()
+    async def list(self, ctx):
+        sql_get_query = "SELECT name, next_time, repeat_info FROM reminders WHERE user_id = %s"
+        data = await run_query(sql_get_query, (ctx.author.id,), database=2)
+        timezone = await get_timezone(ctx)
+        output = ""
+        for row in data:
+            time = row[1].astimezone(timezone).strftime("%m/%d/%Y, %H:%M:%S")
+            output += f'{row[0]} | {time} | {row[2]}\n'
+        await ctx.send(output)
+
+    @reminders.group(invoke_without_command=True)
+    async def new(self, ctx, name="", *, time=""):
+        reminder_id = await generate_reminder_key()
+        timezone = await get_timezone(ctx)
+        try:
+            reminder_time = parser.parse(time)
+            new_time = timezone.normalize(timezone.localize(reminder_time))
+        except:
+            await ctx.send("Please make sure that your command follows the format `hbs reminders new <name> <time>`.")
         
-    @commands.command(enabled=False, aliases=["addReminder"])
-    async def newReminder(self, ctx, *, time=""):
+        result = await confirmationMenu(self.client, ctx, f'You would like to create a reminder named {name} at {new_time}. Is this correct? (Names with spaces must be surrounded by "" in order to parse correctly.)')
+        if result == 0: await ctx.send("Operation cancelled.")
+        elif result != 1: raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
+        else:
+            await add_reminder(ctx.author.id, name, new_time)
+            #INSERT ACTUAL CHECK SOMEWHERE
+            await ctx.send(f'Reminder added! \nYou can find a list of all of your reminders by running `hbs reminders list`.')
+
+    @new.command()
+    async def repeating(self, ctx, name="", *, time=""):
+        await ctx.send("This isn't implemented yet. Sorry.")
+    
+        
+"""    async def newReminder(self, ctx, *, time=""):
         timezone = await get_timezone(ctx)
         if timezone == None:
             raise checks.OtherError("You do not currently have a timezone set. Run `hbs;setTimezone <timezone>` to set a timezone.")
@@ -74,7 +136,7 @@ class Reminders(commands.Cog):
         else:
             await add_reminder(ctx.author.id, new_time_utc)
 
-    @commands.command(enabled=False,aliases=["addRepeatingReminder", "addRepeatReminder", "repeatingReminder", "repeatReminder", "newRepeatingReminder", "new repeat reminder", "new repeating reminder", "add repeat reminder", "add repeating reminder"])
+    @commands.command(enabled=True,aliases=["addRepeatingReminder", "addRepeatReminder", "repeatingReminder", "repeatReminder", "newRepeatingReminder", "new repeat reminder", "new repeating reminder", "add repeat reminder", "add repeating reminder"])
     async def newRepeatReminder(self, ctx, *, time=""):
         timezone = await get_timezone(ctx)
         if timezone == None:
@@ -109,7 +171,7 @@ class Reminders(commands.Cog):
                 await add_reminder(ctx.author.id, new_time_utc, repeat_type=1, repeat_specifiers=repeat_num_hours)
             
             await add_reminder(ctx.author.id, new_time_utc)
-
+"""
         
 def setup(client):
     client.add_cog(Reminders(client))
