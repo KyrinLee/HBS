@@ -91,7 +91,7 @@ async def get_pk_message(message_id: int) -> Optional[Dict]:
     """Attempts to retrieve details on a proxied/pre-proxied message"""
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.pluralkit.me/v1/msg/{}'.format(message_id)) as r:
+            async with session.get('https://api.pluralkit.me/v2/msg/{}'.format(message_id)) as r:
                 if r.status == 200:  # We received a valid response from the PK API. The message is probably a pre-proxied message.
                     logging.debug(f"Message {message_id} is still on the PK api.")
                     # Convert the JSON response to a dict, Cache the details of the proxied message, and then bail.
