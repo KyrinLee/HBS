@@ -17,7 +17,7 @@ import aiohttp
 
 log = logging.getLogger(__name__)
 
-base_url = "https://api.pluralkit.me/v1"
+base_url = "https://api.pluralkit.me/v2"
 # --- Web Methods --- #
 
 
