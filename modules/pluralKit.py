@@ -32,7 +32,7 @@ async def api_get(session: aiohttp.ClientSession, url: str, authorization = None
         elif resp.status == 403:
             raise Unauthorized
         elif resp.status == 429:
-            json = await resp.json(content_type=None)
+            json = await resp.json(content_type='text/html')
             time.sleep((json['retry_after']+10) /1000)
             resp = await session.get(f"{base_url}{url}", headers=headers)
         json = await resp.json(content_type=None)
