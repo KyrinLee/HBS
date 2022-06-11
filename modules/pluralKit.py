@@ -30,6 +30,9 @@ async def api_get(session: aiohttp.ClientSession, url: str, authorization = None
             raise NotFound
         elif resp.status == 403:
             raise Unauthorized
+        elif resp.status == 429:
+            print(resp)
+            raise
         json = await resp.json(content_type='text/plain')
     return json
 
