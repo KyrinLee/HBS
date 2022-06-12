@@ -113,27 +113,30 @@ async def format_birthdays_day(birthdays, day, client):
 async def get_pk_birthdays():
     final_array = []
     pk_errors = {}
-    sys.stdout.write('made it')
+    sys.stdout.write('1\n')
     data = await run_query("SELECT * FROM pkinfo")
-    sys.stdout.write(data + '\n')
+    
+    pk = Client()
 
     for i in data:
-        pk = Client()
+        sys.stdout.write('3\n')
         if i[1] != '':
-            pk = Client(token=(i[1]))
+            pk.token=i[1]
         system_birthdays = []
+        sys.stdout.write('4\n')
         members = pk.get_members(system=(i[0]))
-        
+        print('5\n')
         async for member in members:
-            sys.stdout.write(member.name)
-            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                name = member.display_name if member.name_privacy == "private" else member.name
-                tag = system.tag
-                system_name = system.name
-                system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
+            sys.stdout.write(member.birthday + ' ')
+
+        print('requests remaining:', pk._rate_limit_remaining)
+        print('   time till reset:', (pk.rate_limit_reset_time - datetime.datetime.now()))
 
         final_array += system_birthdays
-
+        sys.stdout.write('6\n')
+        
+    sys.stdout.write('7\n')
+ 
     return final_array, pk_errors
 
 async def get_all_pk_birthdays():
