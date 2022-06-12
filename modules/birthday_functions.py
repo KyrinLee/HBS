@@ -18,7 +18,6 @@ from resources.constants import *
 
 from pluralkit import Client
 import pluralkit
-import asyncio
 
 
 sql_insert_query = """INSERT INTO birthdays (name, day, month, year, id, show_age) VALUES (%s,%s,%s,%s,%s,%s)"""
@@ -114,38 +113,24 @@ async def format_birthdays_day(birthdays, day, client):
 async def get_pk_birthdays():
     final_array = []
     pk_errors = {}
-
+    sys.stdout.write('made it')
     data = await run_query("SELECT * FROM pkinfo")
+    sys.stdout.write(data + '\n')
 
     for i in data:
-        pk = Client(async_mode=False)
-        if (i[1]) != '':
-            pk = Client('yspAO2p8gA52yT13XF4oSaz8EXlgkVconmrhRWMBi/GM3rKUiml9gPoBqvRyqbKG', async_mode=False)
+        pk = Client()
+        if i[1] != '':
+            pk = Client(token=(i[1]))
         system_birthdays = []
-        try:
-            system_id = ''
-            if (i[0] != ''):
-                system_id = i[0]
-            members = pk.get_members()
-            print(member[0].name)
-
-            if len(members) == 0:
-                pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
-                
-            else:
-                for member in members:
-                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                        name = member.display_name if member.name_privacy == "private" else member.name
-                        tag = system.tag
-                        system_name = system.name
-                        system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
-
-        except pluralkit.v2.errors.SystemNotFound:
-            pk_errors[i] = Exception('System not Found.')
-            pass
-
-        except:
-            raise
+        members = pk.get_members(system=(i[0]))
+        
+        async for member in members:
+            sys.stdout.write(member.name)
+            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
+                name = member.display_name if member.name_privacy == "private" else member.name
+                tag = system.tag
+                system_name = system.name
+                system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
 
         final_array += system_birthdays
 
