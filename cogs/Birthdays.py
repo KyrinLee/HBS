@@ -6,7 +6,7 @@ import os
 from dateutil import parser
 import re
 
-from modules import checks, pk, birthday_functions
+from modules import checks, birthday_functions
 from modules.Birthday import Birthday
 
 from modules.birthday_functions import *

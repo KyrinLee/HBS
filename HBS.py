@@ -21,9 +21,8 @@ import io
 from contextlib import redirect_stderr
 
 import random
-import syllables
 
-from modules import checks, pk, pluralKit
+from modules import checks
 from modules.HelpMenu import HBSHelpCommand
 from modules.functions import *
 from resources.constants import *

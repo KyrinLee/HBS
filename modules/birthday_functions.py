@@ -11,9 +11,15 @@ import pytz
 import time
 
 from modules.functions import *
-from modules import checks, pk, pluralKit
+from modules import checks
 from modules.Birthday import Birthday
 from resources.constants import *
+
+
+from pluralkit import Client
+import pluralkit
+import asyncio
+
 
 sql_insert_query = """INSERT INTO birthdays (name, day, month, year, id, show_age) VALUES (%s,%s,%s,%s,%s,%s)"""
 sql_delete_query = """DELETE FROM birthdays where name = %s and id = %s"""
@@ -111,44 +117,49 @@ async def get_pk_birthdays():
 
     data = await run_query("SELECT * FROM pkinfo")
 
-    async with aiohttp.ClientSession() as session:
-        for i in data:
-            system_birthdays = []
-            try:
-                system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                members = await system.members(session)
+    for i in data:
+        pk = Client(async_mode=False)
+        if (i[1]) != '':
+            pk = Client('yspAO2p8gA52yT13XF4oSaz8EXlgkVconmrhRWMBi/GM3rKUiml9gPoBqvRyqbKG', async_mode=False)
+        system_birthdays = []
+        try:
+            system_id = ''
+            if (i[0] != ''):
+                system_id = i[0]
+            members = pk.get_members()
+            print(member[0].name)
 
-                if len(members) == 0:
-                    pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
-                    
-                else:
-                    for member in members:
-                        if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                            name = member.display_name if member.name_privacy == "private" else member.name
-                            tag = system.tag
-                            system_name = system.name
-                            system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
-                    
-            except pluralKit.NotFound:
-                pk_errors[i[0]] = pluralKit.NotFound
-        
-            except pluralKit.Unauthorized:
-                pk_errors[i[0]] = pluralKit.Unauthorized
+            if len(members) == 0:
+                pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
+                
+            else:
+                for member in members:
+                    if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
+                        name = member.display_name if member.name_privacy == "private" else member.name
+                        tag = system.tag
+                        system_name = system.name
+                        system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
 
-            except:
-                raise
+        except pluralkit.v2.errors.SystemNotFound:
+            pk_errors[i] = Exception('System not Found.')
+            pass
 
-            final_array += system_birthdays
+        except:
+            raise
+
+        final_array += system_birthdays
 
     return final_array, pk_errors
 
 async def get_all_pk_birthdays():
     birthdays, errors = await get_pk_birthdays()
+    sys.stdout.write(str(birthdays))
     if errors != {}:
         sys.stdout.write(str(errors))
     return birthdays
 
 async def get_pk_birthdays_by_system(system_id):
+    data = await run_query("SELECT * FROM pkinfo WHERE ")
     birthdays, errors = await get_pk_birthdays()
     error = errors.pop(system_id, None)
     if error != None:

@@ -14,8 +14,6 @@ import random
 from modules import checks
 from resources.constants import *
 
-from modules.pk import CouldNotConnectToPKAPI
-
 class CommandErrorHandler(commands.Cog):
 
     def __init__(self, client):
