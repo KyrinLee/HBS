@@ -121,7 +121,6 @@ async def on_message(message: discord.Message):
                 break
 
     elif message.content.lower().startswith("hbs who"):
-        print('a')
         await asyncio.sleep(1)
         num = random.random()
         if num < .8:
