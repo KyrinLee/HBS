@@ -63,8 +63,8 @@ bannedPhrases = ["Good Morning", "Good Mornin", "Good Evening", "Good Evenin", "
 starsList = ['｡', '҉', '☆', '°', ':', '✭', '✧', '.', '✼', '✫', '．', '*', '゜', '。', '+', 'ﾟ', '・', '･', '★']
 spaces = [" " for x in range(30)]
 
-who_choices_sky = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto.","Hatsune Miku.","Vriska.","Milk Boy.","Hussiebot" + blobspade,"Nox.","David Elizabeth Strider.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
-who_choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Hatsune Miku.","Vriska.","Hussiebot" + blobspade,"It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
+who_choices_sky = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Em'rys.","Prompto.","Hatsune Miku.","Vriska.","Milk Boy.","Nox.","David Elizabeth Strider.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
+who_choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Hatsune Miku.","Vriska.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
 
 DATABASE_URL = os.environ['DATABASE_URL']
 DATABASE_URL_2 = os.environ['DATABASE_URL_2']

@@ -12,7 +12,7 @@ import re
 import random
 
 from modules import checks
-from resources.constants import *
+from resources.constants import who_choices
 
 from modules.pk import CouldNotConnectToPKAPI
 
@@ -91,17 +91,8 @@ class CommandErrorHandler(commands.Cog):
                         if "you" in message_content:
                             if not message_content.endswith("?"):
                                 message_content = message_content + "?"
-                        choices.append(message_content.replace('you', '*you*').replace('does','*does*').replace('me','*me*'))
+                        choices.append(message_content.replace(' you', '*you* ').replace('does',' *does* ').replace(' me ',' *me* '))
                         await message.channel.send(random.choice(choices))
-                                       
-                    elif message_content.startswith("who"):
-                        await asyncio.sleep(1)
-                        choices = who_choices_skys if checks.is_in_skys() else who_choices
-                        num = random.random()
-                        if num < .6:
-                            await message.channel.send(random.choice(choices))
-                        else:
-                            await message.channel.send(random.choice(homestuck_characters) + ".")
                             
                     elif message_content.startswith("please"):
                         await asyncio.sleep(1)
@@ -152,10 +143,21 @@ class CommandErrorHandler(commands.Cog):
             
         else:
             # All other Errors not returned come here. And we can just print the default TraceBack.
-            await ctx.send("I did a fucky.")
+            msg = "I did a fucky."
+            num = random.random()
+            if num < .05:
+                msg += " uwu"
+            elif num < .1:
+                msg += " owo"
+            elif num < .15:
+                msg += " I did this one on purpose >:)"
+            elif num < .2:
+                msg = "*You* did a fucky."
+                    
             print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             print(str(ctx))
+            await ctx.send(msg)
 
 
 def setup(client):
