@@ -137,7 +137,7 @@ class DumbCommands(commands.Cog, name="Other Commands"):
         output = output.rstrip("\n")
         if len(output) > 2000:
             await ctx.send("Unfortunately discord's message character limit doesn't support bubble wrap that size :( \nHere's what I could fit!") 
-            outputArr = splitLongMsg(output, 2000)
+            outputArr = split_string(output, 1995)
             output = outputArr[0]
         await ctx.send(output)
 

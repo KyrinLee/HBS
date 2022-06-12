@@ -68,14 +68,13 @@ async def on_ready():
     
     client.get_cog('Birthday Commands').time_check.start()
     client.get_cog('Reminders').time_check.start()
-    server = "| S0"
     num = int(os.environ["CURR_SERVER"])
-    if num == 0:
-        server = "| PC"
     if num == 1:
         server = "| S1"
-    if num == 2:
+    elif num == 2:
         server = "| S2"
+    else:
+        server = "| PC"
 
     game = f'{str(line_count())} lines of code {server}'
     await client.change_presence(activity=discord.Game(name=game))

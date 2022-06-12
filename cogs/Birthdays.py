@@ -49,11 +49,13 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     @commands.group(invoke_without_command=True, brief="See all of a day's birthdays.", aliases=["birthday"])
     async def birthdays(self, ctx, *, day=None):
         async with ctx.channel.typing():
-            if day!=None:
+            if day != None:
                 try:
                     day = parser.parse(day)
                 except:
                     raise discord.InvalidArgument("Invalid date or command.")
+            else:
+                day = date.today()
             
             try:
                 birthdays = await get_pk_birthdays_by_day(day)
@@ -61,8 +63,9 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
 
                 output = await format_birthdays_day(birthdays, day, self.client)
                 await split_and_send(output, ctx.channel)
+                
             except:
-                raise discord.InvalidArgument("Invalid date or command.")
+                raise
 
     @checks.is_in_skys()
     @birthdays.command(brief="See all of today's birthdays.")
@@ -101,12 +104,11 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         async with ctx.channel.typing():
             if "-m" in flags and "-s" in flags:
                 flags = ""
-            system = await pk.get_system_by_discord_id(ctx.author.id)
 
             output = "**My Birthdays:**\n"
             birthdays = []
             if ("-m" not in flags):
-                birthdays += await get_pk_birthdays_by_system(system.hid)
+                birthdays += await get_pk_birthdays_by_system(ctx.author.id)
             if ("-s" not in flags):
                 birthdays += await get_manual_birthdays_by_user(ctx.author.id)
             

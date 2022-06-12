@@ -65,29 +65,26 @@ async def check_for_react(msg, reaction_name, user_id):
                   return True
   return False
 
-async def split_and_send(txt, channel, limit=1990, char='\n'):
-    output = splitLongMsg(txt, limit, char)
+async def split_and_send(txt, channel):
+    output = split_string(txt, 2000)
     for o in output:
         await channel.send(o)
 
-def splitLongMsg(txt, limit=1990,char='\n'):
-    txtArr = txt.split(char)
-
-    output = ""
-    outputArr = []
-
-    for i in range(0, len(txtArr)):
-        outputTest = output + txtArr[i] + char
-        if len(outputTest) > limit:
-            outputArr.append(output)
-            #print(output)
-            output = txtArr[i] + char
+def split_string(str, limit, sep=" "):
+    words = str.split(' ')
+    if max(map(len, words)) > limit:
+        raise ValueError("limit is too small")
+    res, part, others = [], words[0], words[1:]
+    for word in others:
+        if len(sep)+len(word) > limit-len(part):
+            res.append(part)
+            part = word
         else:
-            output = output + txtArr[i] + char
-
-    outputArr.append(output)
-    return outputArr
-
+            part += sep+word
+    if part:
+        res.append(part)
+    return res
+    
 def escapeCharacters(txt):
     txt = re.sub("\*","\\\*",txt)
     txt = re.sub("\|","\\\|",txt)

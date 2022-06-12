@@ -125,8 +125,8 @@ async def get_pk_birthdays():
                         
                     else:
                         for member in members:
-                            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                                name = member.display_name if member.name_privacy == "private" else member.name
+                            if member.birthday != None and member.privacy != None and member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private":
+                                name = member.display_name if member.privacy['name_privacy'] == "private" else member.name
                                 tag = system.tag
                                 system_name = system.name
                                 system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
@@ -157,12 +157,26 @@ async def get_all_pk_birthdays():
         sys.stdout.write(str(errors))
     return birthdays
 
-async def get_pk_birthdays_by_system(system_id):
-    birthdays, errors = await get_pk_birthdays()
-    error = errors.pop(system_id, None)
-    if error != None:
-        raise error
-    return [b for b in birthdays if b.id == system_id]
+async def get_pk_birthdays_by_system(id):
+    system = await pk.get_system_by_discord_id(id)
+    system_id = system.hid
+    birthdays = []
+
+    data = await run_query("SELECT * FROM pkinfo WHERE id = %s", (system_id,))
+    for i in data:
+        authorization = i[1]
+    
+    async with aiohttp.ClientSession() as session:
+        system = await pluralKit.System.get_by_hid(session=session,hid=system_id,authorization=authorization)
+        members = await system.members(session)
+        for member in members:
+            if member.birthday != None and member.privacy != None and member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private":
+                name = member.display_name if member.privacy['name_privacy'] == "private" else member.name
+                tag = system.tag
+                system_name = system.name
+                birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
+      
+    return birthdays
         
 async def get_pk_birthdays_by_day(search_day):
     birthdays = await get_all_pk_birthdays()

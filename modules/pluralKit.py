@@ -180,8 +180,8 @@ class System:
     
 
     @staticmethod
-    async def get_by_account(session: aiohttp.ClientSession, account, authorization=None):
-        json = await api_get(session, f"/a/{account}", authorization)
+    async def get_by_account(session: aiohttp.ClientSession, account_id, authorization=None):
+        json = await api_get(session, f"/systems/{account_id}", authorization)
         sys = json
         return System(**sys)
 
@@ -268,10 +268,15 @@ class Member:
                 self.proxy_tags.append(ProxyTag(proxy_tag['prefix'], proxy_tag['suffix']))
 
     def __repr__(self):
-        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
+        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
 
     def __str__(self):
-        return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner_url} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
+        return f"""<Member hid={self.hid} name={self.name} display_name={self.display_name}\n
+                system={self.system} created={self.created} color={self.color}\n
+                avatar_url={self.avatar_url} banner={self.banner} birthday={self.birthday}\n
+                pronouns={self.pronouns} description={self.description} prefix={self.prefix}\n
+                suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}\n
+                visibility={self.visibility} privacy={self.privacy}"""
 
     # TODO: Determine if lazily compairing just the id's is enough or if we need to compare other vars as well
     def __eq__(self, other):
