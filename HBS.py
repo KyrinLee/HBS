@@ -129,7 +129,6 @@ async def on_message(message: discord.Message):
             else:
                 await message.channel.send(random.choice(who_choices))
         else:
-            print('c')
             await message.channel.send(random.choice(homestuck_characters) + ".")
 
     try:

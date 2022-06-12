@@ -68,59 +68,59 @@ who_choices_sky = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","
                    "That's classified.","I remember, it was many years ago. I was but a young boy...",
                    "I refuse to answer.", "shut up.", "I hate answering your stupid questions.", "Why are you like this?",
                    "Buy me chicken nuggets and I'll tell you.",
-                   """We're no strangers to love
-                    You know the rules and so do I (do I)
-                    A full commitment's what I'm thinking of
-                    You wouldn't get this from any other guy
-                    I just wanna tell you how I'm feeling
-                    Gotta make you understand
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
-                    Never gonna tell a lie and hurt you
-                    We've known each other for so long
-                    Your heart's been aching, but you're too shy to say it (say it)
-                    Inside, we both know what's been going on (going on)
-                    We know the game and we're gonna play it
-                    And if you ask me how I'm feeling
-                    Don't tell me you're too blind to see
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
-                    Never gonna tell a lie and hurt you
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
-                    Never gonna tell a lie and hurt you
-                    We've known each other for so long
-                    Your heart's been aching, but you're too shy to say it (to say it)
-                    Inside, we both know what's been going on (going on)
-                    We know the game and we're gonna play it
-                    I just wanna tell you how I'm feeling
-                    Gotta make you understand
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
-                    Never gonna tell a lie and hurt you
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
-                    Never gonna tell a lie and hurt you
-                    Never gonna give you up
-                    Never gonna let you down
-                    Never gonna run around and desert you
-                    Never gonna make you cry
-                    Never gonna say goodbye
+                   """We're no strangers to love\n
+                    You know the rules and so do I (do I)\n
+                    A full commitment's what I'm thinking of\n
+                    You wouldn't get this from any other guy\n
+                    I just wanna tell you how I'm feeling\n
+                    Gotta make you understand\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
+                    Never gonna tell a lie and hurt you\n
+                    We've known each other for so long\n
+                    Your heart's been aching, but you're too shy to say it (say it)\n
+                    Inside, we both know what's been going on (going on)\n
+                    We know the game and we're gonna play it\n
+                    And if you ask me how I'm feeling\n
+                    Don't tell me you're too blind to see\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
+                    Never gonna tell a lie and hurt you\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
+                    Never gonna tell a lie and hurt you\n
+                    We've known each other for so long\n
+                    Your heart's been aching, but you're too shy to say it (to say it)\n
+                    Inside, we both know what's been going on (going on)\n
+                    We know the game and we're gonna play it\n
+                    I just wanna tell you how I'm feeling\n
+                    Gotta make you understand\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
+                    Never gonna tell a lie and hurt you\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
+                    Never gonna tell a lie and hurt you\n
+                    Never gonna give you up\n
+                    Never gonna let you down\n
+                    Never gonna run around and desert you\n
+                    Never gonna make you cry\n
+                    Never gonna say goodbye\n
                     Never gonna tell a lie and hurt you"""]
 who_choices = ["Me.","You.","Andrew Fucking Hussie.","Who do you *think*?","Hatsune Miku.","Vriska.","It's a secret.","Why do you gotta know?","That's classified.","I remember, it was many years ago. I was but a young boy..."]
 
