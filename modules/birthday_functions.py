@@ -114,30 +114,39 @@ async def get_pk_birthdays():
     async with aiohttp.ClientSession() as session:
         for i in data:
             system_birthdays = []
-            try:
-                system = await pluralKit.System.get_by_hid(session,i[0],i[1])
-                members = await system.members(session)
+            rate_limited = True
+            while (rate_limited):
+                try:
+                    system = await pluralKit.System.get_by_hid(session=session,hid=i[0],authorization=i[1])
+                    members = await system.members(session)
 
-                if len(members) == 0:
-                    pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
+                    if len(members) == 0:
+                        pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
+                        
+                    else:
+                        for member in members:
+                            if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
+                                name = member.display_name if member.name_privacy == "private" else member.name
+                                tag = system.tag
+                                system_name = system.name
+                                system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
+
+                    rate_limited = False
+
+                except pluralKit.NotFound:
+                    pk_errors[i[0]] = pluralKit.NotFound
+                    rate_limited = False
+
+                except pluralKit.Unauthorized:
+                    pk_errors[i[0]] = pluralKit.Unauthorized
+                    rate_limited = False
                     
-                else:
-                    for member in members:
-                        if member.birthday != None and member.visibility != "private" and member.birthday_privacy != "private":
-                            name = member.display_name if member.name_privacy == "private" else member.name
-                            tag = system.tag
-                            system_name = system.name
-                            system_birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
+                except pluralKit.RateLimited:
+                    await asyncio.sleep(0.5)
+
+                except:
+                    raise
                     
-            except pluralKit.NotFound:
-                pk_errors[i[0]] = pluralKit.NotFound
-        
-            except pluralKit.Unauthorized:
-                pk_errors[i[0]] = pluralKit.Unauthorized
-
-            except:
-                raise
-
             final_array += system_birthdays
 
     return final_array, pk_errors
