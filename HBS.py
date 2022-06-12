@@ -120,6 +120,18 @@ async def on_message(message: discord.Message):
                 await message.delete()
                 break
 
+    elif message.webhook_id == None and message.content.lower().startswith("hbs who"):
+        await asyncio.sleep(1)
+        num = random.random()
+        if num < .8:
+            if message.guild.id == SKYS_SERVER_ID:
+                await message.channel.send(random.choice(who_choices_sky))
+            else:
+                await message.channel.send(random.choice(who_choices))
+        else:
+            print('c')
+            await message.channel.send(random.choice(homestuck_characters) + ".")
+
     try:
         #IF NOT IN VENT, AUTHOR NOT HBS, AND NOT COMMAND
         if message.channel.category_id != VENT_CATEGORY_ID and message.author.id != client.user.id and not any(message.content.startswith(s) for s in client.command_prefix):
@@ -162,17 +174,6 @@ async def on_message(message: discord.Message):
                         if (first_word_is_one_syllable and second_word_is_one_syllable):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
-
-                    if message.content.lower().startswith("hbs who"):
-                        await asyncio.sleep(1)
-                        num = random.random()
-                        if num < .8:
-                            if message.guild.id == SKYS_SERVER_ID:
-                                await message.channel.send(random.choice(who_choices_sky))
-                            else:
-                                await message.channel.send(random.choice(who_choices))
-                        else:
-                            await message.channel.send(random.choice(homestuck_characters) + ".")
 
                 #HUSSIE
                 if message.guild.id == SKYS_SERVER_ID and any(i in message_content for i in ["hussie"]):
