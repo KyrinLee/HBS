@@ -120,13 +120,13 @@ async def get_pk_birthdays():
                     system = await pluralKit.System.get_by_hid(session=session,hid=i[0],authorization=i[1])
                     members = await system.members(session)
 
-                    print(str(system))
-
                     if len(members) == 0:
                         pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
                         
                     else:   
                         for member in members:
+                            if (i[0] == 'eroxc'):
+                                print(str(member))
                             if member.birthday != None and (member.privacy == None or (member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private")):
                                 name = member.display_name if (member.privacy != None and member.privacy['name_privacy'] == "private") else member.name
                                 tag = system.tag
