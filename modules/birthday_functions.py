@@ -125,9 +125,9 @@ async def get_pk_birthdays():
                         
                     else:   
                         for member in members:
-                            if (i[0] == 'becdz'):
                             if member.birthday != None and member.privacy != None and member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private":
-                                print(member.name)
+                                if (i[0] == 'becdz'):
+                                    print(member.name)
                                 name = member.display_name if member.privacy['name_privacy'] == "private" else member.name
                                 tag = system.tag
                                 system_name = system.name
