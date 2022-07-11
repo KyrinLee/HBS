@@ -124,6 +124,7 @@ async def get_pk_birthdays():
                         pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
                         
                     else:
+                        print(str (i[0]) + " " + str(members))
                         for member in members:
                             if member.birthday != None and member.privacy != None and member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private":
                                 name = member.display_name if member.privacy['name_privacy'] == "private" else member.name
