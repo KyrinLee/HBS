@@ -172,8 +172,8 @@ async def get_pk_birthdays_by_system(id):
         system = await pluralKit.System.get_by_hid(session=session,hid=system_id,authorization=authorization)
         members = await system.members(session)
         for member in members:
-            if member.birthday != None and member.privacy != None and member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private":
-                name = member.display_name if member.privacy['name_privacy'] == "private" else member.name
+            if member.birthday != None and (member.privacy == None or (member.privacy['visibility'] != "private" and member.privacy['birthday_privacy'] != "private")):
+                name = member.display_name if (member.privacy != None and member.privacy['name_privacy'] == "private") else member.name
                 tag = system.tag
                 system_name = system.name
                 birthdays.append(Birthday.from_raw(name, member.birthday, i[0], bool(i[2]), tag, system_name))
