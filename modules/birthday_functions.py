@@ -120,6 +120,8 @@ async def get_pk_birthdays():
                     system = await pluralKit.System.get_by_hid(session=session,hid=i[0],authorization=i[1])
                     members = await system.members(session)
 
+                    print(str(system))
+
                     if len(members) == 0:
                         pk_errors[i[0]] = checks.OtherError(NO_PK_BIRTHDAYS_SET)
                         
