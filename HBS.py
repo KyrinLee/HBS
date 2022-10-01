@@ -152,13 +152,12 @@ async def on_message(message: discord.Message):
                             await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
                             
                         #VALID ANCESTOR
-                            if (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
-                                await asyncio.sleep(1)
-                                await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
+                        elif (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
+                            await asyncio.sleep(1)
+                            await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
 
                         #VALID CLASSPECT
-                        match = re.match("(\w+) of (\w+)$", message_content)
-                        if match:
+                        elif bool(re.match("(\w+) of (\w+)$", message_content):
                             first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
                             second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
                             if (first_word_is_one_syllable and second_word_is_one_syllable):
@@ -169,7 +168,7 @@ async def on_message(message: discord.Message):
                         elif (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
-                            
+
                         #VALID TROLL NAME
                         elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
                             await asyncio.sleep(1)
