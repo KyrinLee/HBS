@@ -140,8 +140,8 @@ async def on_message(message: discord.Message):
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
 
-                if message_content.find('vriska') != -1 or str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline":             
-                    if message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
+                if message_content.find('vriska') != -1:             
+                    if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline" and message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
                         #VRISKA SERKET
                         if (message_content == "vriska serket"):
                             await asyncio.sleep(1)
