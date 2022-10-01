@@ -140,14 +140,15 @@ async def on_message(message: discord.Message):
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
 
-                if message_content.find('vriska') != -1:             
-                    if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline" and message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
+                       
+                if message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
+                    if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline" or message_content.find('vriska') != -1:      
                         #VRISKA SERKET
                         if (message_content == "vriska serket"):
                             await asyncio.sleep(1)
                             await message.channel.send("Vriska Serket is a valid troll ::::)")
                         #ANDREW HUSSIE
-                        if (message.guild.id == SKYS_SERVER_ID and message_content == "andrew hussie"):
+                        elif (message.guild.id == SKYS_SERVER_ID and message_content == "andrew hussie"):
                             await asyncio.sleep(1)
                             await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
                         #VALID KID NAME
