@@ -139,8 +139,7 @@ async def on_message(message: discord.Message):
             expire_time = blacklisted_channels.get(message.channel.id)
             if expire_time == None or expire_time < datetime.utcnow():
                 if expire_time != None: blacklisted_channels.pop(message.channel.id)
-
-                       
+                
                 if message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
                     if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline" or message_content.find('vriska') != -1:      
                         #VRISKA SERKET
@@ -151,29 +150,30 @@ async def on_message(message: discord.Message):
                         elif (message.guild.id == SKYS_SERVER_ID and message_content == "andrew hussie"):
                             await asyncio.sleep(1)
                             await message.channel.send("Andrew Hussie is a valid troll. And my boyfriend! " + blobspade)
+                            
+                        #VALID ANCESTOR
+                            if (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
+                                await asyncio.sleep(1)
+                                await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
+
+                        #VALID CLASSPECT
+                        match = re.match("(\w+) of (\w+)$", message_content)
+                        if match:
+                            first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
+                            second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
+                            if (first_word_is_one_syllable and second_word_is_one_syllable):
+                                await asyncio.sleep(1)
+                                await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
+
                         #VALID KID NAME
                         elif (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{string.capwords(message_content)} is a valid kid name.')
+                            
                         #VALID TROLL NAME
                         elif (bool(re.match("\S{6}\s(\S){6}$",message_content))):
                             await asyncio.sleep(1)
                             await message.channel.send(f'{string.capwords(message_content)} is a valid troll name.')
-
-                elif message.webhook_id == None:
-                    #VALID ANCESTOR
-                    if (bool(re.match("(?:the|\S{8})\s(\S){8}$",message_content))):
-                        await asyncio.sleep(1)
-                        await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
-
-                    #VALID CLASSPECT
-                    match = re.match("(\w+) of (\w+)$", message_content)
-                    if match:
-                        first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
-                        second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
-                        if (first_word_is_one_syllable and second_word_is_one_syllable):
-                            await asyncio.sleep(1)
-                            await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
 
                 #HUSSIE
                 if message.guild.id == SKYS_SERVER_ID and any(i in message_content for i in ["hussie"]):

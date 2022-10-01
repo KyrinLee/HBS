@@ -145,13 +145,13 @@ class CommandErrorHandler(commands.Cog):
             # All other Errors not returned come here. And we can just print the default TraceBack.
             msg = "I did a fucky."
             num = random.random()
-            if num < .05:
+            if num < .1:
                 msg += " uwu"
-            elif num < .1:
-                msg += " owo"
-            elif num < .15:
-                msg += " I did this one on purpose >:)"
             elif num < .2:
+                msg += " owo"
+            elif num < .3:
+                msg += " I did this one on purpose >:)"
+            elif num < .4:
                 msg = "*You* did a fucky."
                     
             print('Ignoring exception in command {}:'.format(ctx.command), file=sys.stderr)
