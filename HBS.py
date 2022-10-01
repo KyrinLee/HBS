@@ -157,7 +157,8 @@ async def on_message(message: discord.Message):
                             await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
 
                         #VALID CLASSPECT
-                        elif bool(re.match("(\w+) of (\w+)$", message_content)):
+                        match = re.match("(\w+) of (\w+)$", message_content)
+                        elif match:
                             first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
                             second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
                             if (first_word_is_one_syllable and second_word_is_one_syllable):
