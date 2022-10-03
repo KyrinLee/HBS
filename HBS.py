@@ -142,6 +142,10 @@ async def on_message(message: discord.Message):
                 
                 if message.webhook_id == None and not message_content.startswith("pk;") and not any(phrase.lower() in message_content for phrase in bannedPhrases):
                     if str(message.guild.get_member(HUSSIEBOT_ID).status) == "offline" or message_content.find('vriska') != -1:      
+                        
+                        #GET CLASSPECT MATCH IF EXISTS
+                        classpect_match = re.match("(\w+) of (\w+)$", message_content)
+
                         #VRISKA SERKET
                         if (message_content == "vriska serket"):
                             await asyncio.sleep(1)
@@ -157,13 +161,12 @@ async def on_message(message: discord.Message):
                             await message.channel.send(f'{string.capwords(message_content)} is a valid ancestor name.')
 
                         #VALID CLASSPECT
-                        match = re.match("(\w+) of (\w+)$", message_content)
-                        elif match:
-                            first_word_is_one_syllable = nsyl(match.group(1))[0] == 1 or syllables.estimate(match.group(1)) == 1
-                            second_word_is_one_syllable = nsyl(match.group(2))[0] == 1 or syllables.estimate(match.group(2)) == 1
+                        elif classpect_match:
+                            first_word_is_one_syllable = nsyl(classpect_match.group(1))[0] == 1 or syllables.estimate(classpect_match.group(1)) == 1
+                            second_word_is_one_syllable = nsyl(classpect_match.group(2))[0] == 1 or syllables.estimate(classpect_match.group(2)) == 1
                             if (first_word_is_one_syllable and second_word_is_one_syllable):
                                 await asyncio.sleep(1)
-                                await message.channel.send(f'{match.group(1).capitalize()} of {match.group(2).capitalize()} is a valid classpect.')
+                                await message.channel.send(f'{classpect_match.group(1).capitalize()} of {classpect_match.group(2).capitalize()} is a valid classpect.')
 
                         #VALID KID NAME
                         elif (bool(re.match("\S{4}\s(\S){6,7}$",message_content))):
