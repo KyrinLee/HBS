@@ -137,7 +137,7 @@ class Starboards(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         async with reactSem:
-            if (payload.guild_id == None):
+            if (payload.guild_id != SKYS_SERVER_ID):
                 return
             msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
             starboardDBname = ""
@@ -158,7 +158,7 @@ class Starboards(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
         async with reactSem:
-            if (payload.guild_id == None):
+            if (payload.guild_id != SKYS_SERVER_ID):
                 return
             msg = await self.client.get_channel(payload.channel_id).fetch_message(payload.message_id)
             starboardDBname = ""
