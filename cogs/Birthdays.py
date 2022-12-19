@@ -21,6 +21,7 @@ import aiohttp, asyncio
 class Birthdays(commands.Cog, name="Birthday Commands"):
     def __init__(self, client):
         self.client = client
+        self.time_check.start()
 
     @tasks.loop(seconds=30.0)
     async def time_check(self):
@@ -53,7 +54,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
                 try:
                     day = parser.parse(day)
                 except:
-                    raise discord.InvalidArgument("Invalid date or command.")
+                    raise TypeError("Invalid date or command.")
             else:
                 day = date.today()
             
@@ -265,5 +266,5 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
             output += await format_birthdays_year(birthdays)
         await split_and_send(output, ctx.channel)
     
-def setup(client):
-    client.add_cog(Birthdays(client))
+async def setup(client):
+    await client.add_cog(Birthdays(client))

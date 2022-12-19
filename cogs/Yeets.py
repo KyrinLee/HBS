@@ -67,7 +67,7 @@ class Yeets(commands.Cog):
     async def changeYeetsMessage(self,ctx: commands.Context,msgName=None,*,message=""):
 
         if msgName == None:
-            raise discord.InvalidArgument("Please specify 'join' or 'leave' message.")
+            raise TypeError("Please specify 'join' or 'leave' message.")
         if message == None:
             message = ""
 
@@ -92,7 +92,7 @@ class Yeets(commands.Cog):
         channelname = "test"
 
         if channelID == None or channelID.isnumeric() == False:
-            raise discord.InvalidArgument("Please include a numeric channel ID.")
+            raise TypeError("Please include a numeric channel ID.")
 
         cid = int(channelID)
         for channel in ctx.guild.channels:
@@ -107,8 +107,8 @@ class Yeets(commands.Cog):
                     await ctx.send("Database error occurred. Please Ping/DM ramblingArachnid#8781.")
                     
         if channelname == "test":
-            raise discord.InvalidArgument(message="That channel is not in this server.")
+            raise TypeError(message="That channel is not in this server.")
             
             
-def setup(client):
-    client.add_cog(Yeets(client))
+async def setup(client):
+    await client.add_cog(Yeets(client))

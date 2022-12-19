@@ -219,6 +219,6 @@ class EmojiTracking(commands.Cog):
                 await run_query("DELETE FROM emoji")
                 await ctx.send("Emoji list cleared.")
 
-def setup(client):
-    client.add_cog(EmojiTracking(client))
+async def setup(client):
+    await client.add_cog(EmojiTracking(client))
     

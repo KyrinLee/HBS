@@ -11,7 +11,6 @@ import psycopg2
 from modules.checks import FuckyError
 from modules import checks
 from modules.functions import *
-from discord import InvalidArgument
 
 import asyncio
 resetSem = asyncio.Semaphore(1)
@@ -31,7 +30,7 @@ class Counters(commands.Cog, name="Counter Commands"):
     async def resetCounter(self,ctx: commands.Context, *, counter=None):
         async with resetSem:
             if counter==None:
-                raise InvalidArgument("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
+                raise TypeError("I can't reset a counter if you don't tell me which one! <:angercry:757731437326762014>")
             
             conn, cursor = database_connect()
             currTime = datetime.utcnow()
@@ -71,7 +70,7 @@ class Counters(commands.Cog, name="Counter Commands"):
                     await ctx.send(output)
 
             else:
-                raise InvalidArgument("That's not a real counter! <:angercry:757731437326762014>")
+                raise TypeError("That's not a real counter! <:angercry:757731437326762014>")
 
             database_disconnect(conn, cursor)
 
@@ -79,7 +78,7 @@ class Counters(commands.Cog, name="Counter Commands"):
     async def newCounter(self,ctx: commands.Context, counter=None):
 
         if counter == None:
-            raise InvalidArgument("You gotta name the counter! <:angercry:757731437326762014>")
+            raise TypeError("You gotta name the counter! <:angercry:757731437326762014>")
 
         else:
             counter = counter.lower()
@@ -100,7 +99,7 @@ class Counters(commands.Cog, name="Counter Commands"):
                     except:
                         raise FuckyError()
             else:
-                raise InvalidArgument("That counter already exists!")
+                raise TypeError("That counter already exists!")
         
             database_disconnect(conn, cursor)
 
@@ -108,7 +107,7 @@ class Counters(commands.Cog, name="Counter Commands"):
     @commands.command(aliases=['removeCounter'],brief="Delete a counter.")
     async def deleteCounter(self,ctx: commands.Context, counter=None):
         if counter == None:
-            raise InvalidArgument("You gotta tell me which one! <:angercry:757731437326762014>")
+            raise TypeError("You gotta tell me which one! <:angercry:757731437326762014>")
         
         else:
             conn, cursor = database_connect()
@@ -124,7 +123,7 @@ class Counters(commands.Cog, name="Counter Commands"):
                     cursor.execute("DELETE FROM counters WHERE name = %s",(counter,))
                     await ctx.send(f'Counter {counter} deleted.')
             else:
-                raise InvalidArgument("That counter doesn't exist!")
+                raise TypeError("That counter doesn't exist!")
 
             database_disconnect(conn, cursor)
             
@@ -145,16 +144,16 @@ class Counters(commands.Cog, name="Counter Commands"):
     @commands.command(aliases=['counter','seeCounter','counterInfo'],brief="View a counter.")
     async def viewCounter(self, ctx, counter=None):
         if counter == None:
-            raise InvalidArgument("You have to tell me which one!")
+            raise TypeError("You have to tell me which one!")
         else:
             counter = counter.lower()
 
             counters = await run_query("SELECT * FROM counters WHERE name = '%s'",(counter,))
             
             if len(counters) == 0:
-                raise InvalidArgument("That counter doesn't exist silly!")
+                raise TypeError("That counter doesn't exist silly!")
             else:
                 await ctx.send(f'{(counters[0][0]+":")} {counters[0][2]} resets, last reset: {str(counters[0][1])[0:19]}')
         
-def setup(client):
-    client.add_cog(Counters(client))
+async def setup(client):
+    await client.add_cog(Counters(client))

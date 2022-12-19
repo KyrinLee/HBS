@@ -71,9 +71,9 @@ class Members:
     @staticmethod
     async def get_by_hid(session: aiohttp.ClientSession, hid: str, authorization=None):
         json = await api_get(session, f"/systems/{hid}/members", authorization)
-        members = json
+        #members = json
 
-        return Members([Member(**member) for member in members])
+        #return Members([Member(**member) for member in members])
 
 
 class Fronters:
@@ -208,75 +208,15 @@ class ProxyTag:
 
 
 class Member:
-    hid: str
-    uuid: str
-    name: str
-    display_name: str
-    system: int
-    color: str
-    avatar_url: str
-    banner: str
-    birthday: date
-    pronouns: str
-    description: str
-    proxy_tags: List
-    keep_proxy: bool
-    prefix: str
-    suffix: str
-    created: datetime
-    sid: str
-    privacy: Optional[str]
-    visibility: str
-    name_privacy: str
-    description_privacy: str
-    avatar_privacy: str
-    birthday_privacy: str
-    pronoun_privacy: str
-    metadata_privacy: str
-
-    def __init__(self, keep_proxy=None, proxy_tags=None, id=None, uuid=None, name=None, display_name=None, system=None, created=None, color=None,
-                 avatar_url=None, banner=None, birthday=None, pronouns=None, description=None, prefix=None, suffix=None, sid=None, visibility=None, privacy=None, name_privacy=None,
-                 description_privacy=None, avatar_privacy=None, birthday_privacy=None, pronoun_privacy=None, metadata_privacy=None):
-        self.hid = id
-        self.uuid = uuid
-        self.name = name
-        self.display_name = display_name
-        self.system = system
-        self.created = created
-        self.color = color
-        self.avatar_url = avatar_url
-        self.banner = banner
-        self.birthday = birthday
-        self.pronouns = pronouns
-        self.description = description
-        self.prefix = prefix
-        self.suffix = suffix
-        self.proxy_tags = []
-        self.keep_proxy = keep_proxy
-        self.sid = sid
-        self.visibility = visibility
-        self.privacy = privacy
-        self.name_privacy = name_privacy
-        self.description_privacy = description_privacy
-        self.avatar_privacy = avatar_privacy
-        self.birthday_privacy = birthday_privacy
-        self.pronoun_privacy = pronoun_privacy
-        self.metadata_privacy = metadata_privacy
-        
-        if proxy_tags is not None:
-            for proxy_tag in proxy_tags:
-                self.proxy_tags.append(ProxyTag(proxy_tag['prefix'], proxy_tag['suffix']))
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
     def __repr__(self):
         return f"<Member hid={self.hid} name={self.name} display_name={self.display_name} system={self.system} created={self.created} color={self.color} avatar_url={self.avatar_url} banner={self.banner} birthday={self.birthday} pronouns={self.pronouns} description={self.description} prefix={self.prefix} suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}"
 
     def __str__(self):
-        return f"""<Member hid={self.hid} name={self.name} display_name={self.display_name}\n
-                system={self.system} created={self.created} color={self.color}\n
-                avatar_url={self.avatar_url} banner={self.banner} birthday={self.birthday}\n
-                pronouns={self.pronouns} description={self.description} prefix={self.prefix}\n
-                suffix={self.suffix} proxy_tags={self.proxy_tags} keep_proxy={self.keep_proxy}\n
-                visibility={self.visibility} privacy={self.privacy}"""
+        return self.name
 
     # TODO: Determine if lazily compairing just the id's is enough or if we need to compare other vars as well
     def __eq__(self, other):

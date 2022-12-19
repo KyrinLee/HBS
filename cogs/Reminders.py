@@ -63,7 +63,7 @@ class Reminders(commands.Cog):
     async def setTimezone(self, ctx, timezone=None):
         old_timezone = await get_timezone(ctx)
         if timezone == None:
-            raise checks.InvalidArgument("Please include a valid timezone name!")
+            raise TypeError("Please include a valid timezone name!")
 
         if timezone in pytz.all_timezones:
             if old_timezone == None:
@@ -79,7 +79,7 @@ class Reminders(commands.Cog):
                 else:
                     raise checks.FuckyError("Something be fucky here. Idk what happened. Maybe try again?")
         else:
-            raise checks.InvalidArgument("Please include a valid timezone name!")
+            raise TypeError("Please include a valid timezone name!")
 
     @commands.group()
     async def reminders(self, ctx):
@@ -161,17 +161,17 @@ class Reminders(commands.Cog):
             msg = await client.wait_for('message', check=check)
             repeat_str = msg.content
             if repeat_str[0] not in ['A','B','C']:
-                raise checks.InvalidArgument("That was not a valid option! Please run the command again.")
+                raise TypeError("That was not a valid option! Please run the command again.")
             elif repeat_str[0] == 'A':
                 repeat_str = repeat_str.lstrip("A ")
                 try:
                     repeat_num_hours = int(repeat_str)
                 except:
-                    raise checks.InvalidArgument("That is not a valid number of hours! Please run the command again.")
+                    raise TypeError("That is not a valid number of hours! Please run the command again.")
                 await add_reminder(ctx.author.id, new_time_utc, repeat_type=1, repeat_specifiers=repeat_num_hours)
             
             await add_reminder(ctx.author.id, new_time_utc)
 """
         
-def setup(client):
-    client.add_cog(Reminders(client))
+async def setup(client):
+    await client.add_cog(Reminders(client))

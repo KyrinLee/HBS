@@ -21,10 +21,7 @@ def get_today():
     return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')).replace(hour=0,minute=0,second=0,microsecond=0)
 
 def database_connect(database=0):
-    if database == 0:
-        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    else:
-        conn = psycopg2.connect(DATABASE_URL_2, sslmode='require')
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
     cursor = conn.cursor()
     return conn, cursor
 
@@ -134,7 +131,7 @@ async def confirmationMenu(client, ctx, confirmationMessage="",autoclear=""):
 async def getMessage(client, ctx,id=None, channelId=None):
     async with ctx.channel.typing():
         if id == None:
-            raise checks.InvalidArgument("Please include valid message ID or link.")
+            raise TypeError("Please include valid message ID or link.")
 
         elif str(id)[0:4] == "http":
             link = id.split('/')
@@ -151,11 +148,11 @@ async def getMessage(client, ctx,id=None, channelId=None):
         
             if msg == []:
                 await awaitMsg.delete()
-                raise checks.InvalidArgument("That message does not exist.")
+                raise TypeError("That message does not exist.")
             elif len(msg) > 1:
 
                 await awaitMsg.delete()
-                raise checks.InvalidArgument("Multiple messages with that ID found. Please run the command again using the message link instead of the ID.")
+                raise TypeError("Multiple messages with that ID found. Please run the command again using the message link instead of the ID.")
         
     return msg[0]
 

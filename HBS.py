@@ -31,9 +31,10 @@ from resources.constants import *
 intents = discord.Intents.default()
 intents.members = True
 intents.presences = True
+intents.message_content = True
 from pretty_help import PrettyHelp
 
-startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","Birthdays","Reminders"]
+startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","Birthdays"]
 
 blacklisted_channels = {}
 reaction_timeouts = {}
@@ -362,13 +363,13 @@ async def on_error(event_name, *args):
     except:
         pass
 
-if __name__ == "__main__":
+async def main():
     loaded = []
     failed = []
     failedExc = []
     for extension in startup_extensions:
         try:
-            client.load_extension("cogs." + extension)
+            await client.load_extension("cogs." + extension)
             loaded.append(extension)
             
         except Exception as e:
@@ -391,6 +392,8 @@ if __name__ == "__main__":
 
     sys.stdout.flush()
 
+
+asyncio.run(main())
 client.run(os.environ["token"])
 
 #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO

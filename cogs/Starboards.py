@@ -182,7 +182,7 @@ class Starboards(commands.Cog):
         msg = await getMessage(self.client, ctx, messageIDorLink)
 
         if starboard not in starboards:
-            raise discord.InvalidArgument("That starboard does not exist.")
+            raise TypeError("That starboard does not exist.")
 
         await self.add_to_starboard(msg,forceStar=True,starboardDBname=starboard)
 
@@ -190,9 +190,9 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def changeStarboard(self,ctx,starboard="starboard",channelID=None):
         if starboard not in starboards:
-            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise TypeError(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         elif channelID == None:
-            raise discord.InvalidArgument("Please include message ID or link.")
+            raise TypeError("Please include message ID or link.")
 
         channel = self.client.get_channel(channelID)
         if await confirmationMenu(self.client, ctx, f'Would you like to change the {starboard} to channel {channel}?') == 1:
@@ -224,9 +224,9 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def changeStarlimit(self,ctx,starboard="starboard",starlimit=-1):
         if starlimit == -1:
-            raise discord.InvalidArgument("Please include new star limit or 0 to disable.")
+            raise TypeError("Please include new star limit or 0 to disable.")
         elif starboard not in starboards:
-            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise TypeError(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
 
         if starlimit == 0:
             await confirmationMenu(self.client, ctx, f'Would you like to disable {starboard}?')
@@ -243,16 +243,16 @@ class Starboards(commands.Cog):
     @commands.is_owner()
     async def disableStarboard(self,ctx,starboard="starboard"):
         if starboard not in starboards:
-            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise TypeError(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = 0)
 
     @commands.command(brief="Enable a starboard.",help="Starboard defaults to 'starboard'.")
     @commands.is_owner()
     async def enableStarboard(self,ctx,starboard="starboard",starlimit=None):
         if starboard not in starboards:
-            raise discord.InvalidArgument(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
+            raise TypeError(f'Please include a valid starboard name from the following: {str(starboards)[1:len(str(starboards))-1]}')
         if not starlimit.isdigit():
-            raise discord.InvalidArgument("Please include a valid integer star limit for the starboard.")
+            raise TypeError("Please include a valid integer star limit for the starboard.")
 
         await ctx.invoke(self.client.get_command('changeStarlimit'), starboard=starboard, starlimit = int(starlimit))
 
@@ -288,5 +288,5 @@ class Starboards(commands.Cog):
                 except:
                     continue
                 
-def setup(client):
-    client.add_cog(Starboards(client))
+async def setup(client):
+    await client.add_cog(Starboards(client))

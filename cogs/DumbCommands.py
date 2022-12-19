@@ -132,7 +132,7 @@ class DumbCommands(commands.Cog, name="Other Commands"):
             width = int(dimensions[0])
             height = int(dimensions[1])
         except:
-            raise checks.InvalidArgument("Invalid size! Run hbs;bubblewrap for a 5x5 grid, or specify a grid size like this: hbs;bubblewrap 9x9")
+            raise TypeError("Invalid size! Run hbs;bubblewrap for a 5x5 grid, or specify a grid size like this: hbs;bubblewrap 9x9")
         output = "Bubble Wrap!\n\n" + (("||pop||" * width + "\n") * height)
         output = output.rstrip("\n")
         if len(output) > 2000:
@@ -176,5 +176,5 @@ class DumbCommands(commands.Cog, name="Other Commands"):
         await ctx.send("<:vriska:776019724956860417>")
         await ctx.message.delete()
 
-def setup(client):
-    client.add_cog(DumbCommands(client))
+async def setup(client):
+    await client.add_cog(DumbCommands(client))

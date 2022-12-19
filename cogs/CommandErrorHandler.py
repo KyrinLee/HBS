@@ -12,7 +12,7 @@ import re
 import random
 
 from modules import checks
-from resources.constants import who_choices
+from resources.constants import *
 
 from modules.pk import CouldNotConnectToPKAPI
 
@@ -128,7 +128,7 @@ class CommandErrorHandler(commands.Cog):
         elif isinstance(error, checks.OtherError):
             await ctx.send(str(error))
 
-        elif isinstance(error, discord.InvalidArgument):
+        elif isinstance(error, TypeError):
             await ctx.send(error)
 
         elif isinstance(error, commands.MissingRequiredArgument):
@@ -160,5 +160,5 @@ class CommandErrorHandler(commands.Cog):
             await ctx.send(msg)
 
 
-def setup(client):
-    client.add_cog(CommandErrorHandler(client))
+async def setup(client):
+    await client.add_cog(CommandErrorHandler(client))
