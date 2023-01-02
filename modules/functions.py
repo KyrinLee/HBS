@@ -83,9 +83,10 @@ def split_string(str, limit, sep=" "):
     return res
     
 def escapeCharacters(txt):
-    txt = re.sub("\*","\\\*",txt)
-    txt = re.sub("\|","\\\|",txt)
-    txt = re.sub("\_","\\\_",txt)
+    if txt:
+        txt = re.sub("\*","\\\*",txt)
+        txt = re.sub("\|","\\\|",txt)
+        txt = re.sub("\_","\\\_",txt)
     return txt
 
 def formatTriggerDoc(txt):
