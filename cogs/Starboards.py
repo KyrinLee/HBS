@@ -117,7 +117,7 @@ class Starboards(commands.Cog):
                     jumplink = f'[Jump!](https://discord.com/channels/609112858214793217/{msg.channel.id}/{msg.id})'
 
                     embed = discord.Embed(description=msg.content+"\n", color=color, timestamp=msg.created_at,type="rich")
-                    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
+                    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar)
                     embed.add_field(name="Source", value=jumplink, inline=True)
                     try:
                         if not msg.attachments[0].is_spoiler():
