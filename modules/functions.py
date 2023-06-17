@@ -24,7 +24,7 @@ def database_connect(database=0):
     conn = psycopg2.connect(
         host=HOST,
         database=DATABASE_1_NAME,
-        user=USERNAME,
+        user=USER,
         password=PASSWORD)
     cursor = conn.cursor()
     return conn, cursor
@@ -250,7 +250,7 @@ def strfdelta(tdelta, fmt='{D}d {H}h {M}m {S:02}s', inputtype='timedelta'):
     return f.format(fmt, **values)
 
 def line_count():
-    import glob
+    """import glob
     line_count = 0
     char_count = 0
     for file_path in glob.glob("./**/*.py",recursive=True):
@@ -258,6 +258,9 @@ def line_count():
             with open(file_path) as file:
                 line_count += len(file.readlines())
         except:
-            pass
+            pass"""
+    
+    # broken
+    # use dir -Recurse *.py | Get-Content | Measure-Object -Line in powershell
 
-    return line_count
+    return 2814

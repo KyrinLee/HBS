@@ -6,10 +6,10 @@ load_dotenv()
 
 TOKEN = os.getenv('token')
 HOST = os.getenv('host')
-USERNAME = os.getenv('username')
+USER = os.getenv('user')
 PASSWORD = os.getenv('password')
 DATABASE_1_NAME = os.getenv('database_1_name')
-
+CURR_SERVER = os.getenv("CURR_SERVER")
 
 from nltk.corpus import cmudict
 dictionary = cmudict.dict()

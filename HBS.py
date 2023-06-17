@@ -61,25 +61,18 @@ async def on_ready():
     sys.stdout.write('Servers connected to: \n')
     for g in client.guilds:
         sys.stdout.write(str(g.name) + ", Owner ID: " + str(g.owner_id) + "\n");
+
+    if CURR_SERVER == 1:
+        server="| BH"
+    else:
+        server="| PC"
+        
+    game = f'{str(line_count())} lines of code {server}'
+    await client.change_presence(activity=discord.Game(name=game))
     sys.stdout.flush()
 
-    '''data = await run_query("SELECT * FROM vars WHERE name = 'game'")
-    game = data[0][1]
-    await client.change_presence(activity=discord.Game(name=game))'''
-    
     client.get_cog('Birthday Commands').time_check.start()
     client.get_cog('Reminders').time_check.start()
-    num = int(os.environ["CURR_SERVER"])
-    if num == 1:
-        server = "| S1"
-    elif num == 2:
-        server = "| S2"
-    else:
-        server = "| PC"
-
-    game = f'{str(line_count())} lines of code {server}'
-    sys.stdout.write(game)
-    await client.change_presence(activity=discord.Game(name=game))
 
 @client.before_invoke
 async def common(ctx):
@@ -290,13 +283,10 @@ async def on_member_update(before, after):
 @client.command(brief="Get current server.", aliases=['current server', 'curr server'])
 async def server(ctx):
     server = "error/other"
-    num = int(os.environ["CURR_SERVER"])
-    if num == 0:
+    if CURR_SERVER == 1:
+        server = "Bisect Hosting"
+    else:
         server = "Vriska's PC"
-    if num == 1:
-        server = "Server 1"
-    if num == 2:
-        server = "Server 2"
     await ctx.send("Current Server: " + server)
 
 @client.command(pass_context=True,brief="Spoil an image.", aliases=['spoiler'])
@@ -395,7 +385,7 @@ async def main():
 
 
 asyncio.run(main())
-client.run(os.environ["token"])
+client.run(TOKEN)
 
 #PURGE STARBOARD IF LAST PURGE WAS > 7 DAYS AGO
 '''    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
