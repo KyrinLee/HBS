@@ -78,6 +78,7 @@ async def on_ready():
         server = "| PC"
 
     game = f'{str(line_count())} lines of code {server}'
+    sys.stdout.write(game)
     await client.change_presence(activity=discord.Game(name=game))
 
 @client.before_invoke

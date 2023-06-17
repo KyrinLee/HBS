@@ -22,10 +22,10 @@ def get_today():
 
 def database_connect(database=0):
     conn = psycopg2.connect(
-        host=HOSTNAME_1,
-        database=DATABASE_1,
-        username=USERNAME_1,
-        password=PASSWORD_1)
+        host=HOST,
+        database=DATABASE_1_NAME,
+        user=USERNAME,
+        password=PASSWORD)
     cursor = conn.cursor()
     return conn, cursor
 
