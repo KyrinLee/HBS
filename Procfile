@@ -1,1 +1,1 @@
-worker: python HBS.py
+worker: python3 HBS.py
