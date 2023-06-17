@@ -21,7 +21,11 @@ def get_today():
     return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')).replace(hour=0,minute=0,second=0,microsecond=0)
 
 def database_connect(database=0):
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    conn = psycopg2.connect(
+        host=HOSTNAME_1,
+        database=DATABASE_1,
+        username=USERNAME_1,
+        password=PASSWORD_1)
     cursor = conn.cursor()
     return conn, cursor
 
