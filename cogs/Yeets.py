@@ -10,8 +10,6 @@ from psycopg2 import Error
 from modules import checks
 from modules.functions import *
 
-DATABASE_URL = os.environ['DATABASE_URL']
-
 select_q = "SELECT value FROM vars WHERE name = %s"
 update_q = "UPDATE vars SET value = %s WHERE name = %s"
 
