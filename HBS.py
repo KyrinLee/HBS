@@ -34,7 +34,7 @@ intents.presences = True
 intents.message_content = True
 from pretty_help import PrettyHelp
 
-startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","Birthdays"]
+startup_extensions = ["Counters","Yeets","CommandErrorHandler","Starboards","DumbCommands","EmojiTracking","AdminCommands","Birthdays", "Reminders"]
 
 blacklisted_channels = {}
 reaction_timeouts = {}

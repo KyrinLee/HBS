@@ -6,10 +6,6 @@ import re
 
 from datetime import datetime, date
 
-from pytz import timezone
-import pytz
-import time
-
 from modules.functions import *
 from modules import checks, pk, pluralKit
 from modules.Birthday import Birthday
@@ -109,7 +105,7 @@ async def get_pk_birthdays():
     final_array = []
     pk_errors = {}
 
-    data = await run_query("SELECT * FROM pkinfo")
+    data = await run_query("SELECT DISTINCT * FROM pkinfo")
 
     async with aiohttp.ClientSession() as session:
         for i in data:
@@ -162,7 +158,7 @@ async def get_pk_birthdays_by_system(id):
     system_id = system.hid
     birthdays = []
 
-    data = await run_query("SELECT * FROM pkinfo WHERE id = %s", (system_id,))
+    data = await run_query("SELECT DISTINCT * FROM pkinfo WHERE id = %s", (system_id,))
     for i in data:
         authorization = i[1]
     

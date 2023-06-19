@@ -20,10 +20,10 @@ import psycopg2
 def get_today():
     return datetime.now(tz=pytz.utc).astimezone(timezone('US/Pacific')).replace(hour=0,minute=0,second=0,microsecond=0)
 
-def database_connect(database=0):
+def database_connect():
     conn = psycopg2.connect(
         host=HOST,
-        database=DATABASE_1_NAME,
+        database=DATABASE_NAME,
         user=USER,
         password=PASSWORD)
     cursor = conn.cursor()
@@ -34,9 +34,9 @@ def database_disconnect(conn, cursor):
     cursor.close()
     conn.close()
 
-async def run_query(query, values=(), database=0):
+async def run_query(query, values=()):
     async with databaseSem:
-        conn, cursor = database_connect(database)
+        conn, cursor = database_connect()
         cursor.execute(query, values)
         try:
             data = cursor.fetchall()

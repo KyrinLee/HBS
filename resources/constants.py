@@ -8,8 +8,8 @@ TOKEN = os.getenv('token')
 HOST = os.getenv('host')
 USER = os.getenv('user')
 PASSWORD = os.getenv('password')
-DATABASE_1_NAME = os.getenv('database_1_name')
-CURR_SERVER = os.getenv("CURR_SERVER")
+DATABASE_NAME = os.getenv('database_name')
+CURR_SERVER = os.getenv("curr_server")
 
 from nltk.corpus import cmudict
 dictionary = cmudict.dict()
