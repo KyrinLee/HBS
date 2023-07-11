@@ -35,6 +35,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
             
         while today.date() != last_birthday:
             last_birthday = last_birthday + timedelta(days=1)    
+            # TODO: SHOULD GET ALL BIRTHDAYS THEN SORT BY DAY
             birthdays = await get_pk_birthdays_by_day(last_birthday)
             birthdays += await get_manual_birthdays_by_day(last_birthday)
 

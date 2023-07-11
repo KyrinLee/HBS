@@ -13,6 +13,7 @@ import discord
 from discord.ext import commands
 
 import aiohttp
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -24,14 +25,15 @@ async def api_get(session: aiohttp.ClientSession, url: str, authorization = None
     headers = None
     if authorization:
         headers = { 'Authorization' : authorization }
-    async with session.get(f"{base_url}{url}", headers=headers) as resp:
-        if resp.status == 429:
-            raise RateLimited
-        elif resp.status == 404:
-            raise NotFound
-        elif resp.status == 403:
-            raise Unauthorized
-        json = await resp.json()
+    resp = await session.get(f"{base_url}{url}", headers=headers)
+    while resp.status == 429:
+        await asyncio.sleep(.5)
+        resp = await session.get(f"{base_url}{url}", headers=headers)
+    if resp.status == 404:
+        raise NotFound
+    elif resp.status == 403:
+        raise Unauthorized
+    json = await resp.json()
     return json
 
 
