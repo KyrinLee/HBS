@@ -23,7 +23,7 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         self.client = client
         self.time_check.start()
 
-    @tasks.loop(seconds=30.0)
+    @tasks.loop(seconds=5.0)
     async def time_check(self):
         output = ""
         birthdays = []
@@ -33,16 +33,20 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         last_birthday_string = "0000-00-00" if len(data[0]) == 0 else data[0][1]
         last_birthday = parser.parse(last_birthday_string).date()
             
-        while today.date() != last_birthday:
-            last_birthday = last_birthday + timedelta(days=1)    
-            # TODO: SHOULD GET ALL BIRTHDAYS THEN SORT BY DAY
-            birthdays = await get_pk_birthdays_by_day(last_birthday)
-            birthdays += await get_manual_birthdays_by_day(last_birthday)
-
-            output = await format_birthdays_day(birthdays, last_birthday, self.client)
-            await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
+        try: 
+            while today.date() != last_birthday:
+                last_birthday = last_birthday + timedelta(days=1)    
+                # TODO: SHOULD GET ALL BIRTHDAYS THEN SORT BY DAY
+                birthdays = await get_pk_birthdays_by_day(last_birthday)
+                birthdays += await get_manual_birthdays_by_day(last_birthday)
+                    
+                output = await format_birthdays_day(birthdays, last_birthday, self.client)
+                await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
                 
-        await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
+                await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
+        except: 
+            pass
+                
         
     ''' ------------------------------
             GETTING BIRTHDAYS
@@ -84,6 +88,8 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
     @birthdays.command(brief="See all birthdays within the next week.")
     @checks.is_in_skys()
     async def upcoming(self, ctx, num_days=7):
+        if type(num_days) != int:
+            raise TypeError("Specified number of days must be an integer with no letters.")
         async with ctx.channel.typing():
             output = "**__Upcoming Birthdays:__**\n"
             start_day = get_today() + timedelta(days=0)
