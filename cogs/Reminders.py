@@ -1,11 +1,9 @@
-import discord
 from discord.ext import tasks, commands
 import sys
 
-import os
-
 from dateutil import parser
-import re
+
+from psycopg2 import OperationalError
 
 from resources.constants import *
 from modules import checks
@@ -31,21 +29,30 @@ class Reminders(commands.Cog):
         now = datetime.utcnow()
         now = now.replace(tzinfo=pytz.utc)
         
-        data = await run_query("SELECT * FROM reminders")
-        for row in data:
-            if row[3] < now:
-                user = self.client.get_user(int(row[1]))
-                timestamp = row[3].timestamp()
-                
-                output = (f'Your Reminder **{row[2]}** is here!\n This reminder was set for <t:{timestamp}:t>')
-                if row[4] == 0:
-                    await delete_reminder(row[0])
-                    output += '\nThis reminder will not repeat.'
-                else:
-                    repeat_info_string = "how did you get this, i didn't write this code yet"
-                    output += 'This reminder is set to repeat {repeat_info_string}. If you\'d like to delete it, please run `hbs reminders delete <name>`.'
+        try:
+            data = await run_query("SELECT * FROM reminders")
+            for row in data:
+                if row[3] < now:
+                    user = self.client.get_user(int(row[1]))
+                    timestamp = row[3].timestamp()
+                    
+                    output = (f'Your Reminder **{row[2]}** is here!\n This reminder was set for <t:{timestamp}:t>')
+                    if row[4] == 0:
+                        await delete_reminder(row[0])
+                        output += '\nThis reminder will not repeat.'
+                    else:
+                        repeat_info_string = "how did you get this, i didn't write this code yet"
+                        output += 'This reminder is set to repeat {repeat_info_string}. If you\'d like to delete it, please run `hbs reminders delete <name>`.'
 
-                await user.send(output)
+                    await user.send(output)
+        except OperationalError:
+            pass
+        except Exception as error:
+            # handle the exception
+            sys.stdout.write(str(type(error).__name__))
+            sys.stdout.write(str(error))
+            sys.stdout.flush()
+
 
     @commands.command(pass_context=True)
     async def setTimezone(self, ctx, timezone=None):

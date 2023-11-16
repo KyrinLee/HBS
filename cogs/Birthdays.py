@@ -1,22 +1,20 @@
-import discord
 from discord.ext import tasks, commands
 import sys
-import os
 
 from dateutil import parser
-import re
 
-from modules import checks, pk, birthday_functions
+from modules import checks, pk
 from modules.Birthday import Birthday
+
+from psycopg2 import OperationalError
 
 from modules.birthday_functions import *
 from modules.functions import *
 from resources.constants import *
 
-from datetime import datetime, date
-import time
+from datetime import date
 
-import aiohttp, asyncio
+import aiohttp
 
 class Birthdays(commands.Cog, name="Birthday Commands"):
     def __init__(self, client):
@@ -29,11 +27,11 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
         birthdays = []
         today = get_today()
         
-        data = await run_query("SELECT * FROM vars WHERE name = 'last_birthday'")
-        last_birthday_string = "0000-00-00" if len(data[0]) == 0 else data[0][1]
-        last_birthday = parser.parse(last_birthday_string).date()
-            
-        try: 
+        try:
+            data = await run_query("SELECT * FROM vars WHERE name = 'last_birthday'")
+            last_birthday_string = "0000-00-00" if len(data[0]) == 0 else data[0][1]
+            last_birthday = parser.parse(last_birthday_string).date()
+
             while today.date() != last_birthday:
                 last_birthday = last_birthday + timedelta(days=1)    
                 # TODO: SHOULD GET ALL BIRTHDAYS THEN SORT BY DAY
@@ -44,8 +42,13 @@ class Birthdays(commands.Cog, name="Birthday Commands"):
                 await split_and_send(output, self.client.get_channel(HBS_CHANNEL_ID))
                 
                 await run_query("UPDATE vars set value = %s WHERE name = 'last_birthday'", (today.date(),))
-        except: 
+        except OperationalError:
             pass
+        except Exception as error:
+            # handle the exception
+            sys.stdout.write(str(type(error).__name__))
+            sys.stdout.write(str(error))
+            sys.stdout.flush()
                 
         
     ''' ------------------------------

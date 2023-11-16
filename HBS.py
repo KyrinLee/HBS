@@ -1,30 +1,22 @@
 import discord
-import logging
 import re
 import asyncio
 
 from discord.ext import commands
 
-import time
 from datetime import datetime, date, timedelta
 import string
 
-import os
 import sys
 
-import psycopg2
-from psycopg2 import Error
 import random
 
 import requests
-import io
-from contextlib import redirect_stderr
 
 import random
 import syllables
 
-from modules import checks, pk, pluralKit
-from modules.HelpMenu import HBSHelpCommand
+from modules import checks, pk
 from modules.functions import *
 from resources.constants import *
 
